@@ -23,4 +23,10 @@ npm run dev
 npm run build
 ```
 
-The GitHub Pages workflow in `.github/workflows/deploy.yml` builds the Astro site and publishes the `dist` output.
+`npm run build` compiles Astro and syncs the generated static site into the repo root so GitHub Pages can serve it directly from `main`.
+
+## GitHub Pages
+
+- Runtime source: built files committed at the repository root.
+- Authoring source: Astro app in `src/`, `public/`, and `scripts/`.
+- Safety check workflow: `.github/workflows/ci.yml`.

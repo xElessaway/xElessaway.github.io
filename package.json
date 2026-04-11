@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build:site": "astro build",
+    "build": "npm run build:site && node ./scripts/sync-dist-to-root.mjs",
     "preview": "astro preview",
     "check": "astro check"
   },

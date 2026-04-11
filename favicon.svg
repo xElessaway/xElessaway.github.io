@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title>Ahmed Elessaway Journal</title>
+  <rect width="64" height="64" rx="16" fill="#101417" />
+  <path d="M14 16h36v32H14z" fill="none" stroke="#cf7b4d" stroke-width="2.5" opacity="0.85" />
+  <path d="M21 24h22M21 32h22M21 40h14" stroke="#efe4cf" stroke-width="3" stroke-linecap="round" />
+  <path d="M46 19l5 5-5 5" fill="none" stroke="#a0b3a2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
