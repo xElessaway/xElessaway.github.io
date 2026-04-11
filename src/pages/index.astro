@@ -42,7 +42,7 @@ const capabilityCards = [
     kicker: "OSINT",
     title: "Collection, validation, and challenge design",
     description:
-      "OSINT workflows translated into practical training content, CTF challenges, and student-friendly investigative exercises.",
+      "OSINT workflows translated into practical training content, challenge design, and student-friendly investigative exercises.",
     tags: ["OSINT", "Challenge Design", "Training", "Analysis"]
   }
 ];
@@ -66,58 +66,59 @@ const roleHighlights = [
       "Authoring DFIR, OSINT, steganography, and network-security challenges for recurring events and custom competition environments."
   }
 ];
+const missionMetrics = [
+  { value: "3+", label: "Years in cyber engineering" },
+  { value: "200+", label: "Learners trained hands-on" },
+  { value: "5", label: "Current cert track highlights" }
+];
 ---
 
 <BaseLayout title={`${siteMeta.title} | DFIR, OSINT, Threat Intelligence`} description={siteMeta.description}>
   <section class="home-hero">
     <div class="container hero-grid">
       <article class="panel hero-panel hero-panel-primary">
-        <div class="hero-chip-row">
-          <span class="tag">Threat Intelligence</span>
-          <span class="tag">DFIR</span>
-          <span class="tag">OSINT</span>
-          <span class="tag">Detection Labs</span>
+        <div class="ops-meta-strip">
+          <span class="meta-chip">system_init // ahmed_elessaway</span>
+          <span class="meta-chip">dfir_engineer</span>
+          <span class="meta-chip">threat_intelligence</span>
         </div>
-        <p class="eyebrow">Threat Intelligence and DFIR Operator Profile</p>
-        <h1>Blue-team labs, evidence-led investigations, and OSINT tradecraft.</h1>
+        <p class="eyebrow">Operational Profile</p>
+        <h1>
+          DFIR Engineer
+          <span class="accent-copy">& Threat Intelligence Operator</span>
+        </h1>
         <p class="lede">
-          Threat Intelligence and DFIR-focused cybersecurity engineer with ~3 years of experience building
-          detection labs, investigation-driven training, and practical content around incident response,
-          forensics, threat hunting, and OSINT.
+          Threat Intelligence and DFIR-focused cybersecurity engineer building blue-team labs, investigation
+          workflows, practical OSINT training, and technical content that stays useful for defenders.
         </p>
 
-        <div class="button-row" style="margin-top: 1.4rem;">
-          <a class="button button-primary" href="/threat-intelligence/">Open Threat Intelligence</a>
-          <a class="button button-ghost" href="/about/">View Profile</a>
-          <a class="button button-ghost" href="/ctf/">Browse CTF Collections</a>
+        <div class="button-row">
+          <a class="button button-primary" href="/about/">View Operations</a>
+          <a class="button button-ghost" href="/blog/">Access Reports</a>
+          <a class="button button-ghost" href="/threat-intelligence/">Open Dossiers</a>
         </div>
 
         <div class="stats-grid">
-          <div class="stat-block">
-            <strong>3+</strong>
-            <span>Years in cyber engineering</span>
-          </div>
-          <div class="stat-block">
-            <strong>200+</strong>
-            <span>Learners trained hands-on</span>
-          </div>
-          <div class="stat-block">
-            <strong>5</strong>
-            <span>Recent certifications</span>
-          </div>
-        </div>
-
-        <div class="hero-note">
-          <p class="eyebrow">Current Scope</p>
-          <p>
-            Current work spans CyberDefenders blue-team labs, CCD curriculum design, memory and disk
-            forensics, OSINT instruction, and recurring CTF development for DFIR and threat-analysis tracks.
-          </p>
+          {
+            missionMetrics.map((item) => (
+              <div class="stat-block">
+                <strong>{item.value}</strong>
+                <span>{item.label}</span>
+              </div>
+            ))
+          }
         </div>
       </article>
 
-      <aside class="panel signal-panel signal-panel-ops">
-        <span class="signal-badge">Operational Snapshot</span>
+      <aside class="panel signal-panel">
+        <div class="panel-headline">
+          <div>
+            <p class="eyebrow">Current Operations</p>
+            <h3>Active Focus Areas</h3>
+          </div>
+          <span class="meta-chip">live_profile</span>
+        </div>
+
         <div class="signal-list">
           <div class="signal-item">
             <strong>Blue-team lab development</strong>
@@ -127,9 +128,9 @@ const roleHighlights = [
             </p>
           </div>
           <div class="signal-item">
-            <strong>Forensics & evidence collection</strong>
+            <strong>Forensics & evidence handling</strong>
             <p class="muted-copy">
-              Practical Windows and Linux evidence handling with disk, memory, and registry-focused DFIR
+              Practical Windows and Linux evidence workflows with memory, disk, and registry-focused DFIR
               methods.
             </p>
           </div>
@@ -142,7 +143,7 @@ const roleHighlights = [
           </div>
         </div>
 
-        <div class="signal-item">
+        <div class="signal-item signal-item-emphasis">
           <p class="eyebrow">Platform Stack</p>
           <div class="tag-list">
             <span class="tag">OpenCTI</span>
@@ -161,9 +162,9 @@ const roleHighlights = [
   <section class="content-section">
     <div class="container">
       <SectionHeader
-        eyebrow="Core Capabilities"
-        title="Built around detection, forensics, and intelligence context"
-        description="The site is tuned to show investigation work, labs, dossiers, and training output across the security disciplines that define your profile."
+        eyebrow="Capabilities"
+        title="Detection, forensics, intelligence context"
+        description="The design is built around the work itself: investigations, labs, dossiers, and training output."
       />
 
       <div class="capability-grid">
@@ -173,7 +174,7 @@ const roleHighlights = [
               <p class="capability-kicker">{card.kicker}</p>
               <h3>{card.title}</h3>
               <p>{card.description}</p>
-              <div class="tag-list" style="margin-top: 1rem;">
+              <div class="tag-list">
                 {card.tags.map((tag) => <span class="tag">{tag}</span>)}
               </div>
             </article>
@@ -187,9 +188,9 @@ const roleHighlights = [
     <div class="container split-grid">
       <article class="content-panel">
         <SectionHeader
-          eyebrow="Work Profile"
-          title="Training systems, investigations, and challenge operations"
-          description="The strongest signal in the CV is practical security work: labs, DFIR, OSINT, and repeated hands-on teaching."
+          eyebrow="Current Operations"
+          title="Training systems, investigations, challenge operations"
+          description="The strongest signal is practical security work: labs, DFIR, OSINT, and repeated hands-on teaching."
         />
 
         <div class="role-grid">
@@ -206,13 +207,13 @@ const roleHighlights = [
       </article>
 
       <aside class="meta-card">
-        <p class="eyebrow">Evidence of Depth</p>
-        <h3>What stands behind the branding</h3>
+        <p class="eyebrow">Operator Snapshot</p>
+        <h3>High-trust signals behind the profile</h3>
         <p>
-          Certification work, OSINT instruction, DFIR lab creation, and competition performance support an
-          operator profile built around investigation quality and technical training.
+          Certification work, OSINT instruction, DFIR lab creation, and competition performance all support a
+          profile built around investigation quality and technical training.
         </p>
-        <div class="tag-list" style="margin-top: 1rem;">
+        <div class="tag-list">
           <span class="tag">eCIRv2</span>
           <span class="tag">CCD</span>
           <span class="tag">CARTP</span>
@@ -221,7 +222,7 @@ const roleHighlights = [
         </div>
         <div class="meta-line">
           <span>{totalChallenges} challenge pages</span>
-          <span>{totalCollections} collection(s)</span>
+          <span>{totalCollections} training collection(s)</span>
           <span>2022-2026 event work</span>
         </div>
       </aside>
@@ -231,29 +232,31 @@ const roleHighlights = [
   <section class="content-section">
     <div class="container">
       <SectionHeader
-        eyebrow="Threat Intelligence"
-        title="Reusable actor pages for operational tracking"
-        description="Dossiers stay in the build because threat intelligence is one of the clearest through-lines in your profile."
-        actionHref="/threat-intelligence/"
-        actionLabel="Open dossier index"
+        eyebrow="Latest Intelligence"
+        title="Research reports and technical briefings"
+        description="Imported Medium writeups and native reports live in one operational archive."
+        actionHref="/blog/"
+        actionLabel="Open archive"
       />
 
       <div class="card-grid">
         {
-          actors.map((actor) => (
-            <a class="dossier-card" href={`/threat-intelligence/${actor.slug}/`}>
-              <div class="status-row">
-                <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
-                <span class="meta-chip">{actor.data.origin}</span>
+          recentPosts.map((post) => (
+            <a class="story-card story-card-report" href={`/blog/${post.slug}/`}>
+              {post.data.cover && (
+                <div class="card-media">
+                  <img src={post.data.cover} alt={post.data.title} loading="lazy" />
+                </div>
+              )}
+              <div class="card-topline">
+                <span class="meta-chip">{post.data.sourceLabel ?? "Research Brief"}</span>
+                {post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
               </div>
-              <h3>{actor.data.name}</h3>
-              <p>{actor.data.motivation}</p>
-              <div class="tag-list" style="margin-top: 1rem;">
-                {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
-              </div>
+              <h3>{post.data.title}</h3>
+              <p>{post.data.description}</p>
               <div class="meta-line">
-                <span>First seen {actor.data.firstSeen}</span>
-                <span>Last seen {actor.data.lastSeen}</span>
+                <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
+                <span>{post.data.featured ? "priority_brief" : "report_file"}</span>
               </div>
             </a>
           ))
@@ -266,44 +269,51 @@ const roleHighlights = [
     <div class="container split-grid">
       <article class="content-panel">
         <SectionHeader
-          eyebrow="Training Environments"
-          title="CTFs and labs should feel like practical operator training"
-          description="The CTF section stays, but it now reads as part of a DFIR and OSINT training ecosystem rather than a standalone student project."
+          eyebrow="Threat Intelligence"
+          title="Reusable actor pages for operational tracking"
+          description="Dossiers are treated like briefing objects: stable identity, clear TTP themes, timeline context, and source references."
+          actionHref="/threat-intelligence/"
+          actionLabel="Open dossier index"
         />
-        <div class="prose">
-          <p>
-            Each challenge now has its own page with the prompt, evidence asset, password format, one
-            submission field, and optional hint. That keeps the flow focused on analysis instead of UI
-            friction.
-          </p>
-          <p>
-            This is aligned with the CV: practical challenge authoring, DFIR scenarios, OSINT tasks, and lab
-            work that helps people build investigation skill instead of just clicking through content.
-          </p>
-          <div class="button-row">
-            <a class="button button-primary" href="/ctf/">Explore the CTF archive</a>
-            {
-              featuredCollection && (
-                <a class="button button-ghost" href={`/ctf/${featuredCollection.slug}/`}>
-                  Open {featuredCollection.data.title}
-                </a>
-              )
-            }
-          </div>
+
+        <div class="card-grid card-grid-compact">
+          {
+            actors.map((actor) => (
+              <a class="dossier-card" href={`/threat-intelligence/${actor.slug}/`}>
+                <div class="status-row">
+                  <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
+                  <span class="meta-chip">{actor.data.origin}</span>
+                </div>
+                <h3>{actor.data.name}</h3>
+                <p>{actor.data.motivation}</p>
+                <div class="tag-list">
+                  {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+                </div>
+                <div class="meta-line">
+                  <span>first_seen {actor.data.firstSeen}</span>
+                  <span>last_seen {actor.data.lastSeen}</span>
+                </div>
+              </a>
+            ))
+          }
         </div>
       </article>
 
       <aside class="meta-card">
-        <p class="eyebrow">Recent Analysis</p>
-        <h3>{siteMeta.tagline}</h3>
-        <div class="stack" style="margin-top: 1rem;">
+        <p class="eyebrow">Training Surface</p>
+        <h3>CTFs and labs as practical analyst modules</h3>
+        <p>
+          Challenge pages are structured as mission briefs with one validation path, asset access, and clean
+          solved-state handling for repeat visits.
+        </p>
+        <div class="button-row">
+          <a class="button button-primary" href="/ctf/">Open training archive</a>
           {
-            recentPosts.map((post) => (
-              <a class="intel-link" href={`/blog/${post.slug}/`}>
-                <strong>{post.data.title}</strong>
-                <p class="muted-copy" style="margin-top: 0.35rem;">{post.data.description}</p>
+            featuredCollection && (
+              <a class="button button-ghost" href={`/ctf/${featuredCollection.slug}/`}>
+                Open {featuredCollection.data.title}
               </a>
-            ))
+            )
           }
         </div>
       </aside>

@@ -30,14 +30,15 @@ const grouped = {
   <section class="ctf-hero">
     <div class="container">
       <article class="panel ctf-hero-panel">
-        <div class="status-row">
+        <div class="ops-meta-strip">
           <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
           <span class="meta-chip">{entry.data.year}</span>
-          <span class="meta-chip">{challenges.length} challenge(s)</span>
+          <span class="meta-chip">{challenges.length} challenge nodes</span>
         </div>
-        <h1 style="margin-top: 1rem;">{entry.data.title}</h1>
+        <p class="eyebrow">Mission Briefing</p>
+        <h1>{entry.data.title}</h1>
         <p class="lede">{entry.data.summary}</p>
-        <div class="button-row" style="margin-top: 1.4rem;">
+        <div class="button-row">
           <a class="button button-primary" href={entry.data.githubUrl} target="_blank" rel="noreferrer">
             Open source repository
           </a>
@@ -52,9 +53,9 @@ const grouped = {
       {
         Object.entries(grouped).map(([difficulty, items]) =>
           items.length > 0 && (
-            <section>
+            <section class="difficulty-section">
               <div class="section-header">
-                <div>
+                <div class="section-heading">
                   <p class="eyebrow">{difficulty}</p>
                   <h2>{difficulty[0].toUpperCase() + difficulty.slice(1)} challenges</h2>
                 </div>
@@ -67,6 +68,7 @@ const grouped = {
                       <span class:list={["difficulty-pill", difficulty]}>{difficulty}</span>
                       <span class="meta-chip">#{challenge.data.order}</span>
                     </div>
+                    <p class="eyebrow">challenge_node</p>
                     <h3>{challenge.data.title}</h3>
                     <p>{challenge.data.prompt}</p>
                     <div class="meta-line">

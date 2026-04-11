@@ -18,22 +18,34 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium write
 
 <BaseLayout title={`${entry.data.title} | Ahmed Elessaway`} description={entry.data.description}>
   <section class="story-hero">
-    <div class="container">
+    <div class="container stack">
       <article class="panel story-hero-panel">
-        <p class="eyebrow">Research Brief</p>
+        <div class="ops-meta-strip">
+          <span class="meta-chip">report_file</span>
+          <span class="meta-chip">{entry.data.sourceLabel ?? "Research Brief"}</span>
+          <span class="meta-chip">{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
+        </div>
+        <p class="eyebrow">Technical Briefing</p>
         <h1>{entry.data.title}</h1>
         <p class="lede">{entry.data.description}</p>
         <div class="meta-line">
-          <span>{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</span>
           {entry.data.tags.map((tag) => <span>{tag}</span>)}
         </div>
       </article>
+
+      {
+        entry.data.cover && (
+          <div class="panel story-cover">
+            <img src={entry.data.cover} alt={entry.data.title} loading="lazy" />
+          </div>
+        )
+      }
     </div>
   </section>
 
   <section class="content-section">
     <div class="container content-layout">
-      <article class="content-panel prose">
+      <article class="content-panel prose story-panel">
         <Content />
       </article>
 
@@ -66,6 +78,14 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium write
               )
             }
           </dl>
+        </div>
+
+        <div class="meta-card">
+          <p class="eyebrow">Report Notes</p>
+          <p class="muted-copy">
+            Imported reports are treated as first-class archive entries so the site remains a single technical
+            surface instead of splitting writing between platforms.
+          </p>
         </div>
       </aside>
     </div>

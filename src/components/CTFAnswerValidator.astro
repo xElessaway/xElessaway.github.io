@@ -20,29 +20,29 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
 >
   <div class="validator-head">
     <div>
-      <p class="eyebrow">Challenge Submission</p>
-      <h3>Answer Check</h3>
+      <p class="eyebrow">Submission Node</p>
+      <h3>Validate Answer</h3>
     </div>
     <span class:list={["difficulty-pill", difficulty]}>{difficulty}</span>
   </div>
 
   <p class="validator-copy">
-    Enter the recovered answer using the expected format below. Validation happens in the browser and
-    solved progress is stored only on this device.
+    Enter the recovered value using the expected format below. Validation runs in the browser and solved
+    state is stored only on this device.
   </p>
 
   <div class="validator-format">
-    <span>Password format</span>
+    <span>Expected format</span>
     <code>{passwordFormat}</code>
   </div>
 
   <form class="validator-form">
     <label class="sr-only" for="challenge-answer">Challenge answer</label>
-    <input id="challenge-answer" name="answer" type="text" autocomplete="off" placeholder="Enter your answer" />
-    <button class="button button-primary" type="submit">Verify</button>
+    <input id="challenge-answer" name="answer" type="text" autocomplete="off" placeholder="ENTER_RECOVERED_VALUE" />
+    <button class="button button-primary" type="submit">Verify Hash</button>
   </form>
 
-  <p class="validator-state" data-validator-state>Validation is ready.</p>
+  <p class="validator-state" data-validator-state>Validation node ready.</p>
 
   {
     hint && (
@@ -85,7 +85,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
 
     const markSolved = () => {
       root.classList.add("is-solved");
-      state.textContent = "Solved on this device. The format and answer matched.";
+      state.textContent = "Solved on this device. Format and answer hash matched.";
       input.setAttribute("aria-invalid", "false");
     };
 
@@ -106,7 +106,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
       }
 
       root.classList.remove("is-error");
-      state.textContent = "Checking answer hash…";
+      state.textContent = "Checking answer hash...";
 
       try {
         const normalized = normalizeAnswer(raw);
@@ -122,7 +122,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
 
         root.classList.remove("is-solved");
         root.classList.add("is-error");
-        state.textContent = "That answer did not validate. Check the expected format and try again.";
+        state.textContent = "Hash mismatch. Check the expected format and try again.";
         input.setAttribute("aria-invalid", "true");
       } catch (error) {
         root.classList.remove("is-solved");

@@ -24,12 +24,13 @@ const collection = collections.find((item) => item.slug === entry.data.collectio
   <section class="ctf-hero">
     <div class="container">
       <article class="panel ctf-hero-panel">
-        <div class="status-row">
-          <a class="meta-chip" href="/ctf/">CTF</a>
+        <div class="ops-meta-strip">
+          <a class="meta-chip" href="/ctf/">ctf</a>
           {collection && <a class="meta-chip" href={`/ctf/${collection.slug}/`}>{collection.data.title}</a>}
           <span class:list={["difficulty-pill", entry.data.difficulty]}>{entry.data.difficulty}</span>
         </div>
-        <h1 style="margin-top: 1rem;">{entry.data.title}</h1>
+        <p class="eyebrow">Mission Brief</p>
+        <h1>{entry.data.title}</h1>
         <p class="lede">{entry.data.prompt}</p>
       </article>
     </div>
@@ -39,23 +40,23 @@ const collection = collections.find((item) => item.slug === entry.data.collectio
     <div class="container content-layout">
       <article class="stack">
         <div class="content-panel prose">
-          <h2>Challenge Brief</h2>
+          <p class="eyebrow">Challenge Brief</p>
           <p>{entry.data.prompt}</p>
           <p>
-            Solve the prompt, recover the expected answer string, and use it as the password format described
-            below to validate your result before extracting the archive contents.
+            Recover the expected answer string, match the required format, and validate locally before using
+            it as the archive password or final answer key.
           </p>
         </div>
 
         {entry.data.image && (
           <div class="content-panel">
-            <h2 style="margin-bottom: 1rem;">Reference Image</h2>
-            <img src={entry.data.image} alt={entry.data.title} style="border-radius: 16px; border: 1px solid var(--line);" />
+            <p class="eyebrow">Reference Image</p>
+            <img src={entry.data.image} alt={entry.data.title} class="challenge-image" />
           </div>
         )}
 
         <div class="content-panel">
-          <h2 style="margin-bottom: 1rem;">Challenge Assets</h2>
+          <p class="eyebrow">Challenge Assets</p>
           <div class="asset-list">
             {entry.data.assets.map((asset) => (
               <a href={asset.url} target={asset.kind === "external" ? "_blank" : undefined} rel="noreferrer">

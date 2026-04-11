@@ -25,11 +25,17 @@ const stats = collections.map((entry) => {
   <section class="ctf-hero">
     <div class="container">
       <article class="panel ctf-hero-panel">
-        <p class="eyebrow">CTF Archive</p>
-        <h1>Dedicated collection pages instead of stacked modals.</h1>
+        <div class="ops-meta-strip">
+          <span class="meta-chip">training_archive // collections</span>
+          <span class="meta-chip">{collections.length} collections</span>
+          <span class="meta-chip">{challenges.length} challenge nodes</span>
+        </div>
+        <p class="eyebrow">Training Modules</p>
+        <h1>Practical challenge collections for DFIR and OSINT workflows.</h1>
         <p class="lede">
-          Challenge discovery now happens at the collection level. Each collection has a route, each
-          challenge has its own page, and answer checks stay lightweight enough for GitHub Pages.
+          Collection discovery happens at the archive level. Every collection has its own route, every
+          challenge gets a dedicated mission page, and answer checks remain lightweight enough for GitHub
+          Pages.
         </p>
       </article>
     </div>
@@ -44,16 +50,17 @@ const stats = collections.map((entry) => {
               <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
               <span class="meta-chip">{entry.data.year}</span>
             </div>
+            <p class="eyebrow">training_module</p>
             <h3>{entry.data.title}</h3>
             <p>{entry.data.summary}</p>
-            <div class="tag-list" style="margin-top: 1rem;">
+            <div class="tag-list">
               <span class="difficulty-pill easy">{easy} easy</span>
               <span class="difficulty-pill medium">{medium} medium</span>
               <span class="difficulty-pill hard">{hard} hard</span>
             </div>
             <div class="meta-line">
               <span>{total} challenge(s)</span>
-              <span>GitHub-backed assets</span>
+              <span>github_backed_assets</span>
             </div>
           </a>
         ))

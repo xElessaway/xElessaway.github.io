@@ -21,62 +21,95 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts.includes(
   <section class="dossier-hero">
     <div class="container">
       <article class="panel dossier-hero-panel">
-        <div class="status-row">
+        <div class="ops-meta-strip">
           <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
           <span class="meta-chip">{entry.data.origin}</span>
-          <span class="meta-chip">First seen {entry.data.firstSeen}</span>
-          <span class="meta-chip">Last seen {entry.data.lastSeen}</span>
+          <span class="meta-chip">first_seen {entry.data.firstSeen}</span>
+          <span class="meta-chip">last_seen {entry.data.lastSeen}</span>
         </div>
-        <h1 style="margin-top: 1rem;">{entry.data.name}</h1>
+        <p class="eyebrow">Intel Dossier</p>
+        <h1>{entry.data.name}</h1>
         <p class="lede">{entry.data.motivation}</p>
-        {entry.data.aliases.length > 0 && <p class="muted-copy" style="margin-top: 1rem;">Aliases: {entry.data.aliases.join(", ")}</p>}
-        <div class="tag-list" style="margin-top: 1rem;">
-          {entry.data.tags.map((tag) => <span class="tag">{tag}</span>)}
-        </div>
+        {entry.data.aliases.length > 0 && (
+          <div class="tag-list">
+            {entry.data.aliases.map((alias) => <span class="tag">{alias}</span>)}
+          </div>
+        )}
       </article>
     </div>
   </section>
 
   <section class="content-section">
-    <div class="container content-layout">
+    <div class="container dossier-layout">
       <article class="stack">
         <div class="content-panel prose">
-          <h2>Executive Summary</h2>
+          <p class="eyebrow">Executive Summary</p>
           <Content />
+        </div>
+
+        <div class="detail-grid dossier-grid">
+          <div class="meta-card">
+            <p class="eyebrow">Identity Profile</p>
+            <dl class="fact-grid">
+              <div>
+                <dt>Primary Name</dt>
+                <dd>{entry.data.name}</dd>
+              </div>
+              <div>
+                <dt>Origin</dt>
+                <dd>{entry.data.origin}</dd>
+              </div>
+              <div>
+                <dt>Status</dt>
+                <dd>{entry.data.status}</dd>
+              </div>
+              <div>
+                <dt>Motivation</dt>
+                <dd>{entry.data.motivation}</dd>
+              </div>
+            </dl>
+          </div>
+
+          {entry.data.ttps.length > 0 && (
+            <div class="content-panel">
+              <p class="eyebrow">Observed TTP Themes</p>
+              <div class="ttp-list">
+                {entry.data.ttps.map((ttp, index) => (
+                  <div class="ttp-row">
+                    <span class="ttp-index mono">TTP_{String(index + 1).padStart(2, "0")}</span>
+                    <p>{ttp}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {entry.data.timeline.length > 0 && (
           <div class="content-panel">
-            <h2 style="margin-bottom: 1rem;">Timeline</h2>
+            <p class="eyebrow">Operational Timeline</p>
             <div class="timeline">
               {entry.data.timeline.map((item) => (
                 <article class="timeline-item">
                   <time>{item.date}</time>
                   <h3>{item.title}</h3>
-                  <p class="muted-copy" style="margin-top: 0.7rem;">{item.summary}</p>
+                  <p class="muted-copy">{item.summary}</p>
                 </article>
               ))}
             </div>
           </div>
         )}
 
-        {entry.data.ttps.length > 0 && (
-          <div class="content-panel">
-            <h2 style="margin-bottom: 1rem;">Observed TTP Themes</h2>
-            <div class="tag-list">
-              {entry.data.ttps.map((ttp) => <span class="tag">{ttp}</span>)}
-            </div>
-          </div>
-        )}
-
         {entry.data.references.length > 0 && (
           <div class="content-panel">
-            <h2 style="margin-bottom: 1rem;">References</h2>
+            <p class="eyebrow">External Source Data</p>
             <div class="stack">
               {entry.data.references.map((reference) => (
                 <a class="story-card" href={reference.url} target="_blank" rel="noreferrer">
+                  <div class="card-topline">
+                    <span class="meta-chip">{reference.publisher ?? "external_source"}</span>
+                  </div>
                   <h3>{reference.title}</h3>
-                  <p>{reference.publisher ?? "External source"}</p>
                 </a>
               ))}
             </div>
@@ -86,25 +119,10 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts.includes(
 
       <aside class="stack">
         <div class="meta-card">
-          <p class="eyebrow">Quick Facts</p>
-          <dl>
-            <div>
-              <dt>Status</dt>
-              <dd>{entry.data.status}</dd>
-            </div>
-            <div>
-              <dt>Origin</dt>
-              <dd>{entry.data.origin}</dd>
-            </div>
-            <div>
-              <dt>Motivation</dt>
-              <dd>{entry.data.motivation}</dd>
-            </div>
-            <div>
-              <dt>Targets</dt>
-              <dd>{entry.data.targets.join(", ")}</dd>
-            </div>
-          </dl>
+          <p class="eyebrow">Target Surface</p>
+          <div class="tag-list">
+            {entry.data.targets.map((target) => <span class="tag">{target}</span>)}
+          </div>
         </div>
 
         {entry.data.tools.length > 0 && (
@@ -116,14 +134,36 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts.includes(
           </div>
         )}
 
+        <div class="meta-card">
+          <p class="eyebrow">Quick Facts</p>
+          <dl>
+            <div>
+              <dt>Aliases</dt>
+              <dd>{entry.data.aliases.join(", ") || "None listed"}</dd>
+            </div>
+            <div>
+              <dt>Targets</dt>
+              <dd>{entry.data.targets.join(", ")}</dd>
+            </div>
+            <div>
+              <dt>First Seen</dt>
+              <dd>{entry.data.firstSeen}</dd>
+            </div>
+            <div>
+              <dt>Last Seen</dt>
+              <dd>{entry.data.lastSeen}</dd>
+            </div>
+          </dl>
+        </div>
+
         {relatedPosts.length > 0 && (
           <div class="meta-card">
-            <p class="eyebrow">Related Posts</p>
+            <p class="eyebrow">Related Reports</p>
             <div class="stack">
               {relatedPosts.map((post) => (
                 <a href={`/blog/${post.slug}/`}>
                   <strong>{post.data.title}</strong>
-                  <p class="muted-copy" style="margin-top: 0.35rem;">{post.data.description}</p>
+                  <p class="muted-copy">{post.data.description}</p>
                 </a>
               ))}
             </div>

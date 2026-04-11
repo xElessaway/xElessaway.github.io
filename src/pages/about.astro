@@ -21,7 +21,7 @@ const experience = [
     period: "Mar 2023 - Present",
     title: "CyberTalents - Engineer / Instructor",
     summary:
-      "Forensics, OSINT, and network-security challenge creation; hands-on training delivery; and operational support for live CTF environments."
+      "Forensics, OSINT, and network-security challenge creation, hands-on training delivery, and operational support for live CTF environments."
   },
   {
     period: "Nov 2023 - Jun 2024",
@@ -42,12 +42,18 @@ const experience = [
   <section class="about-hero">
     <div class="container">
       <article class="panel about-hero-panel">
-        <p class="eyebrow">About</p>
+        <div class="ops-meta-strip">
+          <span class="meta-chip">operator_profile</span>
+          <span class="meta-chip">dfir</span>
+          <span class="meta-chip">osint</span>
+          <span class="meta-chip">threat_intelligence</span>
+        </div>
+        <p class="eyebrow">Operator Profile</p>
         <h1>Threat Intelligence and DFIR-focused cybersecurity engineer.</h1>
         <p class="lede">
-          Ahmed Elessaway works across blue-team lab development, threat-hunting scenarios, digital forensics,
-          OSINT training, and intelligence-led security content. The site is designed to reflect that
-          operating profile directly.
+          Ahmed Elessaway works across blue-team lab development, threat-hunting scenarios, digital
+          forensics, OSINT training, and intelligence-led technical content. The site is designed to reflect
+          that operating profile directly.
         </p>
       </article>
     </div>
@@ -55,47 +61,57 @@ const experience = [
 
   <section class="content-section">
     <div class="container split-grid">
-      <article class="content-panel prose">
-        <h2>Summary</h2>
-        <p>
-          The core of the profile is not generic content publishing. It is investigation-driven work: blue-team
-          simulations, incident-analysis training, memory and disk forensics, threat-intelligence context, and
-          OSINT workflows that support real analyst development.
-        </p>
-        <p>
-          That is why the site is built to feel closer to a cyber operations surface than a generic publication
-          theme. Research, dossiers, and challenge content stay, but they sit under a stronger DFIR and threat
-          operations identity.
-        </p>
-
-        <h2>Current Focus</h2>
-        <ul>
-          <li>Threat-hunting and detection scenarios for blue-team readiness.</li>
-          <li>Windows and Linux evidence collection with memory and disk forensics.</li>
-          <li>OSINT and threat-intelligence fundamentals that improve investigation context.</li>
-          <li>Hands-on labs, CTFs, and analyst-focused technical training.</li>
-        </ul>
-
-        <h2>Experience Highlights</h2>
-        <div class="role-grid">
-          {
-            experience.map((item) => (
-              <article class="role-card">
-                <p class="role-period">{item.period}</p>
-                <h3>{item.title}</h3>
-                <p>{item.summary}</p>
-              </article>
-            ))
-          }
+      <article class="stack">
+        <div class="content-panel prose">
+          <p class="eyebrow">Summary</p>
+          <p>
+            The core of the profile is investigation-driven work: blue-team simulations, incident-analysis
+            training, memory and disk forensics, threat-intelligence context, and OSINT workflows that support
+            real analyst development.
+          </p>
+          <p>
+            That is why the site is built to feel closer to a cyber operations surface than a generic
+            publication theme. Reports, dossiers, and challenge content stay, but they sit under a stronger
+            DFIR and threat-operations identity.
+          </p>
         </div>
 
-        <h2>Competition and Community Signal</h2>
-        <ul>
-          <li>2nd place in CyCTF'25 Finals and Arab Cyberwar Games Championship.</li>
-          <li>4th place in EG-CERT CTF Finals and CSC-1 (ICMTC) Finals.</li>
-          <li>Hands-on instruction delivered to more than 200 attendees across multiple topics.</li>
-          <li>OSINT Essentials instruction delivered at ITI for younger learners through practical exercises.</li>
-        </ul>
+        <div class="content-panel">
+          <p class="eyebrow">Current Focus</p>
+          <div class="tag-list">
+            <span class="tag">Threat Hunting</span>
+            <span class="tag">Detection Scenarios</span>
+            <span class="tag">Memory Forensics</span>
+            <span class="tag">Disk Forensics</span>
+            <span class="tag">OSINT Instruction</span>
+            <span class="tag">Blue-team Labs</span>
+          </div>
+        </div>
+
+        <div class="content-panel">
+          <p class="eyebrow">Operational History</p>
+          <div class="role-grid">
+            {
+              experience.map((item) => (
+                <article class="role-card">
+                  <p class="role-period">{item.period}</p>
+                  <h3>{item.title}</h3>
+                  <p>{item.summary}</p>
+                </article>
+              ))
+            }
+          </div>
+        </div>
+
+        <div class="content-panel prose">
+          <p class="eyebrow">Competition and Community Signal</p>
+          <ul>
+            <li>2nd place in CyCTF'25 Finals and Arab Cyberwar Games Championship.</li>
+            <li>4th place in EG-CERT CTF Finals and CSC-1 (ICMTC) Finals.</li>
+            <li>Hands-on instruction delivered to more than 200 attendees across multiple topics.</li>
+            <li>OSINT Essentials instruction delivered at ITI through practical exercises.</li>
+          </ul>
+        </div>
       </article>
 
       <aside class="stack">
@@ -157,7 +173,7 @@ const experience = [
               siteMeta.socials.map((item) => (
                 <a href={item.href} target="_blank" rel="noreferrer">
                   <strong>{item.label}</strong>
-                  <p class="muted-copy" style="margin-top: 0.25rem;">{item.href.replace("https://", "")}</p>
+                  <p class="muted-copy">{item.href.replace("https://", "")}</p>
                 </a>
               ))
             }

@@ -5,6 +5,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 const actors = (await getCollection("actors")).sort((a, b) => a.data.name.localeCompare(b.data.name));
 const allTags = [...new Set(actors.flatMap((entry) => entry.data.tags))].sort((a, b) => a.localeCompare(b));
 const statuses = ["all", "active", "tracking", "disrupted", "historic"];
+const activeActors = actors.filter((entry) => entry.data.status === "active").length;
+const trackingActors = actors.filter((entry) => entry.data.status === "tracking").length;
 ---
 
 <BaseLayout
@@ -14,46 +16,54 @@ const statuses = ["all", "active", "tracking", "disrupted", "historic"];
   <section class="page-intro">
     <div class="container">
       <article class="panel page-intro-panel">
-        <p class="eyebrow">Threat Intelligence</p>
-        <h1>Structured dossier pages for repeatable actor tracking.</h1>
+        <div class="ops-meta-strip">
+          <span class="meta-chip">intel_database // actor_index</span>
+          <span class="meta-chip">{actors.length} dossiers</span>
+          <span class="meta-chip">{activeActors} active</span>
+          <span class="meta-chip">{trackingActors} tracking</span>
+        </div>
+        <p class="eyebrow">Threat Intelligence Database</p>
+        <h1>Structured actor dossiers for repeatable tracking.</h1>
         <p class="lede">
-          This section is built to hold thin starter profiles and mature incident-rich dossiers without
-          changing the page shape. Search by actor or alias, then narrow by status and tag.
+          Search by actor, alias, status, or tag. The page is built to hold thin starter profiles and richer
+          operational dossiers without changing the shape of the archive.
         </p>
       </article>
     </div>
   </section>
 
   <section class="content-section">
-    <div class="container">
-      <div class="filter-shell">
-        <input
-          id="dossier-search"
-          class="filter-input"
-          type="search"
-          placeholder="Search actor name, alias, or tag"
-          autocomplete="off"
-        />
+    <div class="container stack">
+      <div class="panel filter-panel">
+        <div class="filter-shell">
+          <input
+            id="dossier-search"
+            class="filter-input"
+            type="search"
+            placeholder="SEARCH_ACTOR_ALIAS_OR_TAG"
+            autocomplete="off"
+          />
 
-        <div class="filter-row">
-          {
-            statuses.map((status) => (
-              <button class:list={["filter-button", status === "all" && "is-active"]} type="button" data-status-filter={status}>
-                {status}
-              </button>
-            ))
-          }
-        </div>
+          <div class="filter-row">
+            {
+              statuses.map((status) => (
+                <button class:list={["filter-button", status === "all" && "is-active"]} type="button" data-status-filter={status}>
+                  {status}
+                </button>
+              ))
+            }
+          </div>
 
-        <div class="filter-row">
-          <button class="filter-button is-active" type="button" data-tag-filter="all">all tags</button>
-          {
-            allTags.map((tag) => (
-              <button class="filter-button" type="button" data-tag-filter={tag}>
-                {tag}
-              </button>
-            ))
-          }
+          <div class="filter-row">
+            <button class="filter-button is-active" type="button" data-tag-filter="all">all_tags</button>
+            {
+              allTags.map((tag) => (
+                <button class="filter-button" type="button" data-tag-filter={tag}>
+                  {tag}
+                </button>
+              ))
+            }
+          </div>
         </div>
       </div>
 
@@ -72,12 +82,13 @@ const statuses = ["all", "active", "tracking", "disrupted", "historic"];
                 <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
                 <span class="meta-chip">{actor.data.origin}</span>
               </div>
+              <p class="eyebrow">identity_profile</p>
               <h3>{actor.data.name}</h3>
               <p>{actor.data.motivation}</p>
               <div class="meta-line">
                 <span>{actor.data.aliases.join(" / ")}</span>
               </div>
-              <div class="tag-list" style="margin-top: 1rem;">
+              <div class="tag-list">
                 {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
               </div>
             </a>

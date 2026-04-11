@@ -13,7 +13,7 @@ const { eyebrow, title, description, actionHref, actionLabel } = Astro.props;
 ---
 
 <div class="section-header">
-  <div>
+  <div class="section-heading">
     {eyebrow && <p class="eyebrow">{eyebrow}</p>}
     <h2>{title}</h2>
     {description && <p class="section-copy">{description}</p>}
@@ -21,7 +21,7 @@ const { eyebrow, title, description, actionHref, actionLabel } = Astro.props;
 
   {
     actionHref && actionLabel && (
-      <a class="button button-ghost" href={withBase(actionHref)}>
+      <a class="button button-ghost section-action" href={withBase(actionHref)}>
         {actionLabel}
       </a>
     )

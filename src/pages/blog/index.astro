@@ -5,6 +5,8 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
 );
+const leadPost = posts[0];
+const remainingPosts = posts.slice(1);
 ---
 
 <BaseLayout
@@ -14,33 +16,71 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   <section class="page-intro">
     <div class="container">
       <article class="panel page-intro-panel">
-        <p class="eyebrow">Blog</p>
-        <h1>Research briefs and technical writeups.</h1>
+        <div class="ops-meta-strip">
+          <span class="meta-chip">repository // archive_v4</span>
+          <span class="meta-chip">{posts.length} reports indexed</span>
+        </div>
+        <p class="eyebrow">Investigation Reports</p>
+        <h1>Technical briefings, writeups, and field-ready notes.</h1>
         <p class="lede">
-          DFIR investigations, OSINT analysis, challenge writeups, and threat-focused notes collected in one
-          place so they remain searchable, linkable, and reusable.
+          DFIR investigations, OSINT analysis, incident writeups, challenge walkthroughs, and threat-focused
+          notes collected in one searchable archive.
         </p>
       </article>
     </div>
   </section>
 
   <section class="content-section">
-    <div class="container card-grid">
+    <div class="container stack">
       {
-        posts.map((post) => (
-          <a class="story-card" href={`/blog/${post.slug}/`}>
-            <div class="card-topline">
-              {post.data.tags.map((tag) => <span class="tag">{tag}</span>)}
-            </div>
-            <h3>{post.data.title}</h3>
-            <p>{post.data.description}</p>
-            <div class="meta-line">
-              <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
-              <span>{post.data.featured ? "Featured" : post.data.sourceLabel ?? "Research Brief"}</span>
+        leadPost && (
+          <a class="lead-report" href={`/blog/${leadPost.slug}/`}>
+            {leadPost.data.cover && (
+              <div class="lead-report-media">
+                <img src={leadPost.data.cover} alt={leadPost.data.title} loading="lazy" />
+              </div>
+            )}
+
+            <div class="lead-report-copy">
+              <div class="status-row">
+                <span class="meta-chip">{leadPost.data.featured ? "priority_brief" : leadPost.data.sourceLabel ?? "report_file"}</span>
+                {leadPost.data.tags.slice(0, 3).map((tag) => <span class="tag">{tag}</span>)}
+              </div>
+              <p class="eyebrow">Lead Report</p>
+              <h2>{leadPost.data.title}</h2>
+              <p>{leadPost.data.description}</p>
+              <div class="meta-line">
+                <span>{leadPost.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</span>
+                <span>{leadPost.data.sourceLabel ?? "Research Brief"}</span>
+              </div>
             </div>
           </a>
-        ))
+        )
       }
+
+      <div class="report-grid">
+        {
+          remainingPosts.map((post) => (
+            <a class="story-card story-card-report" href={`/blog/${post.slug}/`}>
+              {post.data.cover && (
+                <div class="card-media">
+                  <img src={post.data.cover} alt={post.data.title} loading="lazy" />
+                </div>
+              )}
+              <div class="card-topline">
+                <span class="meta-chip">{post.data.sourceLabel ?? "Research Brief"}</span>
+                {post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
+              </div>
+              <h3>{post.data.title}</h3>
+              <p>{post.data.description}</p>
+              <div class="meta-line">
+                <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
+                <span>{post.data.featured ? "featured" : "indexed"}</span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
     </div>
   </section>
 </BaseLayout>

@@ -3,52 +3,122 @@ import { siteMeta } from "../data/site";
 import { withBase } from "../utils/paths";
 
 const pathname = Astro.url.pathname;
+const moduleLabels: Record<string, { top: string; side: string }> = {
+  "/": { top: "Dashboard", side: "Operator Surface" },
+  "/blog/": { top: "Reports", side: "Investigation Archive" },
+  "/threat-intelligence/": { top: "Threats", side: "Intel Dossiers" },
+  "/ctf/": { top: "Training", side: "CTF Modules" },
+  "/about/": { top: "Profile", side: "Operator Profile" }
+};
 ---
 
 <header class="site-header">
-  <div class="container shell-bar">
-    <a class="brand-mark" href={withBase("/")}>
-      <span class="brand-seal">AE</span>
-      <span class="brand-copy">
-        <strong>{siteMeta.title}</strong>
-        <small>DFIR / OSINT / Threat Intel</small>
-      </span>
-    </a>
+  <div class="shell-bar">
+    <div class="shell-left">
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-sidebar">
+        <span class="sr-only">Toggle navigation</span>
+        <span></span>
+      </button>
 
-    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
-      Menu
-    </button>
+      <a class="brand-mark" href={withBase("/")}>
+        <span class="brand-seal">AE</span>
+        <span class="brand-copy">
+          <strong>OPERATIONAL_INTEL</strong>
+          <small>Ahmed Elessaway // xElessaway</small>
+        </span>
+      </a>
+    </div>
 
-    <nav id="site-nav" class="site-nav">
+    <nav id="site-nav" class="site-nav" aria-label="Primary navigation">
       {
         siteMeta.nav.map((item) => {
           const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+          const labels = moduleLabels[item.href] ?? { top: item.label, side: item.label };
 
           return (
             <a class:list={["nav-link", isActive && "is-active"]} href={withBase(item.href)}>
-              {item.label}
+              {labels.top}
             </a>
           );
         })
       }
     </nav>
+
+    <div class="topbar-tools">
+      <label class="utility-search">
+        <span class="sr-only">Filter reports</span>
+        <input type="text" value="" placeholder="FILTER_REPORTS..." aria-label="Filter reports" />
+      </label>
+      <span class="utility-chip">live_site</span>
+      <span class="utility-chip utility-chip-soft">{siteMeta.location}</span>
+    </div>
   </div>
 </header>
 
+<div class="mobile-overlay" data-mobile-overlay hidden></div>
+
+<aside id="site-sidebar" class="site-sidebar" aria-label="Section navigation">
+  <div class="sidebar-session">
+    <p class="sidebar-label">session_id</p>
+    <strong>STRYKER_01</strong>
+    <span>LEVEL_4_CLEARANCE</span>
+  </div>
+
+  <nav class="side-nav">
+    {
+      siteMeta.nav.map((item, index) => {
+        const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+        const labels = moduleLabels[item.href] ?? { top: item.label, side: item.label };
+
+        return (
+          <a class:list={["side-nav-link", isActive && "is-active"]} href={withBase(item.href)}>
+            <span class="side-nav-index">{String(index + 1).padStart(2, "0")}</span>
+            <span class="side-nav-copy">
+              <strong>{labels.top}</strong>
+              <small>{labels.side}</small>
+            </span>
+          </a>
+        );
+      })
+    }
+  </nav>
+
+  <div class="sidebar-status">
+    <p class="sidebar-label">system_status</p>
+    <div class="status-readout">
+      <span>signal_online</span>
+      <span>encrypted_channel</span>
+    </div>
+    <div class="status-readout">
+      <span>medium_sync</span>
+      <span>pages_ready</span>
+    </div>
+  </div>
+</aside>
+
 <script>
   const toggle = document.querySelector(".menu-toggle");
-  const nav = document.querySelector(".site-nav");
+  const sidebar = document.querySelector("#site-sidebar");
+  const overlay = document.querySelector("[data-mobile-overlay]");
 
-  if (toggle instanceof HTMLButtonElement && nav instanceof HTMLElement) {
+  if (toggle instanceof HTMLButtonElement && sidebar instanceof HTMLElement && overlay instanceof HTMLElement) {
+    const closeSidebar = () => {
+      sidebar.classList.remove("is-open");
+      overlay.hidden = true;
+      toggle.setAttribute("aria-expanded", "false");
+    };
+
     toggle.addEventListener("click", () => {
-      const next = nav.classList.toggle("is-open");
+      const next = sidebar.classList.toggle("is-open");
+      overlay.hidden = !next;
       toggle.setAttribute("aria-expanded", String(next));
     });
 
-    nav.querySelectorAll("a").forEach((link) => {
+    overlay.addEventListener("click", closeSidebar);
+
+    sidebar.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
-        nav.classList.remove("is-open");
-        toggle.setAttribute("aria-expanded", "false");
+        closeSidebar();
       });
     });
   }
