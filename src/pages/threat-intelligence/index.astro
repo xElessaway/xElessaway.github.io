@@ -1,0 +1,144 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const actors = (await getCollection("actors")).sort((a, b) => a.data.name.localeCompare(b.data.name));
+const allTags = [...new Set(actors.flatMap((entry) => entry.data.tags))].sort((a, b) => a.localeCompare(b));
+const statuses = ["all", "active", "tracking", "disrupted", "historic"];
+---
+
+<BaseLayout
+  title="Threat Intelligence | Ahmed Elessaway (xElessaway)"
+  description="Structured threat actor dossiers with filtering by name, alias, tag, and status."
+>
+  <section class="page-intro">
+    <div class="container">
+      <article class="panel page-intro-panel">
+        <p class="eyebrow">Threat Intelligence</p>
+        <h1>Structured dossier pages for repeatable actor tracking.</h1>
+        <p class="lede">
+          This section is built to hold thin starter profiles and mature incident-rich dossiers without
+          changing the page shape. Search by actor or alias, then narrow by status and tag.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container">
+      <div class="filter-shell">
+        <input
+          id="dossier-search"
+          class="filter-input"
+          type="search"
+          placeholder="Search actor name, alias, or tag"
+          autocomplete="off"
+        />
+
+        <div class="filter-row">
+          {
+            statuses.map((status) => (
+              <button class:list={["filter-button", status === "all" && "is-active"]} type="button" data-status-filter={status}>
+                {status}
+              </button>
+            ))
+          }
+        </div>
+
+        <div class="filter-row">
+          <button class="filter-button is-active" type="button" data-tag-filter="all">all tags</button>
+          {
+            allTags.map((tag) => (
+              <button class="filter-button" type="button" data-tag-filter={tag}>
+                {tag}
+              </button>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="card-grid" data-dossier-grid>
+        {
+          actors.map((actor) => (
+            <a
+              class="dossier-card"
+              href={`/threat-intelligence/${actor.slug}/`}
+              data-dossier-card
+              data-status={actor.data.status}
+              data-tags={actor.data.tags.join("|")}
+              data-search={[actor.data.name, ...actor.data.aliases, ...actor.data.tags].join(" ").toLowerCase()}
+            >
+              <div class="status-row">
+                <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
+                <span class="meta-chip">{actor.data.origin}</span>
+              </div>
+              <h3>{actor.data.name}</h3>
+              <p>{actor.data.motivation}</p>
+              <div class="meta-line">
+                <span>{actor.data.aliases.join(" / ")}</span>
+              </div>
+              <div class="tag-list" style="margin-top: 1rem;">
+                {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+              </div>
+            </a>
+          ))
+        }
+      </div>
+
+      <p class="filter-empty" data-filter-empty>No dossiers match the current filters.</p>
+    </div>
+  </section>
+
+  <script>
+    const searchInput = document.querySelector("#dossier-search");
+    const statusButtons = [...document.querySelectorAll("[data-status-filter]")];
+    const tagButtons = [...document.querySelectorAll("[data-tag-filter]")];
+    const cards = [...document.querySelectorAll("[data-dossier-card]")];
+    const emptyState = document.querySelector("[data-filter-empty]");
+
+    let activeStatus = "all";
+    let activeTag = "all";
+
+    const applyFilters = () => {
+      const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim().toLowerCase() : "";
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const searchText = card.getAttribute("data-search") ?? "";
+        const status = card.getAttribute("data-status") ?? "";
+        const tags = (card.getAttribute("data-tags") ?? "").split("|").filter(Boolean);
+        const matchesQuery = !query || searchText.includes(query);
+        const matchesStatus = activeStatus === "all" || status === activeStatus;
+        const matchesTag = activeTag === "all" || tags.includes(activeTag);
+        const visible = matchesQuery && matchesStatus && matchesTag;
+
+        card.toggleAttribute("hidden", !visible);
+        if (visible) {
+          visibleCount += 1;
+        }
+      });
+
+      if (emptyState instanceof HTMLElement) {
+        emptyState.classList.toggle("is-visible", visibleCount === 0);
+      }
+    };
+
+    searchInput?.addEventListener("input", applyFilters);
+
+    statusButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeStatus = button.getAttribute("data-status-filter") ?? "all";
+        statusButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+        applyFilters();
+      });
+    });
+
+    tagButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        activeTag = button.getAttribute("data-tag-filter") ?? "all";
+        tagButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+        applyFilters();
+      });
+    });
+  </script>
+</BaseLayout>

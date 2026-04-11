@@ -1,0 +1,103 @@
+---
+import { getCollection } from "astro:content";
+import CTFAnswerValidator from "../../../components/CTFAnswerValidator.astro";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const challenges = await getCollection("ctfChallenges");
+
+  return challenges.map((entry) => ({
+    params: {
+      collection: entry.data.collection,
+      challenge: entry.slug
+    },
+    props: { entry }
+  }));
+}
+
+const { entry } = Astro.props;
+const collections = await getCollection("ctfCollections");
+const collection = collections.find((item) => item.slug === entry.data.collection);
+---
+
+<BaseLayout title={`${entry.data.title} | ${collection?.data.title ?? "CTF"}`} description={entry.data.prompt}>
+  <section class="ctf-hero">
+    <div class="container">
+      <article class="panel ctf-hero-panel">
+        <div class="status-row">
+          <a class="meta-chip" href="/ctf/">CTF</a>
+          {collection && <a class="meta-chip" href={`/ctf/${collection.slug}/`}>{collection.data.title}</a>}
+          <span class:list={["difficulty-pill", entry.data.difficulty]}>{entry.data.difficulty}</span>
+        </div>
+        <h1 style="margin-top: 1rem;">{entry.data.title}</h1>
+        <p class="lede">{entry.data.prompt}</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container content-layout">
+      <article class="stack">
+        <div class="content-panel prose">
+          <h2>Challenge Brief</h2>
+          <p>{entry.data.prompt}</p>
+          <p>
+            Solve the prompt, recover the expected answer string, and use it as the password format described
+            below to validate your result before extracting the archive contents.
+          </p>
+        </div>
+
+        {entry.data.image && (
+          <div class="content-panel">
+            <h2 style="margin-bottom: 1rem;">Reference Image</h2>
+            <img src={entry.data.image} alt={entry.data.title} style="border-radius: 16px; border: 1px solid var(--line);" />
+          </div>
+        )}
+
+        <div class="content-panel">
+          <h2 style="margin-bottom: 1rem;">Challenge Assets</h2>
+          <div class="asset-list">
+            {entry.data.assets.map((asset) => (
+              <a href={asset.url} target={asset.kind === "external" ? "_blank" : undefined} rel="noreferrer">
+                {asset.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      </article>
+
+      <aside class="stack">
+        <CTFAnswerValidator
+          collection={entry.data.collection}
+          challenge={entry.slug}
+          difficulty={entry.data.difficulty}
+          passwordFormat={entry.data.passwordFormat}
+          answerHashes={entry.data.answerHashes}
+          hint={entry.data.hint}
+        />
+
+        <div class="meta-card">
+          <p class="eyebrow">Challenge Metadata</p>
+          <dl>
+            <div>
+              <dt>Collection</dt>
+              <dd>{collection?.data.title ?? entry.data.collection}</dd>
+            </div>
+            <div>
+              <dt>Difficulty</dt>
+              <dd>{entry.data.difficulty}</dd>
+            </div>
+            <div>
+              <dt>Password format</dt>
+              <dd class="mono">{entry.data.passwordFormat}</dd>
+            </div>
+            <div>
+              <dt>Assets</dt>
+              <dd>{entry.data.assets.length} linked file(s)</dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

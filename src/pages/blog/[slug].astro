@@ -1,0 +1,60 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+
+  return posts.map((entry) => ({
+    params: { slug: entry.slug },
+    props: { entry }
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+---
+
+<BaseLayout title={`${entry.data.title} | Ahmed Elessaway`} description={entry.data.description}>
+  <section class="story-hero">
+    <div class="container">
+      <article class="panel story-hero-panel">
+        <p class="eyebrow">Journal Entry</p>
+        <h1>{entry.data.title}</h1>
+        <p class="lede">{entry.data.description}</p>
+        <div class="meta-line">
+          <span>{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</span>
+          {entry.data.tags.map((tag) => <span>{tag}</span>)}
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container content-layout">
+      <article class="content-panel prose">
+        <Content />
+      </article>
+
+      <aside class="stack">
+        <div class="meta-card">
+          <p class="eyebrow">Entry Metadata</p>
+          <dl>
+            <div>
+              <dt>Published</dt>
+              <dd>{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</dd>
+            </div>
+            <div>
+              <dt>Tags</dt>
+              <dd>{entry.data.tags.join(", ")}</dd>
+            </div>
+            <div>
+              <dt>Format</dt>
+              <dd>Editorial field note</dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

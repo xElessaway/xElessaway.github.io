@@ -1,0 +1,63 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const collections = await getCollection("ctfCollections");
+const challenges = await getCollection("ctfChallenges");
+
+const stats = collections.map((entry) => {
+  const collectionChallenges = challenges.filter((challenge) => challenge.data.collection === entry.slug);
+  const easy = collectionChallenges.filter((challenge) => challenge.data.difficulty === "easy").length;
+  const medium = collectionChallenges.filter((challenge) => challenge.data.difficulty === "medium").length;
+  const hard = collectionChallenges.filter((challenge) => challenge.data.difficulty === "hard").length;
+
+  return {
+    entry,
+    total: collectionChallenges.length,
+    easy,
+    medium,
+    hard
+  };
+});
+---
+
+<BaseLayout title="CTF | Ahmed Elessaway (xElessaway)" description="OSINT challenge collections with simplified validation.">
+  <section class="ctf-hero">
+    <div class="container">
+      <article class="panel ctf-hero-panel">
+        <p class="eyebrow">CTF Archive</p>
+        <h1>Dedicated collection pages instead of stacked modals.</h1>
+        <p class="lede">
+          Challenge discovery now happens at the collection level. Each collection has a route, each
+          challenge has its own page, and answer checks stay lightweight enough for GitHub Pages.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container card-grid">
+      {
+        stats.map(({ entry, total, easy, medium, hard }) => (
+          <a class="challenge-card" href={`/ctf/${entry.slug}/`}>
+            <div class="status-row">
+              <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
+              <span class="meta-chip">{entry.data.year}</span>
+            </div>
+            <h3>{entry.data.title}</h3>
+            <p>{entry.data.summary}</p>
+            <div class="tag-list" style="margin-top: 1rem;">
+              <span class="difficulty-pill easy">{easy} easy</span>
+              <span class="difficulty-pill medium">{medium} medium</span>
+              <span class="difficulty-pill hard">{hard} hard</span>
+            </div>
+            <div class="meta-line">
+              <span>{total} challenge(s)</span>
+              <span>GitHub-backed assets</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

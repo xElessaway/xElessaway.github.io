@@ -1,0 +1,55 @@
+---
+import { siteMeta } from "../data/site";
+import { withBase } from "../utils/paths";
+
+const pathname = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container shell-bar">
+    <a class="brand-mark" href={withBase("/")}>
+      <span class="brand-seal">AE</span>
+      <span class="brand-copy">
+        <strong>{siteMeta.title}</strong>
+        <small>Cyber Research Journal</small>
+      </span>
+    </a>
+
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav">
+      Menu
+    </button>
+
+    <nav id="site-nav" class="site-nav">
+      {
+        siteMeta.nav.map((item) => {
+          const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+
+          return (
+            <a class:list={["nav-link", isActive && "is-active"]} href={withBase(item.href)}>
+              {item.label}
+            </a>
+          );
+        })
+      }
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector(".menu-toggle");
+  const nav = document.querySelector(".site-nav");
+
+  if (toggle instanceof HTMLButtonElement && nav instanceof HTMLElement) {
+    toggle.addEventListener("click", () => {
+      const next = nav.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", String(next));
+    });
+
+    nav.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        nav.classList.remove("is-open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+</script>

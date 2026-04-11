@@ -1,0 +1,77 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { siteMeta } from "../data/site";
+---
+
+<BaseLayout title="About | Ahmed Elessaway (xElessaway)" description="About Ahmed Elessaway's research journal.">
+  <section class="about-hero">
+    <div class="container">
+      <article class="panel about-hero-panel">
+        <p class="eyebrow">About</p>
+        <h1>Ahmed Elessaway documents cyber research in public.</h1>
+        <p class="lede">
+          This site is the public desk for writing, dossier building, and OSINT challenge publishing under
+          the identity Ahmed Elessaway (xElessaway).
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container split-grid">
+      <article class="content-panel prose">
+        <h2>Approach</h2>
+        <p>
+          The goal is not to make the site feel like a portfolio placeholder. It is meant to function as a
+          working publication where research notes, actor tracking, and challenge design can live beside each
+          other without competing for the same page.
+        </p>
+        <p>
+          Blog posts capture methods and case notes. Threat intelligence pages act as living dossiers. CTF
+          collections keep the practical side visible and link directly to the supporting challenge material.
+        </p>
+
+        <h2>Focus Areas</h2>
+        <ul>
+          <li>Threat actor profiling and ongoing tracking.</li>
+          <li>OSINT workflows, documentation patterns, and investigative tradeoffs.</li>
+          <li>CTF design that preserves learning instead of over-automating the solve path.</li>
+        </ul>
+      </article>
+
+      <aside class="stack">
+        <div class="meta-card">
+          <p class="eyebrow">Identity</p>
+          <dl>
+            <div>
+              <dt>Name</dt>
+              <dd>Ahmed Elessaway</dd>
+            </div>
+            <div>
+              <dt>Handle</dt>
+              <dd>xElessaway</dd>
+            </div>
+            <div>
+              <dt>Location</dt>
+              <dd>{siteMeta.location}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="meta-card">
+          <p class="eyebrow">Contact / Presence</p>
+          <div class="stack">
+            {
+              siteMeta.socials.map((item) => (
+                <a href={item.href} target="_blank" rel="noreferrer">
+                  <strong>{item.label}</strong>
+                  <p class="muted-copy" style="margin-top: 0.25rem;">{item.href.replace("https://", "")}</p>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

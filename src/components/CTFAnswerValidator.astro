@@ -1,0 +1,135 @@
+---
+interface Props {
+  collection: string;
+  challenge: string;
+  difficulty: string;
+  passwordFormat: string;
+  answerHashes: string[];
+  hint?: string;
+}
+
+const { collection, challenge, difficulty, passwordFormat, answerHashes, hint } = Astro.props;
+const storageKey = `ctf:solved:${collection}:${challenge}`;
+---
+
+<section
+  class="validator-card"
+  data-ctf-validator
+  data-answer-hashes={JSON.stringify(answerHashes)}
+  data-storage-key={storageKey}
+>
+  <div class="validator-head">
+    <div>
+      <p class="eyebrow">Challenge Submission</p>
+      <h3>Answer Check</h3>
+    </div>
+    <span class:list={["difficulty-pill", difficulty]}>{difficulty}</span>
+  </div>
+
+  <p class="validator-copy">
+    Enter the recovered answer using the expected format below. Validation happens in the browser and
+    solved progress is stored only on this device.
+  </p>
+
+  <div class="validator-format">
+    <span>Password format</span>
+    <code>{passwordFormat}</code>
+  </div>
+
+  <form class="validator-form">
+    <label class="sr-only" for="challenge-answer">Challenge answer</label>
+    <input id="challenge-answer" name="answer" type="text" autocomplete="off" placeholder="Enter your answer" />
+    <button class="button button-primary" type="submit">Verify</button>
+  </form>
+
+  <p class="validator-state" data-validator-state>Validation is ready.</p>
+
+  {
+    hint && (
+      <details class="hint-box">
+        <summary>Need a hint?</summary>
+        <p>{hint}</p>
+      </details>
+    )
+  }
+</section>
+
+<script>
+  const normalizeAnswer = (value: string) =>
+    value
+      .normalize("NFKD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/[`'"’"]/g, "")
+      .replace(/[_\s]+/g, " ")
+      .replace(/\s+/g, " ");
+
+  const hashAnswer = async (value: string) => {
+    const bytes = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  };
+
+  document.querySelectorAll("[data-ctf-validator]").forEach((card) => {
+    const root = card;
+    const form = root.querySelector(".validator-form");
+    const input = form?.querySelector("input");
+    const state = root.querySelector("[data-validator-state]");
+    const hashes = JSON.parse(root.getAttribute("data-answer-hashes") ?? "[]");
+    const storageKey = root.getAttribute("data-storage-key");
+
+    if (!(form instanceof HTMLFormElement) || !(input instanceof HTMLInputElement) || !(state instanceof HTMLElement)) {
+      return;
+    }
+
+    const markSolved = () => {
+      root.classList.add("is-solved");
+      state.textContent = "Solved on this device. The format and answer matched.";
+      input.setAttribute("aria-invalid", "false");
+    };
+
+    if (storageKey && localStorage.getItem(storageKey) === "true") {
+      markSolved();
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const raw = input.value;
+      if (!raw.trim()) {
+        root.classList.remove("is-solved");
+        root.classList.add("is-error");
+        state.textContent = "Enter an answer before validating.";
+        input.setAttribute("aria-invalid", "true");
+        return;
+      }
+
+      root.classList.remove("is-error");
+      state.textContent = "Checking answer hash…";
+
+      try {
+        const normalized = normalizeAnswer(raw);
+        const digest = await hashAnswer(normalized);
+
+        if (hashes.includes(digest)) {
+          if (storageKey) {
+            localStorage.setItem(storageKey, "true");
+          }
+          markSolved();
+          return;
+        }
+
+        root.classList.remove("is-solved");
+        root.classList.add("is-error");
+        state.textContent = "That answer did not validate. Check the expected format and try again.";
+        input.setAttribute("aria-invalid", "true");
+      } catch (error) {
+        root.classList.remove("is-solved");
+        root.classList.add("is-error");
+        state.textContent = "Validation failed in this browser session.";
+        input.setAttribute("aria-invalid", "true");
+      }
+    });
+  });
+</script>

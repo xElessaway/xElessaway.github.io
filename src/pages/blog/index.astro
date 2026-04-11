@@ -1,0 +1,43 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
+);
+---
+
+<BaseLayout title="Blog | Ahmed Elessaway (xElessaway)" description="Research posts, field notes, and workflow essays.">
+  <section class="page-intro">
+    <div class="container">
+      <article class="panel page-intro-panel">
+        <p class="eyebrow">Blog</p>
+        <h1>Research notes written for reuse.</h1>
+        <p class="lede">
+          The writing here is meant to be operational: short enough to revisit, structured enough to cite,
+          and opinionated enough to guide future work.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container card-grid">
+      {
+        posts.map((post) => (
+          <a class="story-card" href={`/blog/${post.slug}/`}>
+            <div class="card-topline">
+              {post.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+            </div>
+            <h3>{post.data.title}</h3>
+            <p>{post.data.description}</p>
+            <div class="meta-line">
+              <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
+              <span>{post.data.featured ? "Featured" : "Journal"}</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>

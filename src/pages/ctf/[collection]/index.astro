@@ -1,0 +1,84 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+export async function getStaticPaths() {
+  const collections = await getCollection("ctfCollections");
+  const challenges = await getCollection("ctfChallenges");
+
+  return collections.map((entry) => ({
+    params: { collection: entry.slug },
+    props: {
+      entry,
+      challenges: challenges
+        .filter((challenge) => challenge.data.collection === entry.slug)
+        .sort((a, b) => a.data.order - b.data.order)
+    }
+  }));
+}
+
+const { entry, challenges } = Astro.props;
+
+const grouped = {
+  easy: challenges.filter((challenge) => challenge.data.difficulty === "easy"),
+  medium: challenges.filter((challenge) => challenge.data.difficulty === "medium"),
+  hard: challenges.filter((challenge) => challenge.data.difficulty === "hard")
+};
+---
+
+<BaseLayout title={`${entry.data.title} | CTF`} description={entry.data.summary}>
+  <section class="ctf-hero">
+    <div class="container">
+      <article class="panel ctf-hero-panel">
+        <div class="status-row">
+          <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
+          <span class="meta-chip">{entry.data.year}</span>
+          <span class="meta-chip">{challenges.length} challenge(s)</span>
+        </div>
+        <h1 style="margin-top: 1rem;">{entry.data.title}</h1>
+        <p class="lede">{entry.data.summary}</p>
+        <div class="button-row" style="margin-top: 1.4rem;">
+          <a class="button button-primary" href={entry.data.githubUrl} target="_blank" rel="noreferrer">
+            Open source repository
+          </a>
+          <a class="button button-ghost" href="/ctf/">Back to collections</a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container stack">
+      {
+        Object.entries(grouped).map(([difficulty, items]) =>
+          items.length > 0 && (
+            <section>
+              <div class="section-header">
+                <div>
+                  <p class="eyebrow">{difficulty}</p>
+                  <h2>{difficulty[0].toUpperCase() + difficulty.slice(1)} challenges</h2>
+                </div>
+              </div>
+
+              <div class="card-grid">
+                {items.map((challenge) => (
+                  <a class="challenge-card" href={`/ctf/${entry.slug}/${challenge.slug}/`}>
+                    <div class="status-row">
+                      <span class:list={["difficulty-pill", difficulty]}>{difficulty}</span>
+                      <span class="meta-chip">#{challenge.data.order}</span>
+                    </div>
+                    <h3>{challenge.data.title}</h3>
+                    <p>{challenge.data.prompt}</p>
+                    <div class="meta-line">
+                      <span>{challenge.data.passwordFormat}</span>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

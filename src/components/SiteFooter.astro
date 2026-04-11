@@ -1,0 +1,31 @@
+---
+import { siteMeta } from "../data/site";
+import { withBase } from "../utils/paths";
+---
+
+<footer class="site-footer">
+  <div class="container footer-grid">
+    <div>
+      <p class="footer-kicker">Ahmed Elessaway (xElessaway)</p>
+      <p class="footer-copy">
+        Threat intelligence dossiers, OSINT field notes, and practical CTF design work.
+      </p>
+    </div>
+
+    <div class="footer-links">
+      {
+        siteMeta.nav.map((item) => (
+          <a href={withBase(item.href)}>{item.label}</a>
+        ))
+      }
+    </div>
+
+    <div class="footer-links">
+      {
+        siteMeta.socials.map((item) => (
+          <a href={item.href} target="_blank" rel="noreferrer">{item.label}</a>
+        ))
+      }
+    </div>
+  </div>
+</footer>

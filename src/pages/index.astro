@@ -1,0 +1,213 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SectionHeader from "../components/SectionHeader.astro";
+import { siteMeta } from "../data/site";
+
+const blogPosts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
+);
+const featuredPosts = blogPosts.filter((post) => post.data.featured).slice(0, 3);
+const actors = (await getCollection("actors")).filter((entry) => entry.data.featured).slice(0, 3);
+const collections = await getCollection("ctfCollections");
+const challenges = await getCollection("ctfChallenges");
+
+const featuredCollection = collections.find((entry) => entry.data.featured) ?? collections[0];
+const totalCollections = collections.length;
+const totalChallenges = challenges.length;
+---
+
+<BaseLayout title={`${siteMeta.title} | Cyber Research Journal`} description={siteMeta.description}>
+  <section class="home-hero">
+    <div class="container hero-grid">
+      <article class="panel hero-panel">
+        <p class="eyebrow">Editorial Cyber Research Desk</p>
+        <h1>Field notes for threat tracking, OSINT research, and practical CTF work.</h1>
+        <p class="lede">
+          Ahmed Elessaway uses this journal to turn rough investigations into reusable dossiers, publish
+          method-focused writing, and package OSINT challenges without burying the learning loop in
+          clutter.
+        </p>
+
+        <div class="button-row" style="margin-top: 1.4rem;">
+          <a class="button button-primary" href="/threat-intelligence/">Open Threat Intelligence</a>
+          <a class="button button-ghost" href="/ctf/">Browse CTF Collections</a>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-block">
+            <strong>{blogPosts.length}</strong>
+            <span>Published notes</span>
+          </div>
+          <div class="stat-block">
+            <strong>{actors.length}</strong>
+            <span>Featured dossiers</span>
+          </div>
+          <div class="stat-block">
+            <strong>{totalChallenges}</strong>
+            <span>Challenge pages</span>
+          </div>
+        </div>
+
+        <div class="hero-note">
+          <p>
+            The site is built to work as a living archive: short research posts feed into actor dossiers,
+            and challenge design remains accessible through dedicated collection and challenge pages.
+          </p>
+        </div>
+      </article>
+
+      <aside class="panel signal-panel">
+        <span class="signal-badge">Current Desk Layout</span>
+        <div class="signal-list">
+          <div class="signal-item">
+            <strong>Threat intelligence</strong>
+            <p class="muted-copy">
+              Reusable dossier format for actor names, aliases, targeting, tooling, TTPs, timelines, and
+              references.
+            </p>
+          </div>
+          <div class="signal-item">
+            <strong>Research writing</strong>
+            <p class="muted-copy">
+              Publication-style posts designed to document methods, case studies, and repeatable workflows.
+            </p>
+          </div>
+          <div class="signal-item">
+            <strong>CTF operations</strong>
+            <p class="muted-copy">
+              A simplified challenge flow with device-local progress and browser-side answer checks.
+            </p>
+          </div>
+        </div>
+
+        {
+          featuredCollection && (
+            <div class="signal-item">
+              <p class="eyebrow">Featured Collection</p>
+              <strong>{featuredCollection.data.title}</strong>
+              <p class="muted-copy">{featuredCollection.data.summary}</p>
+              <div class="status-row" style="margin-top: 0.85rem;">
+                <span class:list={["status-pill", featuredCollection.data.status]}>{featuredCollection.data.status}</span>
+                <span class="meta-chip">{featuredCollection.data.year}</span>
+                <span class="meta-chip">{totalCollections} collection(s)</span>
+              </div>
+            </div>
+          )
+        }
+      </aside>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container">
+      <SectionHeader
+        eyebrow="Featured Writing"
+        title="Notes that feed the dossier workflow"
+        description="Blog posts are written as field notes: concise, structured, and close to the work."
+        actionHref="/blog/"
+        actionLabel="Open blog"
+      />
+
+      <div class="card-grid">
+        {
+          featuredPosts.map((post) => (
+            <a class="story-card" href={`/blog/${post.slug}/`}>
+              <div class="card-topline">
+                {post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
+              </div>
+              <h3>{post.data.title}</h3>
+              <p>{post.data.description}</p>
+              <div class="meta-line">
+                <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
+                <span>{post.slug}</span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container">
+      <SectionHeader
+        eyebrow="Threat Intelligence"
+        title="Starter dossiers built for iterative tracking"
+        description="Each dossier is a structured page that can stay thin at first and deepen as reporting lands."
+        actionHref="/threat-intelligence/"
+        actionLabel="Open dossier index"
+      />
+
+      <div class="card-grid">
+        {
+          actors.map((actor) => (
+            <a class="dossier-card" href={`/threat-intelligence/${actor.slug}/`}>
+              <div class="status-row">
+                <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
+                <span class="meta-chip">{actor.data.origin}</span>
+              </div>
+              <h3>{actor.data.name}</h3>
+              <p>{actor.data.motivation}</p>
+              <div class="tag-list" style="margin-top: 1rem;">
+                {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+              </div>
+              <div class="meta-line">
+                <span>First seen {actor.data.firstSeen}</span>
+                <span>Last seen {actor.data.lastSeen}</span>
+              </div>
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container split-grid">
+      <article class="content-panel">
+        <SectionHeader
+          eyebrow="CTF Hub"
+          title="A cleaner challenge flow for the GitHub Pages build"
+          description="The old modal-heavy experience is replaced by dedicated collection and challenge routes."
+        />
+        <div class="prose">
+          <p>
+            Each challenge now has its own page with the prompt, image or supporting assets, password
+            format, one submission field, and optional hint. That keeps the experience fast, linkable, and
+            easier to maintain as the archive grows.
+          </p>
+          <p>
+            Answer checks remain intentionally lightweight. The browser compares normalized input against
+            shipped hashes and stores solved progress locally so users can come back without losing momentum.
+          </p>
+          <div class="button-row">
+            <a class="button button-primary" href="/ctf/">Explore the CTF archive</a>
+            {
+              featuredCollection && (
+                <a class="button button-ghost" href={`/ctf/${featuredCollection.slug}/`}>
+                  Open {featuredCollection.data.title}
+                </a>
+              )
+            }
+          </div>
+        </div>
+      </article>
+
+      <aside class="meta-card">
+        <p class="eyebrow">Journal Focus</p>
+        <h3>{siteMeta.tagline}</h3>
+        <p>
+          This site is designed to sit between a research notebook and a publication. It should be credible
+          enough for public reading, but operational enough to stay useful during real investigations.
+        </p>
+        <div class="tag-list" style="margin-top: 1rem;">
+          <span class="tag">Threat actor tracking</span>
+          <span class="tag">OSINT workflows</span>
+          <span class="tag">CTF design</span>
+          <span class="tag">Research writing</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>
