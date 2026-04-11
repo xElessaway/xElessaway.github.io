@@ -13,13 +13,14 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium writeup" : "Research brief";
 ---
 
 <BaseLayout title={`${entry.data.title} | Ahmed Elessaway`} description={entry.data.description}>
   <section class="story-hero">
     <div class="container">
       <article class="panel story-hero-panel">
-        <p class="eyebrow">Journal Entry</p>
+        <p class="eyebrow">Research Brief</p>
         <h1>{entry.data.title}</h1>
         <p class="lede">{entry.data.description}</p>
         <div class="meta-line">
@@ -50,8 +51,20 @@ const { Content } = await render(entry);
             </div>
             <div>
               <dt>Format</dt>
-              <dd>Editorial field note</dd>
+              <dd>{formatLabel}</dd>
             </div>
+            {
+              entry.data.sourceUrl && (
+                <div>
+                  <dt>Original Source</dt>
+                  <dd>
+                    <a href={entry.data.sourceUrl} target="_blank" rel="noreferrer">
+                      {entry.data.sourceLabel ?? "External source"}
+                    </a>
+                  </dd>
+                </div>
+              )
+            }
           </dl>
         </div>
       </aside>

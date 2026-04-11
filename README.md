@@ -1,11 +1,11 @@
 # Ahmed Elessaway (xElessaway)
 
-Editorial cyber research journal built with Astro for GitHub Pages.
+Threat-focused cyber research site built with Astro for GitHub Pages.
 
 ## Sections
 
-- `Home`: landing page for the journal and featured work.
-- `Blog`: research notes and workflow essays.
+- `Home`: landing page for featured investigations, labs, and profile highlights.
+- `Blog`: Medium-synced writeups plus local research briefs.
 - `Threat Intelligence`: reusable actor dossier pages.
 - `CTF`: collection pages plus dedicated challenge routes with browser-side validation.
 - `About`: identity, focus, and public contact links.
@@ -14,12 +14,14 @@ Editorial cyber research journal built with Astro for GitHub Pages.
 
 ```bash
 npm install
+npm run sync:medium
 npm run dev
 ```
 
 ## Build
 
 ```bash
+npm run sync:medium
 npm run build
 ```
 

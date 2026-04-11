@@ -8,6 +8,7 @@
     "start": "astro dev",
     "build:site": "astro build",
     "build": "npm run build:site && node ./scripts/sync-dist-to-root.mjs",
+    "sync:medium": "node ./scripts/sync-medium-posts.mjs",
     "preview": "astro preview",
     "check": "astro check"
   },

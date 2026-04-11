@@ -7,15 +7,18 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
 );
 ---
 
-<BaseLayout title="Blog | Ahmed Elessaway (xElessaway)" description="Research posts, field notes, and workflow essays.">
+<BaseLayout
+  title="Blog | Ahmed Elessaway (xElessaway)"
+  description="Research briefs, DFIR writeups, OSINT investigations, and threat-focused technical notes."
+>
   <section class="page-intro">
     <div class="container">
       <article class="panel page-intro-panel">
         <p class="eyebrow">Blog</p>
-        <h1>Research notes written for reuse.</h1>
+        <h1>Research briefs and technical writeups.</h1>
         <p class="lede">
-          The writing here is meant to be operational: short enough to revisit, structured enough to cite,
-          and opinionated enough to guide future work.
+          DFIR investigations, OSINT analysis, challenge writeups, and threat-focused notes collected in one
+          place so they remain searchable, linkable, and reusable.
         </p>
       </article>
     </div>
@@ -33,7 +36,7 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
             <p>{post.data.description}</p>
             <div class="meta-line">
               <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
-              <span>{post.data.featured ? "Featured" : "Journal"}</span>
+              <span>{post.data.featured ? "Featured" : post.data.sourceLabel ?? "Research Brief"}</span>
             </div>
           </a>
         ))

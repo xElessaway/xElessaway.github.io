@@ -556,6 +556,36 @@ p {
   text-decoration-color: rgba(46, 216, 255, 0.4);
 }
 
+.prose figure {
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.prose img {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: rgba(3, 11, 18, 0.92);
+}
+
+.prose blockquote {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border-left: 3px solid rgba(46, 216, 255, 0.72);
+  background: rgba(46, 216, 255, 0.05);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.prose pre {
+  margin: 0;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: rgba(3, 11, 18, 0.94);
+  color: var(--paper);
+}
+
 .page-intro,
 .story-hero,
 .dossier-hero,
