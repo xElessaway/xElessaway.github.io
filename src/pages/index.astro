@@ -15,86 +15,145 @@ const challenges = await getCollection("ctfChallenges");
 const featuredCollection = collections.find((entry) => entry.data.featured) ?? collections[0];
 const totalCollections = collections.length;
 const totalChallenges = challenges.length;
+const recentPosts = featuredPosts.length > 0 ? featuredPosts : blogPosts.slice(0, 3);
+const capabilityCards = [
+  {
+    kicker: "DFIR",
+    title: "Memory, disk, and host-focused investigations",
+    description:
+      "Hands-on forensic analysis across Windows and Linux systems using Autopsy, memory forensics, registry analysis, and evidence-led response workflows.",
+    tags: ["Autopsy", "Memory Forensics", "Disk Forensics", "Registry Analysis"]
+  },
+  {
+    kicker: "Threat Intelligence",
+    title: "Investigation context that actually helps defenders",
+    description:
+      "Threat-actor tracking, OpenCTI-driven context building, and intelligence enrichment that makes hunting and triage more precise.",
+    tags: ["OpenCTI", "Threat Hunting", "TTP Mapping", "Intel Enrichment"]
+  },
+  {
+    kicker: "Detection",
+    title: "Blue-team labs and realistic detection scenarios",
+    description:
+      "Lab environments and attack simulations built to train analysts on real signals, better pivots, and faster response decisions.",
+    tags: ["Splunk", "ELK", "Microsoft Sentinel", "Attack Simulation"]
+  },
+  {
+    kicker: "OSINT",
+    title: "Collection, validation, and challenge design",
+    description:
+      "OSINT workflows translated into practical training content, CTF challenges, and student-friendly investigative exercises.",
+    tags: ["OSINT", "Challenge Design", "Training", "Analysis"]
+  }
+];
+const roleHighlights = [
+  {
+    period: "Dec 2024 - Present",
+    role: "CyberDefenders",
+    summary:
+      "Building blue-team labs, detection scenarios, CCD curriculum, and practical DFIR training for analysts and certification candidates."
+  },
+  {
+    period: "Mar 2023 - Present",
+    role: "CyberTalents / Instructor Work",
+    summary:
+      "Creating forensics, OSINT, and network-security challenges while delivering hands-on training and technical support for competitions and courses."
+  },
+  {
+    period: "2020 - Present",
+    role: "0xL4ugh CTF Author",
+    summary:
+      "Authoring DFIR, OSINT, steganography, and network-security challenges for recurring events and custom competition environments."
+  }
+];
 ---
 
-<BaseLayout title={`${siteMeta.title} | Cyber Research Journal`} description={siteMeta.description}>
+<BaseLayout title={`${siteMeta.title} | DFIR, OSINT, Threat Intelligence`} description={siteMeta.description}>
   <section class="home-hero">
     <div class="container hero-grid">
-      <article class="panel hero-panel">
-        <p class="eyebrow">Editorial Cyber Research Desk</p>
-        <h1>Field notes for threat tracking, OSINT research, and practical CTF work.</h1>
+      <article class="panel hero-panel hero-panel-primary">
+        <div class="hero-chip-row">
+          <span class="tag">Threat Intelligence</span>
+          <span class="tag">DFIR</span>
+          <span class="tag">OSINT</span>
+          <span class="tag">Detection Labs</span>
+        </div>
+        <p class="eyebrow">Threat Intelligence and DFIR Operator Profile</p>
+        <h1>Blue-team labs, evidence-led investigations, and OSINT tradecraft.</h1>
         <p class="lede">
-          Ahmed Elessaway uses this journal to turn rough investigations into reusable dossiers, publish
-          method-focused writing, and package OSINT challenges without burying the learning loop in
-          clutter.
+          Threat Intelligence and DFIR-focused cybersecurity engineer with ~3 years of experience building
+          detection labs, investigation-driven training, and practical content around incident response,
+          forensics, threat hunting, and OSINT.
         </p>
 
         <div class="button-row" style="margin-top: 1.4rem;">
           <a class="button button-primary" href="/threat-intelligence/">Open Threat Intelligence</a>
+          <a class="button button-ghost" href="/about/">View Profile</a>
           <a class="button button-ghost" href="/ctf/">Browse CTF Collections</a>
         </div>
 
         <div class="stats-grid">
           <div class="stat-block">
-            <strong>{blogPosts.length}</strong>
-            <span>Published notes</span>
+            <strong>3+</strong>
+            <span>Years in cyber engineering</span>
           </div>
           <div class="stat-block">
-            <strong>{actors.length}</strong>
-            <span>Featured dossiers</span>
+            <strong>200+</strong>
+            <span>Learners trained hands-on</span>
           </div>
           <div class="stat-block">
-            <strong>{totalChallenges}</strong>
-            <span>Challenge pages</span>
+            <strong>5</strong>
+            <span>Recent certifications</span>
           </div>
         </div>
 
         <div class="hero-note">
+          <p class="eyebrow">Current Scope</p>
           <p>
-            The site is built to work as a living archive: short research posts feed into actor dossiers,
-            and challenge design remains accessible through dedicated collection and challenge pages.
+            Current work spans CyberDefenders blue-team labs, CCD curriculum design, memory and disk
+            forensics, OSINT instruction, and recurring CTF development for DFIR and threat-analysis tracks.
           </p>
         </div>
       </article>
 
-      <aside class="panel signal-panel">
-        <span class="signal-badge">Current Desk Layout</span>
+      <aside class="panel signal-panel signal-panel-ops">
+        <span class="signal-badge">Operational Snapshot</span>
         <div class="signal-list">
           <div class="signal-item">
-            <strong>Threat intelligence</strong>
+            <strong>Blue-team lab development</strong>
             <p class="muted-copy">
-              Reusable dossier format for actor names, aliases, targeting, tooling, TTPs, timelines, and
-              references.
+              Design and build attack simulations and hunting scenarios that sharpen analyst detection and
+              response readiness.
             </p>
           </div>
           <div class="signal-item">
-            <strong>Research writing</strong>
+            <strong>Forensics & evidence collection</strong>
             <p class="muted-copy">
-              Publication-style posts designed to document methods, case studies, and repeatable workflows.
+              Practical Windows and Linux evidence handling with disk, memory, and registry-focused DFIR
+              methods.
             </p>
           </div>
           <div class="signal-item">
-            <strong>CTF operations</strong>
+            <strong>OSINT and intelligence training</strong>
             <p class="muted-copy">
-              A simplified challenge flow with device-local progress and browser-side answer checks.
+              Hands-on instruction that translates threat intelligence and OSINT fundamentals into field-ready
+              investigation workflows.
             </p>
           </div>
         </div>
 
-        {
-          featuredCollection && (
-            <div class="signal-item">
-              <p class="eyebrow">Featured Collection</p>
-              <strong>{featuredCollection.data.title}</strong>
-              <p class="muted-copy">{featuredCollection.data.summary}</p>
-              <div class="status-row" style="margin-top: 0.85rem;">
-                <span class:list={["status-pill", featuredCollection.data.status]}>{featuredCollection.data.status}</span>
-                <span class="meta-chip">{featuredCollection.data.year}</span>
-                <span class="meta-chip">{totalCollections} collection(s)</span>
-              </div>
-            </div>
-          )
-        }
+        <div class="signal-item">
+          <p class="eyebrow">Platform Stack</p>
+          <div class="tag-list">
+            <span class="tag">OpenCTI</span>
+            <span class="tag">Splunk</span>
+            <span class="tag">ELK</span>
+            <span class="tag">Sentinel</span>
+            <span class="tag">Wireshark</span>
+            <span class="tag">Autopsy</span>
+            <span class="tag">PowerShell</span>
+          </div>
+        </div>
       </aside>
     </div>
   </section>
@@ -102,27 +161,22 @@ const totalChallenges = challenges.length;
   <section class="content-section">
     <div class="container">
       <SectionHeader
-        eyebrow="Featured Writing"
-        title="Notes that feed the dossier workflow"
-        description="Blog posts are written as field notes: concise, structured, and close to the work."
-        actionHref="/blog/"
-        actionLabel="Open blog"
+        eyebrow="Core Capabilities"
+        title="Built around detection, forensics, and intelligence context"
+        description="The site should read like a security operator's platform, not a student journal. These are the disciplines it is optimized to showcase."
       />
 
-      <div class="card-grid">
+      <div class="capability-grid">
         {
-          featuredPosts.map((post) => (
-            <a class="story-card" href={`/blog/${post.slug}/`}>
-              <div class="card-topline">
-                {post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
+          capabilityCards.map((card) => (
+            <article class="capability-card">
+              <p class="capability-kicker">{card.kicker}</p>
+              <h3>{card.title}</h3>
+              <p>{card.description}</p>
+              <div class="tag-list" style="margin-top: 1rem;">
+                {card.tags.map((tag) => <span class="tag">{tag}</span>)}
               </div>
-              <h3>{post.data.title}</h3>
-              <p>{post.data.description}</p>
-              <div class="meta-line">
-                <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
-                <span>{post.slug}</span>
-              </div>
-            </a>
+            </article>
           ))
         }
       </div>
@@ -130,11 +184,56 @@ const totalChallenges = challenges.length;
   </section>
 
   <section class="content-section">
+    <div class="container split-grid">
+      <article class="content-panel">
+        <SectionHeader
+          eyebrow="Work Profile"
+          title="Training systems, investigations, and challenge operations"
+          description="The strongest signal in the CV is practical security work: labs, DFIR, OSINT, and repeated hands-on teaching."
+        />
+
+        <div class="role-grid">
+          {
+            roleHighlights.map((item) => (
+              <article class="role-card">
+                <p class="role-period">{item.period}</p>
+                <h3>{item.role}</h3>
+                <p>{item.summary}</p>
+              </article>
+            ))
+          }
+        </div>
+      </article>
+
+      <aside class="meta-card">
+        <p class="eyebrow">Evidence of Depth</p>
+        <h3>What stands behind the branding</h3>
+        <p>
+          Certification work, OSINT instruction, DFIR lab creation, and competition performance all support a
+          more operational identity than the current journal tone suggests.
+        </p>
+        <div class="tag-list" style="margin-top: 1rem;">
+          <span class="tag">eCIRv2</span>
+          <span class="tag">CCD</span>
+          <span class="tag">CARTP</span>
+          <span class="tag">ArcX TIA 101</span>
+          <span class="tag">Basel OSINT</span>
+        </div>
+        <div class="meta-line">
+          <span>{totalChallenges} challenge pages</span>
+          <span>{totalCollections} collection(s)</span>
+          <span>2022-2026 event work</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="content-section">
     <div class="container">
       <SectionHeader
         eyebrow="Threat Intelligence"
-        title="Starter dossiers built for iterative tracking"
-        description="Each dossier is a structured page that can stay thin at first and deepen as reporting lands."
+        title="Reusable actor pages for operational tracking"
+        description="Dossiers stay in the build because threat intelligence is one of the clearest through-lines in your profile."
         actionHref="/threat-intelligence/"
         actionLabel="Open dossier index"
       />
@@ -167,19 +266,19 @@ const totalChallenges = challenges.length;
     <div class="container split-grid">
       <article class="content-panel">
         <SectionHeader
-          eyebrow="CTF Hub"
-          title="A cleaner challenge flow for the GitHub Pages build"
-          description="The old modal-heavy experience is replaced by dedicated collection and challenge routes."
+          eyebrow="Training Environments"
+          title="CTFs and labs should feel like practical operator training"
+          description="The CTF section stays, but it now reads as part of a DFIR and OSINT training ecosystem rather than a standalone student project."
         />
         <div class="prose">
           <p>
-            Each challenge now has its own page with the prompt, image or supporting assets, password
-            format, one submission field, and optional hint. That keeps the experience fast, linkable, and
-            easier to maintain as the archive grows.
+            Each challenge now has its own page with the prompt, evidence asset, password format, one
+            submission field, and optional hint. That keeps the flow focused on analysis instead of UI
+            friction.
           </p>
           <p>
-            Answer checks remain intentionally lightweight. The browser compares normalized input against
-            shipped hashes and stores solved progress locally so users can come back without losing momentum.
+            This is aligned with the CV: practical challenge authoring, DFIR scenarios, OSINT tasks, and lab
+            work that helps people build investigation skill instead of just clicking through content.
           </p>
           <div class="button-row">
             <a class="button button-primary" href="/ctf/">Explore the CTF archive</a>
@@ -195,17 +294,17 @@ const totalChallenges = challenges.length;
       </article>
 
       <aside class="meta-card">
-        <p class="eyebrow">Journal Focus</p>
+        <p class="eyebrow">Recent Analysis</p>
         <h3>{siteMeta.tagline}</h3>
-        <p>
-          This site is designed to sit between a research notebook and a publication. It should be credible
-          enough for public reading, but operational enough to stay useful during real investigations.
-        </p>
-        <div class="tag-list" style="margin-top: 1rem;">
-          <span class="tag">Threat actor tracking</span>
-          <span class="tag">OSINT workflows</span>
-          <span class="tag">CTF design</span>
-          <span class="tag">Research writing</span>
+        <div class="stack" style="margin-top: 1rem;">
+          {
+            recentPosts.map((post) => (
+              <a class="intel-link" href={`/blog/${post.slug}/`}>
+                <strong>{post.data.title}</strong>
+                <p class="muted-copy" style="margin-top: 0.35rem;">{post.data.description}</p>
+              </a>
+            ))
+          }
         </div>
       </aside>
     </div>

@@ -1,11 +1,11 @@
 export const siteMeta = {
   title: "Ahmed Elessaway (xElessaway)",
   description:
-    "Editorial cyber research journal covering threat intelligence, OSINT workflows, and hands-on CTF collections.",
+    "Threat Intelligence and DFIR-focused cybersecurity engineer building blue-team labs, OSINT workflows, and practical investigation content.",
   tagline:
-    "Threat intelligence dossiers, research notes, and practical OSINT challenges.",
+    "DFIR, threat intelligence, OSINT, and blue-team training systems.",
   siteUrl: "https://xelessaway.github.io",
-  location: "Cairo, Egypt",
+  location: "6th of October City, Egypt",
   socials: [
     {
       label: "GitHub",
@@ -20,8 +20,8 @@ export const siteMeta = {
       href: "https://x.com/ahmed_elessaway"
     },
     {
-      label: "Discord",
-      href: "https://discord.com/users/xElessaway"
+      label: "Medium",
+      href: "https://xelessaway.medium.com/"
     }
   ],
   nav: [

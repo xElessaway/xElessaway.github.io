@@ -1,20 +1,20 @@
 :root {
-  --bg: #101417;
-  --bg-elevated: #171d21;
-  --bg-panel: rgba(25, 31, 35, 0.78);
-  --paper: #efe4cf;
-  --paper-muted: #d7c9ad;
-  --ink: #f6f1e7;
-  --muted: #b9ad97;
-  --line: rgba(239, 228, 207, 0.14);
-  --accent: #cf7b4d;
-  --accent-strong: #f39c64;
-  --signal: #a0b3a2;
-  --success: #83c297;
-  --danger: #f09a85;
-  --shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
-  --radius-xl: 28px;
-  --radius-lg: 20px;
+  --bg: #051019;
+  --bg-elevated: #091724;
+  --bg-panel: rgba(7, 18, 29, 0.84);
+  --paper: #dffbff;
+  --paper-muted: #7dbdcc;
+  --ink: #f4fdff;
+  --muted: #99b5c1;
+  --line: rgba(73, 181, 255, 0.17);
+  --accent: #2ed8ff;
+  --accent-strong: #89f5ff;
+  --signal: #6cffba;
+  --success: #6cffba;
+  --danger: #ff8f73;
+  --shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+  --radius-xl: 24px;
+  --radius-lg: 18px;
   --radius-md: 14px;
   --radius-sm: 10px;
   --container: 1180px;
@@ -34,9 +34,10 @@ body {
   margin: 0;
   min-height: 100vh;
   background:
-    radial-gradient(circle at top left, rgba(207, 123, 77, 0.12), transparent 28%),
-    radial-gradient(circle at 85% 12%, rgba(160, 179, 162, 0.12), transparent 24%),
-    linear-gradient(180deg, #0e1215 0%, #101417 50%, #11181b 100%);
+    radial-gradient(circle at top left, rgba(46, 216, 255, 0.16), transparent 24%),
+    radial-gradient(circle at 80% 10%, rgba(108, 255, 186, 0.12), transparent 22%),
+    radial-gradient(circle at 50% 100%, rgba(23, 49, 78, 0.35), transparent 30%),
+    linear-gradient(180deg, #02070c 0%, #051019 46%, #07131c 100%);
   color: var(--ink);
   font-family: "IBM Plex Sans", sans-serif;
   line-height: 1.65;
@@ -48,10 +49,19 @@ body::before {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(239, 228, 207, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(239, 228, 207, 0.03) 1px, transparent 1px);
-  background-size: 44px 44px;
+    linear-gradient(rgba(46, 216, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(46, 216, 255, 0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
   mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.7), transparent 95%);
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(137, 245, 255, 0.018), transparent 14%, transparent 86%, rgba(108, 255, 186, 0.02));
+  mix-blend-mode: screen;
 }
 
 a {
@@ -96,8 +106,9 @@ pre,
   top: 0;
   z-index: 10;
   backdrop-filter: blur(18px);
-  background: rgba(12, 16, 18, 0.82);
+  background: rgba(3, 11, 18, 0.8);
   border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 0 rgba(46, 216, 255, 0.05);
 }
 
 .shell-bar {
@@ -119,15 +130,16 @@ pre,
   place-items: center;
   width: 2.85rem;
   height: 2.85rem;
-  border-radius: 18px;
-  border: 1px solid rgba(239, 228, 207, 0.24);
+  border-radius: 12px;
+  border: 1px solid rgba(46, 216, 255, 0.3);
   background:
-    linear-gradient(145deg, rgba(207, 123, 77, 0.2), rgba(13, 16, 18, 0.5)),
-    rgba(239, 228, 207, 0.03);
-  color: var(--paper);
+    linear-gradient(145deg, rgba(46, 216, 255, 0.16), rgba(4, 13, 22, 0.9)),
+    rgba(223, 251, 255, 0.02);
+  color: var(--accent-strong);
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.95rem;
   letter-spacing: 0.08em;
+  box-shadow: inset 0 0 0 1px rgba(137, 245, 255, 0.08);
 }
 
 .brand-copy {
@@ -168,7 +180,7 @@ pre,
 .nav-link:hover,
 .nav-link.is-active {
   color: var(--ink);
-  background: rgba(239, 228, 207, 0.08);
+  background: rgba(46, 216, 255, 0.09);
 }
 
 .menu-toggle {
@@ -183,7 +195,7 @@ pre,
 
 .eyebrow {
   margin: 0 0 0.7rem;
-  color: var(--paper-muted);
+  color: var(--accent-strong);
   text-transform: uppercase;
   letter-spacing: 0.18em;
   font-size: 0.72rem;
@@ -195,8 +207,8 @@ h2,
 h3,
 h4 {
   margin: 0;
-  font-family: "Fraunces", serif;
-  letter-spacing: -0.04em;
+  font-family: "Oxanium", sans-serif;
+  letter-spacing: -0.03em;
   line-height: 1.05;
 }
 
@@ -244,12 +256,12 @@ p {
 
 .button-primary {
   background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-  color: #17120e;
-  box-shadow: 0 18px 40px rgba(207, 123, 77, 0.18);
+  color: #04131d;
+  box-shadow: 0 18px 40px rgba(46, 216, 255, 0.2);
 }
 
 .button-ghost {
-  background: rgba(239, 228, 207, 0.03);
+  background: rgba(46, 216, 255, 0.04);
   border-color: var(--line);
   color: var(--paper);
 }
@@ -277,7 +289,7 @@ p {
 .content-panel {
   border: 1px solid var(--line);
   background:
-    linear-gradient(180deg, rgba(239, 228, 207, 0.03), rgba(239, 228, 207, 0.01)),
+    linear-gradient(180deg, rgba(46, 216, 255, 0.035), rgba(46, 216, 255, 0.01)),
     var(--bg-panel);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
@@ -311,11 +323,22 @@ p {
 .hero-panel::after {
   content: "";
   position: absolute;
-  inset: auto -8% -22% auto;
-  width: 230px;
-  height: 230px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(207, 123, 77, 0.24), transparent 68%);
+  inset: auto -12% -18% auto;
+  width: 260px;
+  height: 260px;
+  border-radius: 26px;
+  background:
+    linear-gradient(135deg, rgba(46, 216, 255, 0.18), transparent 58%),
+    radial-gradient(circle, rgba(108, 255, 186, 0.16), transparent 66%);
+  filter: blur(10px);
+}
+
+.hero-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(137, 245, 255, 0.04), transparent 32%, transparent 68%, rgba(108, 255, 186, 0.03));
+  pointer-events: none;
 }
 
 .hero-panel .lede {
@@ -323,11 +346,20 @@ p {
   margin-top: 1.2rem;
 }
 
+.hero-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 1;
+}
+
 .hero-note {
   margin-top: 1.4rem;
   padding: 1rem 1.1rem;
-  border-left: 3px solid rgba(207, 123, 77, 0.7);
-  background: rgba(239, 228, 207, 0.04);
+  border-left: 3px solid rgba(46, 216, 255, 0.72);
+  background: rgba(46, 216, 255, 0.05);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
@@ -342,13 +374,14 @@ p {
   padding: 1rem;
   border-radius: var(--radius-md);
   border: 1px solid var(--line);
-  background: rgba(239, 228, 207, 0.03);
+  background: rgba(46, 216, 255, 0.03);
 }
 
 .stat-block strong {
   display: block;
   font-size: 1.7rem;
-  font-family: "Fraunces", serif;
+  font-family: "Oxanium", sans-serif;
+  color: var(--accent-strong);
 }
 
 .stat-block span {
@@ -367,8 +400,8 @@ p {
   width: fit-content;
   padding: 0.45rem 0.7rem;
   border-radius: 999px;
-  background: rgba(160, 179, 162, 0.12);
-  color: var(--paper);
+  background: rgba(108, 255, 186, 0.12);
+  color: var(--signal);
   font-size: 0.76rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -383,7 +416,7 @@ p {
 .signal-item {
   padding: 1rem;
   border-radius: var(--radius-md);
-  background: rgba(16, 20, 23, 0.7);
+  background: rgba(2, 11, 19, 0.72);
   border: 1px solid var(--line);
 }
 
@@ -431,45 +464,50 @@ p {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-family: "IBM Plex Mono", monospace;
-  border: 1px solid rgba(239, 228, 207, 0.1);
+  border: 1px solid rgba(46, 216, 255, 0.12);
+  background: rgba(46, 216, 255, 0.05);
 }
 
 .status-pill.active,
 .difficulty-pill.easy {
-  background: rgba(131, 194, 151, 0.12);
-  color: #c5f0d1;
+  background: rgba(108, 255, 186, 0.12);
+  color: #c9ffe5;
 }
 
 .status-pill.tracking,
 .status-pill.retired,
 .difficulty-pill.medium {
-  background: rgba(243, 156, 100, 0.12);
-  color: #ffd1b2;
+  background: rgba(46, 216, 255, 0.12);
+  color: #caf8ff;
 }
 
 .status-pill.disrupted,
 .difficulty-pill.hard {
-  background: rgba(240, 154, 133, 0.12);
-  color: #ffd2c5;
+  background: rgba(255, 143, 115, 0.12);
+  color: #ffd7ce;
 }
 
 .status-pill.historic,
 .status-pill.archived {
-  background: rgba(160, 179, 162, 0.12);
-  color: #d8e2d9;
+  background: rgba(125, 189, 204, 0.12);
+  color: #ddf6fc;
 }
 
 .story-card h3,
 .dossier-card h3,
 .challenge-card h3,
-.meta-card h3 {
+.meta-card h3,
+.capability-card h3,
+.role-card h3 {
   margin-top: 0.8rem;
 }
 
 .story-card p,
 .dossier-card p,
 .challenge-card p,
-.meta-card p {
+.meta-card p,
+.capability-card p,
+.role-card p {
   margin-top: 0.9rem;
   color: var(--muted);
 }
@@ -515,7 +553,7 @@ p {
 .prose a {
   color: var(--accent-strong);
   text-decoration: underline;
-  text-decoration-color: rgba(243, 156, 100, 0.4);
+  text-decoration-color: rgba(46, 216, 255, 0.4);
 }
 
 .page-intro,
@@ -574,7 +612,7 @@ p {
   padding: 1.2rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: rgba(239, 228, 207, 0.03);
+  background: rgba(46, 216, 255, 0.03);
 }
 
 .timeline-item time {
@@ -602,7 +640,7 @@ p {
   padding: 0.95rem 1rem;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(239, 228, 207, 0.03);
+  background: rgba(46, 216, 255, 0.03);
   color: var(--ink);
   font: inherit;
 }
@@ -619,7 +657,7 @@ p {
 
 .filter-button.is-active {
   color: var(--ink);
-  background: rgba(239, 228, 207, 0.08);
+  background: rgba(46, 216, 255, 0.09);
 }
 
 .filter-empty {
@@ -637,7 +675,7 @@ p {
 .asset-list a {
   padding: 0.45rem 0.8rem;
   border-radius: 999px;
-  background: rgba(239, 228, 207, 0.05);
+  background: rgba(46, 216, 255, 0.05);
   border: 1px solid var(--line);
   color: var(--paper);
   font-size: 0.86rem;
@@ -667,7 +705,7 @@ p {
   align-items: center;
   padding: 0.85rem 1rem;
   border-radius: var(--radius-md);
-  background: rgba(239, 228, 207, 0.04);
+  background: rgba(46, 216, 255, 0.04);
   border: 1px solid var(--line);
 }
 
@@ -690,7 +728,7 @@ p {
   padding: 0.95rem 1rem;
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(11, 15, 17, 0.74);
+  background: rgba(2, 11, 19, 0.82);
   color: var(--ink);
   font: inherit;
 }
@@ -702,7 +740,7 @@ p {
 .validator-state {
   padding: 0.9rem 1rem;
   border-radius: var(--radius-md);
-  background: rgba(239, 228, 207, 0.04);
+  background: rgba(46, 216, 255, 0.04);
   border: 1px solid var(--line);
   color: var(--paper);
 }
@@ -768,12 +806,85 @@ p {
   color: var(--paper);
 }
 
+.capability-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+}
+
+.capability-card,
+.role-card,
+.intel-link {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, rgba(46, 216, 255, 0.03), rgba(46, 216, 255, 0.01)),
+    rgba(6, 17, 27, 0.72);
+  box-shadow: var(--shadow);
+}
+
+.capability-card,
+.role-card {
+  padding: 1.25rem;
+}
+
+.capability-kicker,
+.role-period {
+  color: var(--accent-strong);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.intel-link {
+  display: block;
+  padding: 1rem;
+  transition:
+    border-color 180ms ease,
+    transform 180ms ease,
+    background 180ms ease;
+}
+
+.story-card,
+.dossier-card,
+.challenge-card,
+.capability-card,
+.role-card,
+.intel-link {
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease;
+}
+
+.story-card:hover,
+.dossier-card:hover,
+.challenge-card:hover,
+.capability-card:hover,
+.role-card:hover,
+.intel-link:hover {
+  transform: translateY(-2px);
+  border-color: rgba(137, 245, 255, 0.38);
+  background:
+    linear-gradient(180deg, rgba(46, 216, 255, 0.06), rgba(46, 216, 255, 0.02)),
+    rgba(8, 21, 33, 0.82);
+}
+
 @media (max-width: 960px) {
   .hero-grid,
   .split-grid,
   .content-layout,
   .footer-grid,
-  .card-grid {
+  .card-grid,
+  .capability-grid,
+  .role-grid {
     grid-template-columns: 1fr;
   }
 }
