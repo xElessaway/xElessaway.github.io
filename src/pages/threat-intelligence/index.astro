@@ -1,8 +1,13 @@
 ---
 import { getCollection } from "astro:content";
+import { readdir } from "node:fs/promises";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
-const actors = (await getCollection("actors")).sort((a, b) => a.data.name.localeCompare(b.data.name));
+const actorDirEntries = await readdir(new URL("../../content/actors", import.meta.url), { withFileTypes: true }).catch(() => []);
+const hasActorEntries = actorDirEntries.some(
+  (entry) => entry.isFile() && entry.name.endsWith(".md") && !entry.name.startsWith("_")
+);
+const actors = hasActorEntries ? (await getCollection("actors")).sort((a, b) => a.data.name.localeCompare(b.data.name)) : [];
 const allTags = [...new Set(actors.flatMap((entry) => entry.data.tags))].sort((a, b) => a.localeCompare(b));
 const statuses = ["all", "active", "tracking", "disrupted", "historic"];
 const activeActors = actors.filter((entry) => entry.data.status === "active").length;
@@ -19,14 +24,20 @@ const trackingActors = actors.filter((entry) => entry.data.status === "tracking"
         <div class="ops-meta-strip">
           <span class="meta-chip">intel_database // actor_index</span>
           <span class="meta-chip">{actors.length} dossiers</span>
-          <span class="meta-chip">{activeActors} active</span>
-          <span class="meta-chip">{trackingActors} tracking</span>
+          {actors.length > 0 ? (
+            <>
+              <span class="meta-chip">{activeActors} active</span>
+              <span class="meta-chip">{trackingActors} tracking</span>
+            </>
+          ) : (
+            <span class="meta-chip">publishing_queue</span>
+          )}
         </div>
         <p class="eyebrow">Threat Intelligence Database</p>
         <h1>Structured actor dossiers for repeatable tracking.</h1>
         <p class="lede">
-          Search by actor, alias, status, or tag. The page is built to hold thin starter profiles and richer
-          operational dossiers without changing the shape of the archive.
+          The section is reserved for real published actor research. Sample entries have been removed, and the
+          framework stays ready for future dossiers without changing the archive structure.
         </p>
       </article>
     </div>
@@ -34,122 +45,154 @@ const trackingActors = actors.filter((entry) => entry.data.status === "tracking"
 
   <section class="content-section">
     <div class="container stack">
-      <div class="panel filter-panel">
-        <div class="filter-shell">
-          <input
-            id="dossier-search"
-            class="filter-input"
-            type="search"
-            placeholder="SEARCH_ACTOR_ALIAS_OR_TAG"
-            autocomplete="off"
-          />
+      {
+        actors.length > 0 ? (
+          <>
+            <div class="panel filter-panel">
+              <div class="filter-shell">
+                <input
+                  id="dossier-search"
+                  class="filter-input"
+                  type="search"
+                  placeholder="SEARCH_ACTOR_ALIAS_OR_TAG"
+                  autocomplete="off"
+                />
 
-          <div class="filter-row">
-            {
-              statuses.map((status) => (
-                <button class:list={["filter-button", status === "all" && "is-active"]} type="button" data-status-filter={status}>
-                  {status}
-                </button>
-              ))
-            }
-          </div>
+                <div class="filter-row">
+                  {
+                    statuses.map((status) => (
+                      <button class:list={["filter-button", status === "all" && "is-active"]} type="button" data-status-filter={status}>
+                        {status}
+                      </button>
+                    ))
+                  }
+                </div>
 
-          <div class="filter-row">
-            <button class="filter-button is-active" type="button" data-tag-filter="all">all_tags</button>
-            {
-              allTags.map((tag) => (
-                <button class="filter-button" type="button" data-tag-filter={tag}>
-                  {tag}
-                </button>
-              ))
-            }
-          </div>
-        </div>
-      </div>
-
-      <div class="card-grid" data-dossier-grid>
-        {
-          actors.map((actor) => (
-            <a
-              class="dossier-card"
-              href={`/threat-intelligence/${actor.slug}/`}
-              data-dossier-card
-              data-status={actor.data.status}
-              data-tags={actor.data.tags.join("|")}
-              data-search={[actor.data.name, ...actor.data.aliases, ...actor.data.tags].join(" ").toLowerCase()}
-            >
-              <div class="status-row">
-                <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
-                <span class="meta-chip">{actor.data.origin}</span>
+                <div class="filter-row">
+                  <button class="filter-button is-active" type="button" data-tag-filter="all">all_tags</button>
+                  {
+                    allTags.map((tag) => (
+                      <button class="filter-button" type="button" data-tag-filter={tag}>
+                        {tag}
+                      </button>
+                    ))
+                  }
+                </div>
               </div>
-              <p class="eyebrow">identity_profile</p>
-              <h3>{actor.data.name}</h3>
-              <p>{actor.data.motivation}</p>
-              <div class="meta-line">
-                <span>{actor.data.aliases.join(" / ")}</span>
-              </div>
-              <div class="tag-list">
-                {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
-              </div>
-            </a>
-          ))
-        }
-      </div>
+            </div>
 
-      <p class="filter-empty" data-filter-empty>No dossiers match the current filters.</p>
+            <div class="card-grid" data-dossier-grid>
+              {
+                actors.map((actor) => (
+                  <a
+                    class="dossier-card"
+                    href={`/threat-intelligence/${actor.slug}/`}
+                    data-dossier-card
+                    data-status={actor.data.status}
+                    data-tags={actor.data.tags.join("|")}
+                    data-search={[actor.data.name, ...actor.data.aliases, ...actor.data.tags].join(" ").toLowerCase()}
+                  >
+                    <div class="status-row">
+                      <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
+                      <span class="meta-chip">{actor.data.origin}</span>
+                    </div>
+                    <p class="eyebrow">identity_profile</p>
+                    <h3>{actor.data.name}</h3>
+                    <p>{actor.data.motivation}</p>
+                    <div class="meta-line">
+                      <span>{actor.data.aliases.join(" / ")}</span>
+                    </div>
+                    <div class="tag-list">
+                      {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+                    </div>
+                  </a>
+                ))
+              }
+            </div>
+
+            <p class="filter-empty" data-filter-empty>No dossiers match the current filters.</p>
+          </>
+        ) : (
+          <article class="content-panel">
+            <div class="ops-meta-strip">
+              <span class="meta-chip">publication_state // waiting_for_real_intel</span>
+              <span class="meta-chip">framework_ready</span>
+            </div>
+            <h2>No public actor dossiers yet.</h2>
+            <p>
+              This section stays online as the publishing surface for original threat actor tracking. It is
+              intentionally empty until real entries are added, so the site does not ship demo intelligence as
+              if it were authored research.
+            </p>
+            <div class="tag-list">
+              <span class="tag">Executive Summary</span>
+              <span class="tag">Aliases</span>
+              <span class="tag">Targets</span>
+              <span class="tag">Timeline</span>
+              <span class="tag">Tooling</span>
+              <span class="tag">TTPs</span>
+              <span class="tag">References</span>
+            </div>
+          </article>
+        )
+      }
     </div>
   </section>
 
-  <script>
-    const searchInput = document.querySelector("#dossier-search");
-    const statusButtons = [...document.querySelectorAll("[data-status-filter]")];
-    const tagButtons = [...document.querySelectorAll("[data-tag-filter]")];
-    const cards = [...document.querySelectorAll("[data-dossier-card]")];
-    const emptyState = document.querySelector("[data-filter-empty]");
+  {
+    actors.length > 0 && (
+      <script>
+        const searchInput = document.querySelector("#dossier-search");
+        const statusButtons = [...document.querySelectorAll("[data-status-filter]")];
+        const tagButtons = [...document.querySelectorAll("[data-tag-filter]")];
+        const cards = [...document.querySelectorAll("[data-dossier-card]")];
+        const emptyState = document.querySelector("[data-filter-empty]");
 
-    let activeStatus = "all";
-    let activeTag = "all";
+        let activeStatus = "all";
+        let activeTag = "all";
 
-    const applyFilters = () => {
-      const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim().toLowerCase() : "";
-      let visibleCount = 0;
+        const applyFilters = () => {
+          const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim().toLowerCase() : "";
+          let visibleCount = 0;
 
-      cards.forEach((card) => {
-        const searchText = card.getAttribute("data-search") ?? "";
-        const status = card.getAttribute("data-status") ?? "";
-        const tags = (card.getAttribute("data-tags") ?? "").split("|").filter(Boolean);
-        const matchesQuery = !query || searchText.includes(query);
-        const matchesStatus = activeStatus === "all" || status === activeStatus;
-        const matchesTag = activeTag === "all" || tags.includes(activeTag);
-        const visible = matchesQuery && matchesStatus && matchesTag;
+          cards.forEach((card) => {
+            const searchText = card.getAttribute("data-search") ?? "";
+            const status = card.getAttribute("data-status") ?? "";
+            const tags = (card.getAttribute("data-tags") ?? "").split("|").filter(Boolean);
+            const matchesQuery = !query || searchText.includes(query);
+            const matchesStatus = activeStatus === "all" || status === activeStatus;
+            const matchesTag = activeTag === "all" || tags.includes(activeTag);
+            const visible = matchesQuery && matchesStatus && matchesTag;
 
-        card.toggleAttribute("hidden", !visible);
-        if (visible) {
-          visibleCount += 1;
-        }
-      });
+            card.toggleAttribute("hidden", !visible);
+            if (visible) {
+              visibleCount += 1;
+            }
+          });
 
-      if (emptyState instanceof HTMLElement) {
-        emptyState.classList.toggle("is-visible", visibleCount === 0);
-      }
-    };
+          if (emptyState instanceof HTMLElement) {
+            emptyState.classList.toggle("is-visible", visibleCount === 0);
+          }
+        };
 
-    searchInput?.addEventListener("input", applyFilters);
+        searchInput?.addEventListener("input", applyFilters);
 
-    statusButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        activeStatus = button.getAttribute("data-status-filter") ?? "all";
-        statusButtons.forEach((item) => item.classList.toggle("is-active", item === button));
-        applyFilters();
-      });
-    });
+        statusButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            activeStatus = button.getAttribute("data-status-filter") ?? "all";
+            statusButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+            applyFilters();
+          });
+        });
 
-    tagButtons.forEach((button) => {
-      button.addEventListener("click", () => {
-        activeTag = button.getAttribute("data-tag-filter") ?? "all";
-        tagButtons.forEach((item) => item.classList.toggle("is-active", item === button));
-        applyFilters();
-      });
-    });
-  </script>
+        tagButtons.forEach((button) => {
+          button.addEventListener("click", () => {
+            activeTag = button.getAttribute("data-tag-filter") ?? "all";
+            tagButtons.forEach((item) => item.classList.toggle("is-active", item === button));
+            applyFilters();
+          });
+        });
+      </script>
+    )
+  }
 </BaseLayout>

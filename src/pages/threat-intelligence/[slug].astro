@@ -1,8 +1,18 @@
 ---
 import { getCollection, render } from "astro:content";
+import { readdir } from "node:fs/promises";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 
 export async function getStaticPaths() {
+  const actorDirEntries = await readdir(new URL("../../content/actors", import.meta.url), { withFileTypes: true }).catch(() => []);
+  const hasActorEntries = actorDirEntries.some(
+    (entry) => entry.isFile() && entry.name.endsWith(".md") && !entry.name.startsWith("_")
+  );
+
+  if (!hasActorEntries) {
+    return [];
+  }
+
   const actors = await getCollection("actors");
 
   return actors.map((entry) => ({

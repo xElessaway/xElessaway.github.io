@@ -1,14 +1,20 @@
 ---
 import { getCollection } from "astro:content";
+import { readdir } from "node:fs/promises";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SectionHeader from "../components/SectionHeader.astro";
 import { siteMeta } from "../data/site";
+
+const actorDirEntries = await readdir(new URL("../content/actors", import.meta.url), { withFileTypes: true }).catch(() => []);
+const hasActorEntries = actorDirEntries.some(
+  (entry) => entry.isFile() && entry.name.endsWith(".md") && !entry.name.startsWith("_")
+);
 
 const blogPosts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
 );
 const featuredPosts = blogPosts.filter((post) => post.data.featured).slice(0, 3);
-const actors = (await getCollection("actors")).filter((entry) => entry.data.featured).slice(0, 3);
+const actors = hasActorEntries ? (await getCollection("actors")).filter((entry) => entry.data.featured).slice(0, 3) : [];
 const collections = await getCollection("ctfCollections");
 const challenges = await getCollection("ctfChallenges");
 
@@ -270,33 +276,55 @@ const missionMetrics = [
       <article class="content-panel">
         <SectionHeader
           eyebrow="Threat Intelligence"
-          title="Reusable actor pages for operational tracking"
-          description="Dossiers are treated like briefing objects: stable identity, clear TTP themes, timeline context, and source references."
+          title="A threat intelligence framework without fake dossiers"
+          description="The section stays live for original actor research, but placeholder sample actors have been removed so only real published dossiers appear."
           actionHref="/threat-intelligence/"
           actionLabel="Open dossier index"
         />
 
-        <div class="card-grid card-grid-compact">
-          {
-            actors.map((actor) => (
-              <a class="dossier-card" href={`/threat-intelligence/${actor.slug}/`}>
-                <div class="status-row">
-                  <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
-                  <span class="meta-chip">{actor.data.origin}</span>
-                </div>
-                <h3>{actor.data.name}</h3>
-                <p>{actor.data.motivation}</p>
-                <div class="tag-list">
-                  {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
-                </div>
-                <div class="meta-line">
-                  <span>first_seen {actor.data.firstSeen}</span>
-                  <span>last_seen {actor.data.lastSeen}</span>
-                </div>
-              </a>
-            ))
-          }
-        </div>
+        {
+          actors.length > 0 ? (
+            <div class="card-grid card-grid-compact">
+              {actors.map((actor) => (
+                <a class="dossier-card" href={`/threat-intelligence/${actor.slug}/`}>
+                  <div class="status-row">
+                    <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
+                    <span class="meta-chip">{actor.data.origin}</span>
+                  </div>
+                  <h3>{actor.data.name}</h3>
+                  <p>{actor.data.motivation}</p>
+                  <div class="tag-list">
+                    {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
+                  </div>
+                  <div class="meta-line">
+                    <span>first_seen {actor.data.firstSeen}</span>
+                    <span>last_seen {actor.data.lastSeen}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          ) : (
+            <article class="content-panel">
+              <div class="ops-meta-strip">
+                <span class="meta-chip">publication_state // clean</span>
+                <span class="meta-chip">0 public dossiers</span>
+              </div>
+              <p>
+                No public actor dossiers are published yet. The page structure is ready for verified threat
+                actor entries, timelines, TTP themes, tooling, and source references as that research is
+                added.
+              </p>
+              <div class="tag-list">
+                <span class="tag">Identity</span>
+                <span class="tag">Aliases</span>
+                <span class="tag">Timeline</span>
+                <span class="tag">TTP Mapping</span>
+                <span class="tag">Tooling</span>
+                <span class="tag">References</span>
+              </div>
+            </article>
+          )
+        }
       </article>
 
       <aside class="meta-card">

@@ -9,7 +9,7 @@ tags:
   - "threat-intelligence"
   - "osint"
 cover: "https://cdn-images-1.medium.com/max/1024/1*fyVvQqjTiHr_PxQ2KqLLgQ.png"
-featured: true
+featured: false
 draft: false
 sourceLabel: "Medium"
 sourceUrl: "https://xelessaway.medium.com/0xl4ughctf-osint-writeups-44b1f7dcf6d4"

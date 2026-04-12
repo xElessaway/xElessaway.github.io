@@ -9,7 +9,7 @@ tags:
   - "hacks"
   - "infostealer"
 cover: "https://cdn-images-1.medium.com/max/1024/1*0O9-hMCJi22UAJGYQrOtvg.png"
-featured: false
+featured: true
 draft: false
 sourceLabel: "Medium"
 sourceUrl: "https://xelessaway.medium.com/how-a-malicious-application-used-a-game-demo-to-deliver-an-infostealer-a48a155a54cf"
