@@ -1,7 +1,8 @@
 ---
 title: "EGCTF25 Digital Forensics Writeup"
-description: "Hello, it’s me, xElessaway. First of all, Alhamdulillah, for everything and anything. Special thanks to Islam Mostafa (0x01g33k) for the really interesting DF Challenges in..."
+description: "Digital forensics challenge analysis focused on host artifacts, evidence handling, and investigation flow."
 publishedAt: 2025-05-27
+archiveSection: writeups
 tags:
   - "digital-forensics"
   - "incident-response"

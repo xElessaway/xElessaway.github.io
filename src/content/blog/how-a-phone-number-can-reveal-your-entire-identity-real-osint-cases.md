@@ -1,7 +1,8 @@
 ---
 title: "How a Phone Number Can Reveal Your Entire Identity (Real OSINT Cases)"
-description: "Two real OSINT cases. Two different entry points. The same uncomfortable conclusion."
+description: "Two real OSINT cases showing how small exposed data points can turn into full identity pivots."
 publishedAt: 2026-03-23
+archiveSection: reports
 tags:
   - "privacy"
   - "data-security"

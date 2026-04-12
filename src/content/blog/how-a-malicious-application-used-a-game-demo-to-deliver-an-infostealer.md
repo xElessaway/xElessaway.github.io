@@ -1,7 +1,8 @@
 ---
 title: "How a Malicious Application Used a Game Demo to Deliver an Infostealer"
-description: "Hello Folks, I hope you are doing well. today I was playing a game and found my friend sent a message that he got hacked and the attacker sent him a screenshot of my friend’s..."
+description: "Technical breakdown of an infostealer delivery chain using a fake game demo and post-execution artifact review."
 publishedAt: 2024-12-20
+archiveSection: reports
 tags:
   - "soc"
   - "cybersecurity"

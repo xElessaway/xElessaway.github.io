@@ -5,27 +5,50 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
 );
-const leadPost = posts[0];
-const remainingPosts = posts.slice(1);
+
+const reports = posts.filter((post) => post.data.archiveSection === "reports");
+const writeups = posts.filter((post) => post.data.archiveSection === "writeups");
+
+const archiveSections = [
+  { id: "reports", label: "Reports", posts: reports },
+  { id: "writeups", label: "Writeups", posts: writeups }
+];
 ---
 
 <BaseLayout
   title="Blog | Ahmed Elessaway (xElessaway)"
-  description="Research briefs, DFIR writeups, OSINT investigations, and threat-focused technical notes."
+  description="Reports and writeups covering DFIR investigations, OSINT analysis, technical walkthroughs, and threat-focused notes."
 >
   <section class="page-intro">
     <div class="container">
       <article class="panel page-intro-panel">
         <div class="ops-meta-strip">
-          <span class="meta-chip">repository // archive_v4</span>
-          <span class="meta-chip">{posts.length} reports indexed</span>
+          <span class="meta-chip">{reports.length} reports</span>
+          <span class="meta-chip">{writeups.length} writeups</span>
         </div>
-        <p class="eyebrow">Investigation Reports</p>
-        <h1>Technical briefings, writeups, and field-ready notes.</h1>
+        <p class="eyebrow">Archive</p>
+        <h1>Reports and writeups, split cleanly.</h1>
         <p class="lede">
-          DFIR investigations, OSINT analysis, incident writeups, challenge walkthroughs, and threat-focused
-          notes collected in one searchable archive.
+          Real-world reports and technical walkthroughs live in the same archive, but each type now has its
+          own cleaner lane.
         </p>
+
+        <div class="archive-switch" role="tablist" aria-label="Archive sections">
+          {
+            archiveSections.map((section, index) => (
+              <button
+                class:list={["archive-trigger", index === 0 && "is-active"]}
+                type="button"
+                role="tab"
+                aria-selected={index === 0 ? "true" : "false"}
+                data-archive-trigger={section.id}
+              >
+                <span>{section.label}</span>
+                <span class="archive-count">{section.posts.length}</span>
+              </button>
+            ))
+          }
+        </div>
       </article>
     </div>
   </section>
@@ -33,54 +56,105 @@ const remainingPosts = posts.slice(1);
   <section class="content-section">
     <div class="container stack">
       {
-        leadPost && (
-          <a class="lead-report" href={`/blog/${leadPost.slug}/`}>
-            {leadPost.data.cover && (
-              <div class="lead-report-media">
-                <img src={leadPost.data.cover} alt={leadPost.data.title} loading="lazy" />
-              </div>
-            )}
+        archiveSections.map((section, index) => {
+          const leadPost = section.posts[0];
+          const remainingPosts = section.posts.slice(1);
 
-            <div class="lead-report-copy">
-              <div class="status-row">
-                <span class="meta-chip">{leadPost.data.featured ? "priority_brief" : leadPost.data.sourceLabel ?? "report_file"}</span>
-                {leadPost.data.tags.slice(0, 3).map((tag) => <span class="tag">{tag}</span>)}
-              </div>
-              <p class="eyebrow">Lead Report</p>
-              <h2>{leadPost.data.title}</h2>
-              <p>{leadPost.data.description}</p>
-              <div class="meta-line">
-                <span>{leadPost.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</span>
-                <span>{leadPost.data.sourceLabel ?? "Research Brief"}</span>
-              </div>
+          return (
+            <div class:list={["archive-panel", index === 0 && "is-visible"]} data-archive-panel={section.id} hidden={index !== 0}>
+              {
+                leadPost ? (
+                  <>
+                    <a class="lead-report lead-report-bounded" href={`/blog/${leadPost.slug}/`}>
+                      {leadPost.data.cover && (
+                        <div class="lead-report-media lead-report-media-bounded">
+                          <img src={leadPost.data.cover} alt={leadPost.data.title} loading="lazy" />
+                        </div>
+                      )}
+
+                      <div class="lead-report-copy">
+                        <div class="status-row">
+                          <span class="meta-chip">{leadPost.data.archiveSection}</span>
+                          {leadPost.data.tags.slice(0, 3).map((tag) => <span class="tag">{tag}</span>)}
+                        </div>
+                        <p class="eyebrow">Lead {section.label.slice(0, -1)}</p>
+                        <h2>{leadPost.data.title}</h2>
+                        <p>{leadPost.data.description}</p>
+                        <div class="meta-line">
+                          <span>{leadPost.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</span>
+                          <span>{leadPost.data.sourceLabel ?? "Research Brief"}</span>
+                        </div>
+                      </div>
+                    </a>
+
+                    {
+                      remainingPosts.length > 0 ? (
+                        <div class="report-grid">
+                          {
+                            remainingPosts.map((post) => (
+                              <a class="story-card story-card-report" href={`/blog/${post.slug}/`}>
+                                {post.data.cover && (
+                                  <div class="card-media">
+                                    <img src={post.data.cover} alt={post.data.title} loading="lazy" />
+                                  </div>
+                                )}
+                                <div class="card-topline">
+                                  <span class="meta-chip">{post.data.archiveSection}</span>
+                                  {post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
+                                </div>
+                                <h3>{post.data.title}</h3>
+                                <p>{post.data.description}</p>
+                                <div class="meta-line">
+                                  <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
+                                  <span>{post.data.featured ? "featured" : "indexed"}</span>
+                                </div>
+                              </a>
+                            ))
+                          }
+                        </div>
+                      ) : (
+                        <article class="content-panel archive-empty">
+                          <p>No additional {section.label.toLowerCase()} are published yet.</p>
+                        </article>
+                      )
+                    }
+                  </>
+                ) : (
+                  <article class="content-panel archive-empty">
+                    <p>No {section.label.toLowerCase()} are published yet.</p>
+                  </article>
+                )
+              }
             </div>
-          </a>
-        )
+          );
+        })
       }
-
-      <div class="report-grid">
-        {
-          remainingPosts.map((post) => (
-            <a class="story-card story-card-report" href={`/blog/${post.slug}/`}>
-              {post.data.cover && (
-                <div class="card-media">
-                  <img src={post.data.cover} alt={post.data.title} loading="lazy" />
-                </div>
-              )}
-              <div class="card-topline">
-                <span class="meta-chip">{post.data.sourceLabel ?? "Research Brief"}</span>
-                {post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
-              </div>
-              <h3>{post.data.title}</h3>
-              <p>{post.data.description}</p>
-              <div class="meta-line">
-                <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
-                <span>{post.data.featured ? "featured" : "indexed"}</span>
-              </div>
-            </a>
-          ))
-        }
-      </div>
     </div>
   </section>
+
+  <script>
+    const archiveButtons = [...document.querySelectorAll("[data-archive-trigger]")];
+    const archivePanels = [...document.querySelectorAll("[data-archive-panel]")];
+
+    const applyArchiveState = (activeId: string) => {
+      archiveButtons.forEach((button) => {
+        const isActive = button.getAttribute("data-archive-trigger") === activeId;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-selected", String(isActive));
+      });
+
+      archivePanels.forEach((panel) => {
+        const isActive = panel.getAttribute("data-archive-panel") === activeId;
+        panel.toggleAttribute("hidden", !isActive);
+        panel.classList.toggle("is-visible", isActive);
+      });
+    };
+
+    archiveButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const next = button.getAttribute("data-archive-trigger") ?? "reports";
+        applyArchiveState(next);
+      });
+    });
+  </script>
 </BaseLayout>

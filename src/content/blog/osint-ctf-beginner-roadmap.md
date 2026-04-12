@@ -1,7 +1,8 @@
 ---
 title: "OSINT CTF Beginner roadmap"
-description: "By Ahmed Elessaway"
+description: "Structured starter roadmap for learning OSINT challenge workflows across core disciplines and tool choices."
 publishedAt: 2024-09-04
+archiveSection: writeups
 tags:
   - "osint"
   - "geoint"

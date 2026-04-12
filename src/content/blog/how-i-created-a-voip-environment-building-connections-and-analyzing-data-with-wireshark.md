@@ -1,7 +1,8 @@
 ---
 title: "How I Created a VoIP Environment: Building Connections and Analyzing Data with Wireshark"
-description: "Hey folks, it’s Ahmed Mahmoud, or you might know me as xElessaway. Today, I want to share my journey of setting up a VoIP Environment and capturing its essence with Wireshark...."
+description: "Lab-focused walkthrough for building a VoIP environment and inspecting traffic with Wireshark."
 publishedAt: 2024-05-03
+archiveSection: reports
 tags:
   - "incident-response"
   - "cybersecurity"

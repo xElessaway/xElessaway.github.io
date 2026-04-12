@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import { readdir } from "node:fs/promises";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SectionHeader from "../components/SectionHeader.astro";
-import { siteMeta } from "../data/site";
+import { siteMeta, toolGroups } from "../data/site";
 
 const actorDirEntries = await readdir(new URL("../content/actors", import.meta.url), { withFileTypes: true }).catch(() => []);
 const hasActorEntries = actorDirEntries.some(
@@ -24,29 +24,46 @@ const capabilityCards = [
     kicker: "DFIR",
     title: "Memory, disk, and host-focused investigations",
     description:
-      "Hands-on forensic analysis across Windows and Linux systems using Autopsy, memory forensics, registry analysis, and evidence-led response workflows.",
-    tags: ["Autopsy", "Memory Forensics", "Disk Forensics", "Registry Analysis"]
+      "Hands-on forensic analysis across Windows and Linux systems using artifact review, evidence-led workflows, and practical host investigation methods.",
+    tags: ["Autopsy", "Memory Review", "Disk Artifacts", "Registry Analysis"]
   },
   {
     kicker: "Threat Intelligence",
-    title: "Investigation context that actually helps defenders",
+    title: "Investigation context that stays useful",
     description:
-      "Threat-actor tracking, OpenCTI-driven context building, and intelligence enrichment that makes hunting and triage more precise.",
+      "Threat tracking, intel enrichment, and dossier structures built to support repeatable analysis and stronger defensive decisions.",
     tags: ["OpenCTI", "Threat Hunting", "TTP Mapping", "Intel Enrichment"]
   },
   {
     kicker: "Detection",
     title: "Blue-team labs and realistic detection scenarios",
     description:
-      "Lab environments and attack simulations built to train analysts on real signals, better pivots, and faster response decisions.",
-    tags: ["Splunk", "ELK", "Microsoft Sentinel", "Attack Simulation"]
+      "Attack simulations and training environments designed to sharpen analyst pivots, signal recognition, and response quality.",
+    tags: ["Splunk", "ELK", "Sentinel", "Attack Simulation"]
   },
   {
     kicker: "OSINT",
     title: "Collection, validation, and challenge design",
     description:
-      "OSINT workflows translated into practical training content, challenge design, and student-friendly investigative exercises.",
-    tags: ["OSINT", "Challenge Design", "Training", "Analysis"]
+      "OSINT workflows translated into practical research notes, challenge design, and analyst-friendly investigative exercises.",
+    tags: ["OSINT", "Validation", "Challenge Design", "Analysis"]
+  }
+];
+const focusAreas = [
+  {
+    title: "Blue-team lab development",
+    description:
+      "Design and build attack simulations and hunting scenarios that sharpen analyst detection and response readiness."
+  },
+  {
+    title: "Forensics and evidence handling",
+    description:
+      "Practical Windows and Linux evidence workflows with memory, disk, and registry-focused DFIR methods."
+  },
+  {
+    title: "OSINT and intelligence training",
+    description:
+      "Hands-on instruction that turns threat intelligence and OSINT fundamentals into repeatable investigative workflows."
   }
 ];
 const missionMetrics = [
@@ -61,9 +78,9 @@ const missionMetrics = [
     <div class="container hero-grid">
       <article class="panel hero-panel hero-panel-primary">
         <div class="ops-meta-strip">
-          <span class="meta-chip">system_init // ahmed_elessaway</span>
           <span class="meta-chip">dfir_engineer</span>
           <span class="meta-chip">threat_intelligence</span>
+          <span class="meta-chip">osint_workflows</span>
         </div>
         <p class="eyebrow">Operational Profile</p>
         <h1>
@@ -76,9 +93,9 @@ const missionMetrics = [
         </p>
 
         <div class="button-row">
-          <a class="button button-primary" href="/about/">View Operations</a>
-          <a class="button button-ghost" href="/blog/">Access Reports</a>
-          <a class="button button-ghost" href="/threat-intelligence/">Open Dossiers</a>
+          <a class="button button-primary" href="/about/">View Profile</a>
+          <a class="button button-ghost" href="/blog/">Open Reports</a>
+          <a class="button button-ghost" href="/threat-intelligence/">Threat Intel</a>
         </div>
 
         <div class="stats-grid">
@@ -99,43 +116,32 @@ const missionMetrics = [
             <p class="eyebrow">Current Operations</p>
             <h3>Active Focus Areas</h3>
           </div>
-          <span class="meta-chip">live_profile</span>
         </div>
 
         <div class="signal-list">
-          <div class="signal-item">
-            <strong>Blue-team lab development</strong>
-            <p class="muted-copy">
-              Design and build attack simulations and hunting scenarios that sharpen analyst detection and
-              response readiness.
-            </p>
-          </div>
-          <div class="signal-item">
-            <strong>Forensics & evidence handling</strong>
-            <p class="muted-copy">
-              Practical Windows and Linux evidence workflows with memory, disk, and registry-focused DFIR
-              methods.
-            </p>
-          </div>
-          <div class="signal-item">
-            <strong>OSINT and intelligence training</strong>
-            <p class="muted-copy">
-              Hands-on instruction that translates threat intelligence and OSINT fundamentals into field-ready
-              investigation workflows.
-            </p>
-          </div>
+          {
+            focusAreas.map((item) => (
+              <article class="signal-item">
+                <strong>{item.title}</strong>
+                <p class="muted-copy">{item.description}</p>
+              </article>
+            ))
+          }
         </div>
 
-        <div class="signal-item signal-item-emphasis">
-          <p class="eyebrow">Platform Stack</p>
-          <div class="tag-list">
-            <span class="tag">OpenCTI</span>
-            <span class="tag">Splunk</span>
-            <span class="tag">ELK</span>
-            <span class="tag">Sentinel</span>
-            <span class="tag">Wireshark</span>
-            <span class="tag">Autopsy</span>
-            <span class="tag">PowerShell</span>
+        <div class="tool-matrix">
+          <p class="eyebrow">Tool Stack</p>
+          <div class="tool-group-grid">
+            {
+              toolGroups.map((group) => (
+                <article class="tool-group">
+                  <p class="tool-group-label">{group.label}</p>
+                  <div class="tag-list">
+                    {group.tools.map((tool) => <span class="tag">{tool}</span>)}
+                  </div>
+                </article>
+              ))
+            }
           </div>
         </div>
       </aside>
@@ -147,7 +153,7 @@ const missionMetrics = [
       <SectionHeader
         eyebrow="Capabilities"
         title="Detection, forensics, intelligence context"
-        description="The design is built around the work itself: investigations, labs, dossiers, and training output."
+        description="The site is built around operational work: investigations, labs, dossiers, and archive-ready technical output."
       />
 
       <div class="capability-grid">
@@ -170,11 +176,11 @@ const missionMetrics = [
   <section class="content-section">
     <div class="container">
       <SectionHeader
-        eyebrow="Latest Intelligence"
-        title="Research reports and technical briefings"
-        description="Imported Medium writeups and native reports live in one operational archive."
+        eyebrow="Latest Archive"
+        title="Reports and technical writeups"
+        description="Imported Medium posts and native entries stay in one archive, split cleanly between reports and writeups."
         actionHref="/blog/"
-        actionLabel="Open archive"
+        actionLabel="View Archive"
       />
 
       <div class="card-grid">
@@ -187,14 +193,14 @@ const missionMetrics = [
                 </div>
               )}
               <div class="card-topline">
-                <span class="meta-chip">{post.data.sourceLabel ?? "Research Brief"}</span>
+                <span class="meta-chip">{post.data.archiveSection}</span>
                 {post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
               </div>
               <h3>{post.data.title}</h3>
               <p>{post.data.description}</p>
               <div class="meta-line">
                 <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
-                <span>{post.data.featured ? "priority_brief" : "report_file"}</span>
+                <span>{post.data.featured ? "priority_brief" : "indexed"}</span>
               </div>
             </a>
           ))
@@ -211,7 +217,7 @@ const missionMetrics = [
           title="A threat intelligence framework without fake dossiers"
           description="The section stays live for original actor research, but placeholder sample actors have been removed so only real published dossiers appear."
           actionHref="/threat-intelligence/"
-          actionLabel="Open dossier index"
+          actionLabel="View Framework"
         />
 
         {
@@ -263,11 +269,11 @@ const missionMetrics = [
         <p class="eyebrow">Training Surface</p>
         <h3>CTFs and labs as practical analyst modules</h3>
         <p>
-          Challenge pages are structured as mission briefs with one validation path, asset access, and clean
+          Challenge pages stay structured as mission briefs with one validation path, asset access, and clean
           solved-state handling for repeat visits.
         </p>
         <div class="button-row">
-          <a class="button button-primary" href="/ctf/">Open training archive</a>
+          <a class="button button-primary" href="/ctf/">Open Training</a>
           {
             featuredCollection && (
               <a class="button button-ghost" href={`/ctf/${featuredCollection.slug}/`}>

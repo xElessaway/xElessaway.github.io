@@ -5,7 +5,6 @@ export const siteMeta = {
   tagline:
     "DFIR, threat intelligence, OSINT, and blue-team training systems.",
   siteUrl: "https://xelessaway.github.io",
-  location: "6th of October City, Egypt",
   socials: [
     {
       label: "GitHub",
@@ -32,3 +31,26 @@ export const siteMeta = {
     { label: "About", href: "/about/" }
   ]
 };
+
+export const toolGroups = [
+  {
+    label: "DFIR",
+    tools: ["Autopsy", "Wireshark", "Windows Artifacts", "Linux Artifacts"]
+  },
+  {
+    label: "Threat Intel",
+    tools: ["OpenCTI", "VirusTotal", "MITRE ATT&CK", "IOC Triage"]
+  },
+  {
+    label: "Detection",
+    tools: ["Splunk", "ELK", "Microsoft Sentinel", "Sigma"]
+  },
+  {
+    label: "OSINT",
+    tools: ["GHunt", "GeoINT", "IMINT", "Social Discovery"]
+  },
+  {
+    label: "Scripting / Automation",
+    tools: ["PowerShell", "Python", "Bash", "Git"]
+  }
+] as const;

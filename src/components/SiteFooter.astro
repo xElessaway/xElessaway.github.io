@@ -4,14 +4,7 @@ import { withBase } from "../utils/paths";
 ---
 
 <footer class="site-footer">
-  <div class="container footer-grid">
-    <div>
-      <p class="footer-kicker">system_status</p>
-      <p class="footer-copy">
-        Tactical intelligence surface for DFIR, OSINT, threat intelligence, and analyst-focused training.
-      </p>
-    </div>
-
+  <div class="container footer-grid footer-grid-compact">
     <div class="footer-links footer-links-inline">
       {
         siteMeta.nav.map((item) => (
@@ -20,7 +13,7 @@ import { withBase } from "../utils/paths";
       }
     </div>
 
-    <div class="footer-links footer-links-inline">
+    <div class="footer-links footer-links-inline footer-links-right">
       {
         siteMeta.socials.map((item) => (
           <a href={item.href} target="_blank" rel="noreferrer">{item.label}</a>

@@ -1,7 +1,8 @@
 ---
 title: "ICMTC Finals 2023 Forensics writeups"
-description: "Hello, It’s Ahmed Mahmoud(xElessaway), and we here is my writeups for the digital forensics' challenges at Military Technology College in Cairo. I hope you enjoy it."
+description: "Forensics challenge writeups covering Windows, Android, and artifact-driven investigation techniques."
 publishedAt: 2023-07-18
+archiveSection: writeups
 tags:
   - "cybersecurity"
   - "digital-forensics"

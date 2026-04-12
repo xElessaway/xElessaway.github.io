@@ -24,6 +24,7 @@ const blog = defineCollection({
     title: z.string(),
     description: z.string(),
     publishedAt: z.coerce.date(),
+    archiveSection: z.enum(["reports", "writeups"]).default("reports"),
     tags: z.array(z.string()).default([]),
     cover: z.string().optional(),
     featured: z.boolean().default(false),

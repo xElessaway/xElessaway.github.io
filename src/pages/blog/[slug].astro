@@ -13,7 +13,8 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium writeup" : "Research brief";
+const archiveLabel = entry.data.archiveSection === "reports" ? "Field report" : "Technical writeup";
+const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry" : "Research brief";
 ---
 
 <BaseLayout title={`${entry.data.title} | Ahmed Elessaway`} description={entry.data.description}>
@@ -21,11 +22,11 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium write
     <div class="container stack">
       <article class="panel story-hero-panel">
         <div class="ops-meta-strip">
-          <span class="meta-chip">report_file</span>
+          <span class="meta-chip">{entry.data.archiveSection}</span>
           <span class="meta-chip">{entry.data.sourceLabel ?? "Research Brief"}</span>
           <span class="meta-chip">{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
         </div>
-        <p class="eyebrow">Technical Briefing</p>
+        <p class="eyebrow">{archiveLabel}</p>
         <h1>{entry.data.title}</h1>
         <p class="lede">{entry.data.description}</p>
         <div class="meta-line">
@@ -58,6 +59,10 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium write
               <dd>{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</dd>
             </div>
             <div>
+              <dt>Archive</dt>
+              <dd>{archiveLabel}</dd>
+            </div>
+            <div>
               <dt>Tags</dt>
               <dd>{entry.data.tags.join(", ")}</dd>
             </div>
@@ -81,10 +86,10 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium write
         </div>
 
         <div class="meta-card">
-          <p class="eyebrow">Report Notes</p>
+          <p class="eyebrow">Archive Note</p>
           <p class="muted-copy">
-            Imported reports are treated as first-class archive entries so the site remains a single technical
-            surface instead of splitting writing between platforms.
+            Reports stay separated from writeups so the archive can hold both investigation narratives and
+            technical walkthroughs without flattening them into one stream.
           </p>
         </div>
       </aside>

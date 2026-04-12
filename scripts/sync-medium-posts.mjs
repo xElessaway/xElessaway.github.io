@@ -7,17 +7,61 @@ const FEED_URL = process.env.MEDIUM_FEED_URL || "https://xelessaway.medium.com/f
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, "..");
 const blogDir = path.join(rootDir, "src", "content", "blog");
+
 const EXCLUDED_SLUGS = new Set([
   "0xl4ugh-ctf-2023",
   "auc-hotaru-games-writeups",
   "jordan-infosec-ctf-2022-qualifications"
 ]);
+
 const FEATURED_SLUGS = new Set([
   "how-a-phone-number-can-reveal-your-entire-identity-real-osint-cases",
   "how-a-malicious-application-used-a-game-demo-to-deliver-an-infostealer",
   "egctf25-digital-forensics-writeup"
 ]);
-const MOJIBAKE_MARKERS = ["â€™", "â€œ", "â€", "â€“", "â€”", "â€¦", "Ã", "Â"];
+
+const ARCHIVE_SECTION_BY_SLUG = new Map([
+  ["how-a-phone-number-can-reveal-your-entire-identity-real-osint-cases", "reports"],
+  ["how-a-malicious-application-used-a-game-demo-to-deliver-an-infostealer", "reports"],
+  ["how-i-created-a-voip-environment-building-connections-and-analyzing-data-with-wireshark", "reports"],
+  ["egctf25-digital-forensics-writeup", "writeups"],
+  ["0xl4ughctf-osint-writeups", "writeups"],
+  ["icmtc-finals-2023-forensics-writeups", "writeups"],
+  ["osint-ctf-beginner-roadmap", "writeups"]
+]);
+
+const DESCRIPTION_OVERRIDES = new Map([
+  [
+    "0xl4ughctf-osint-writeups",
+    "OSINT challenge walkthroughs covering pivots, source validation, and clean investigative methodology."
+  ],
+  [
+    "egctf25-digital-forensics-writeup",
+    "Digital forensics challenge analysis focused on host artifacts, evidence handling, and investigation flow."
+  ],
+  [
+    "how-a-malicious-application-used-a-game-demo-to-deliver-an-infostealer",
+    "Technical breakdown of an infostealer delivery chain using a fake game demo and post-execution artifact review."
+  ],
+  [
+    "how-a-phone-number-can-reveal-your-entire-identity-real-osint-cases",
+    "Two real OSINT cases showing how small exposed data points can turn into full identity pivots."
+  ],
+  [
+    "how-i-created-a-voip-environment-building-connections-and-analyzing-data-with-wireshark",
+    "Lab-focused walkthrough for building a VoIP environment and inspecting traffic with Wireshark."
+  ],
+  [
+    "icmtc-finals-2023-forensics-writeups",
+    "Forensics challenge writeups covering Windows, Android, and artifact-driven investigation techniques."
+  ],
+  [
+    "osint-ctf-beginner-roadmap",
+    "Structured starter roadmap for learning OSINT challenge workflows across core disciplines and tool choices."
+  ]
+]);
+
+const MOJIBAKE_MARKERS = ["â€™", "â€œ", "â€", "â€“", "â€”", "â€¦", "Ã¢", "Ã", "Â"];
 
 function normalizeEncoding(value) {
   if (!value) {
@@ -56,12 +100,12 @@ function extractTags(block, tag) {
 function decodeEntities(value) {
   return normalizeEncoding(
     value
-    .replace(/&nbsp;/g, " ")
-    .replace(/&amp;/g, "&")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
   );
 }
 
@@ -139,7 +183,8 @@ function buildFrontmatter(post, featured) {
     "---",
     `title: ${toYamlString(post.title)}`,
     `description: ${toYamlString(post.description)}`,
-    `publishedAt: ${post.publishedAt}`
+    `publishedAt: ${post.publishedAt}`,
+    `archiveSection: ${post.archiveSection}`
   ];
 
   if (post.tags.length === 0) {
@@ -213,18 +258,20 @@ async function sync() {
       const tags = extractTags(item, "category").map((tag) => tag.toLowerCase());
       const rawBody = extractTag(item, "content:encoded");
       const body = cleanBody(rawBody);
+      const slug = deriveSlug(title, link, seenSlugs);
       const descriptionSource = [...body.matchAll(/<p>([\s\S]*?)<\/p>/gi)]
         .map((paragraph) => stripHtml(paragraph[1]))
         .find((paragraph) => paragraph.length > 0) || title;
-      const description = trimDescription(descriptionSource);
+      const description = DESCRIPTION_OVERRIDES.get(slug) ?? trimDescription(descriptionSource);
       const coverMatch = body.match(/<img[^>]+src="([^"]+)"/i);
       const cover = coverMatch ? coverMatch[1] : undefined;
-      const slug = deriveSlug(title, link, seenSlugs);
+      const archiveSection = ARCHIVE_SECTION_BY_SLUG.get(slug) ?? "reports";
 
       return {
         title,
         description,
         publishedAt,
+        archiveSection,
         tags,
         cover,
         body,

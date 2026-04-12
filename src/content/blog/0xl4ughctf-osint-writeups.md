@@ -1,7 +1,8 @@
 ---
 title: "0xL4ughCTF OSINT Writeups"
-description: "Hey Folks. I hope you are doing well. and hope you enjoyed our CTF. I won’t talk too much and start the walkthrough for my OSINT Challenges."
+description: "OSINT challenge walkthroughs covering pivots, source validation, and clean investigative methodology."
 publishedAt: 2024-12-28
+archiveSection: writeups
 tags:
   - "ctf"
   - "cybersecurity"

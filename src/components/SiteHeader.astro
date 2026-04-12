@@ -24,7 +24,7 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
         <span class="brand-signal" aria-hidden="true"></span>
         <span class="brand-copy">
           <strong>Ahmed Elessaway</strong>
-          <small>xElessaway / DFIR / Threat Intel</small>
+          <small>xElessaway</small>
         </span>
       </a>
     </div>
@@ -43,19 +43,20 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
         })
       }
     </nav>
-
-    <div class="shell-actions">
-      <button class="sidebar-toggle" type="button" aria-expanded="true" aria-controls="site-sidebar">
-        <span class="sr-only">Collapse sidebar</span>
-        <span class="sidebar-toggle-label">Collapse</span>
-      </button>
-    </div>
   </div>
 </header>
 
 <div class="mobile-overlay" data-mobile-overlay hidden></div>
 
 <aside id="site-sidebar" class="site-sidebar" aria-label="Section navigation">
+  <div class="sidebar-rail-head">
+    <p class="sidebar-rail-label">Navigation</p>
+    <button class="rail-toggle" type="button" aria-expanded="true" aria-controls="site-sidebar">
+      <span class="rail-toggle-icon" aria-hidden="true"></span>
+      <span class="rail-toggle-label">Collapse</span>
+    </button>
+  </div>
+
   <nav class="side-nav">
     {
       siteMeta.nav.map((item, index) => {
@@ -79,7 +80,7 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
 
 <script>
   const menuToggle = document.querySelector(".menu-toggle");
-  const desktopToggle = document.querySelector(".sidebar-toggle");
+  const railToggle = document.querySelector(".rail-toggle");
   const sidebar = document.querySelector("#site-sidebar");
   const overlay = document.querySelector("[data-mobile-overlay]");
   const desktopMedia = window.matchMedia("(min-width: 1100px)");
@@ -87,14 +88,14 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
 
   if (
     menuToggle instanceof HTMLButtonElement &&
-    desktopToggle instanceof HTMLButtonElement &&
+    railToggle instanceof HTMLButtonElement &&
     sidebar instanceof HTMLElement &&
     overlay instanceof HTMLElement
   ) {
     const setDesktopState = (collapsed: boolean) => {
       document.body.classList.toggle("sidebar-collapsed", collapsed);
-      desktopToggle.setAttribute("aria-expanded", String(!collapsed));
-      const label = desktopToggle.querySelector(".sidebar-toggle-label");
+      railToggle.setAttribute("aria-expanded", String(!collapsed));
+      const label = railToggle.querySelector(".rail-toggle-label");
 
       if (label instanceof HTMLElement) {
         label.textContent = collapsed ? "Expand" : "Collapse";
@@ -113,7 +114,7 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
         setDesktopState(window.localStorage.getItem(storageKey) === "true");
       } else {
         document.body.classList.remove("sidebar-collapsed");
-        desktopToggle.setAttribute("aria-expanded", "true");
+        railToggle.setAttribute("aria-expanded", "true");
       }
     };
 
@@ -123,7 +124,7 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
       menuToggle.setAttribute("aria-expanded", String(next));
     });
 
-    desktopToggle.addEventListener("click", () => {
+    railToggle.addEventListener("click", () => {
       if (!desktopMedia.matches) {
         return;
       }
