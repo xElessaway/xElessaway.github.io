@@ -3,12 +3,12 @@ import { siteMeta } from "../data/site";
 import { withBase } from "../utils/paths";
 
 const pathname = Astro.url.pathname;
-const moduleLabels: Record<string, { top: string; side: string }> = {
-  "/": { top: "Dashboard", side: "Operator Surface" },
-  "/blog/": { top: "Reports", side: "Investigation Archive" },
-  "/threat-intelligence/": { top: "Threats", side: "Intel Dossiers" },
-  "/ctf/": { top: "Training", side: "CTF Modules" },
-  "/about/": { top: "Profile", side: "Operator Profile" }
+const moduleLabels: Record<string, { top: string; side: string; short: string }> = {
+  "/": { top: "Dashboard", side: "Operator Surface", short: "HM" },
+  "/blog/": { top: "Reports", side: "Investigation Archive", short: "RP" },
+  "/threat-intelligence/": { top: "Threats", side: "Intel Dossiers", short: "TI" },
+  "/ctf/": { top: "Training", side: "CTF Modules", short: "CTF" },
+  "/about/": { top: "Profile", side: "Operator Profile", short: "AB" }
 };
 ---
 
@@ -21,10 +21,10 @@ const moduleLabels: Record<string, { top: string; side: string }> = {
       </button>
 
       <a class="brand-mark" href={withBase("/")}>
-        <span class="brand-seal">AE</span>
+        <span class="brand-signal" aria-hidden="true"></span>
         <span class="brand-copy">
-          <strong>OPERATIONAL_INTEL</strong>
-          <small>Ahmed Elessaway // xElessaway</small>
+          <strong>Ahmed Elessaway</strong>
+          <small>xElessaway / DFIR / Threat Intel</small>
         </span>
       </a>
     </div>
@@ -33,7 +33,7 @@ const moduleLabels: Record<string, { top: string; side: string }> = {
       {
         siteMeta.nav.map((item) => {
           const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-          const labels = moduleLabels[item.href] ?? { top: item.label, side: item.label };
+          const labels = moduleLabels[item.href] ?? { top: item.label, side: item.label, short: item.label.slice(0, 2) };
 
           return (
             <a class:list={["nav-link", isActive && "is-active"]} href={withBase(item.href)}>
@@ -44,13 +44,11 @@ const moduleLabels: Record<string, { top: string; side: string }> = {
       }
     </nav>
 
-    <div class="topbar-tools">
-      <label class="utility-search">
-        <span class="sr-only">Filter reports</span>
-        <input type="text" value="" placeholder="FILTER_REPORTS..." aria-label="Filter reports" />
-      </label>
-      <span class="utility-chip">live_site</span>
-      <span class="utility-chip utility-chip-soft">{siteMeta.location}</span>
+    <div class="shell-actions">
+      <button class="sidebar-toggle" type="button" aria-expanded="true" aria-controls="site-sidebar">
+        <span class="sr-only">Collapse sidebar</span>
+        <span class="sidebar-toggle-label">Collapse</span>
+      </button>
     </div>
   </div>
 </header>
@@ -58,68 +56,95 @@ const moduleLabels: Record<string, { top: string; side: string }> = {
 <div class="mobile-overlay" data-mobile-overlay hidden></div>
 
 <aside id="site-sidebar" class="site-sidebar" aria-label="Section navigation">
-  <div class="sidebar-session">
-    <p class="sidebar-label">session_id</p>
-    <strong>STRYKER_01</strong>
-    <span>LEVEL_4_CLEARANCE</span>
-  </div>
-
   <nav class="side-nav">
     {
       siteMeta.nav.map((item, index) => {
         const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
-        const labels = moduleLabels[item.href] ?? { top: item.label, side: item.label };
+        const labels = moduleLabels[item.href] ?? { top: item.label, side: item.label, short: item.label.slice(0, 2) };
 
         return (
-          <a class:list={["side-nav-link", isActive && "is-active"]} href={withBase(item.href)}>
+          <a class:list={["side-nav-link", isActive && "is-active"]} href={withBase(item.href)} title={labels.top}>
             <span class="side-nav-index">{String(index + 1).padStart(2, "0")}</span>
             <span class="side-nav-copy">
               <strong>{labels.top}</strong>
               <small>{labels.side}</small>
             </span>
+            <span class="side-nav-short" aria-hidden="true">{labels.short}</span>
           </a>
         );
       })
     }
   </nav>
-
-  <div class="sidebar-status">
-    <p class="sidebar-label">system_status</p>
-    <div class="status-readout">
-      <span>signal_online</span>
-      <span>encrypted_channel</span>
-    </div>
-    <div class="status-readout">
-      <span>medium_sync</span>
-      <span>pages_ready</span>
-    </div>
-  </div>
 </aside>
 
 <script>
-  const toggle = document.querySelector(".menu-toggle");
+  const menuToggle = document.querySelector(".menu-toggle");
+  const desktopToggle = document.querySelector(".sidebar-toggle");
   const sidebar = document.querySelector("#site-sidebar");
   const overlay = document.querySelector("[data-mobile-overlay]");
+  const desktopMedia = window.matchMedia("(min-width: 1100px)");
+  const storageKey = "shell-sidebar-collapsed";
 
-  if (toggle instanceof HTMLButtonElement && sidebar instanceof HTMLElement && overlay instanceof HTMLElement) {
-    const closeSidebar = () => {
-      sidebar.classList.remove("is-open");
-      overlay.hidden = true;
-      toggle.setAttribute("aria-expanded", "false");
+  if (
+    menuToggle instanceof HTMLButtonElement &&
+    desktopToggle instanceof HTMLButtonElement &&
+    sidebar instanceof HTMLElement &&
+    overlay instanceof HTMLElement
+  ) {
+    const setDesktopState = (collapsed: boolean) => {
+      document.body.classList.toggle("sidebar-collapsed", collapsed);
+      desktopToggle.setAttribute("aria-expanded", String(!collapsed));
+      const label = desktopToggle.querySelector(".sidebar-toggle-label");
+
+      if (label instanceof HTMLElement) {
+        label.textContent = collapsed ? "Expand" : "Collapse";
+      }
     };
 
-    toggle.addEventListener("click", () => {
+    const closeMobileSidebar = () => {
+      sidebar.classList.remove("is-open");
+      overlay.hidden = true;
+      menuToggle.setAttribute("aria-expanded", "false");
+    };
+
+    const syncViewportState = () => {
+      if (desktopMedia.matches) {
+        closeMobileSidebar();
+        setDesktopState(window.localStorage.getItem(storageKey) === "true");
+      } else {
+        document.body.classList.remove("sidebar-collapsed");
+        desktopToggle.setAttribute("aria-expanded", "true");
+      }
+    };
+
+    menuToggle.addEventListener("click", () => {
       const next = sidebar.classList.toggle("is-open");
       overlay.hidden = !next;
-      toggle.setAttribute("aria-expanded", String(next));
+      menuToggle.setAttribute("aria-expanded", String(next));
     });
 
-    overlay.addEventListener("click", closeSidebar);
+    desktopToggle.addEventListener("click", () => {
+      if (!desktopMedia.matches) {
+        return;
+      }
+
+      const next = !document.body.classList.contains("sidebar-collapsed");
+      setDesktopState(next);
+      window.localStorage.setItem(storageKey, String(next));
+    });
+
+    overlay.addEventListener("click", closeMobileSidebar);
 
     sidebar.querySelectorAll("a").forEach((link) => {
       link.addEventListener("click", () => {
-        closeSidebar();
+        closeMobileSidebar();
       });
     });
+
+    if ("addEventListener" in desktopMedia) {
+      desktopMedia.addEventListener("change", syncViewportState);
+    }
+
+    syncViewportState();
   }
 </script>

@@ -1,7 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title">
-  <title>Ahmed Elessaway Journal</title>
-  <rect width="64" height="64" rx="16" fill="#101417" />
-  <path d="M14 16h36v32H14z" fill="none" stroke="#cf7b4d" stroke-width="2.5" opacity="0.85" />
-  <path d="M21 24h22M21 32h22M21 40h14" stroke="#efe4cf" stroke-width="3" stroke-linecap="round" />
-  <path d="M46 19l5 5-5 5" fill="none" stroke="#a0b3a2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+  <title>Ahmed Elessaway</title>
+  <rect width="64" height="64" fill="#0A0C10" />
+  <path d="M10 10h44v44H10z" fill="none" stroke="#1D3539" stroke-width="2" />
+  <path d="M18 18h28v28H18z" fill="none" stroke="#3796DF" stroke-width="2" />
+  <path d="M18 18h10M18 18v10M46 46H36M46 46V36" stroke="#3796DF" stroke-width="3" stroke-linecap="square" />
+  <path d="M24 39l7-15h2l7 15M27 33h8" fill="none" stroke="#E2E2E8" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter" />
+  <circle cx="32" cy="32" r="2.5" fill="#EF4444" />
 </svg>

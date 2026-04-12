@@ -16,11 +16,8 @@ const blogPosts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
 const featuredPosts = blogPosts.filter((post) => post.data.featured).slice(0, 3);
 const actors = hasActorEntries ? (await getCollection("actors")).filter((entry) => entry.data.featured).slice(0, 3) : [];
 const collections = await getCollection("ctfCollections");
-const challenges = await getCollection("ctfChallenges");
 
 const featuredCollection = collections.find((entry) => entry.data.featured) ?? collections[0];
-const totalCollections = collections.length;
-const totalChallenges = challenges.length;
 const recentPosts = featuredPosts.length > 0 ? featuredPosts : blogPosts.slice(0, 3);
 const capabilityCards = [
   {
@@ -50,26 +47,6 @@ const capabilityCards = [
     description:
       "OSINT workflows translated into practical training content, challenge design, and student-friendly investigative exercises.",
     tags: ["OSINT", "Challenge Design", "Training", "Analysis"]
-  }
-];
-const roleHighlights = [
-  {
-    period: "Dec 2024 - Present",
-    role: "CyberDefenders",
-    summary:
-      "Building blue-team labs, detection scenarios, CCD curriculum, and practical DFIR training for analysts and certification candidates."
-  },
-  {
-    period: "Mar 2023 - Present",
-    role: "CyberTalents / Instructor Work",
-    summary:
-      "Creating forensics, OSINT, and network-security challenges while delivering hands-on training and technical support for competitions and courses."
-  },
-  {
-    period: "2020 - Present",
-    role: "0xL4ugh CTF Author",
-    summary:
-      "Authoring DFIR, OSINT, steganography, and network-security challenges for recurring events and custom competition environments."
   }
 ];
 const missionMetrics = [
@@ -187,51 +164,6 @@ const missionMetrics = [
           ))
         }
       </div>
-    </div>
-  </section>
-
-  <section class="content-section">
-    <div class="container split-grid">
-      <article class="content-panel">
-        <SectionHeader
-          eyebrow="Current Operations"
-          title="Training systems, investigations, challenge operations"
-          description="The strongest signal is practical security work: labs, DFIR, OSINT, and repeated hands-on teaching."
-        />
-
-        <div class="role-grid">
-          {
-            roleHighlights.map((item) => (
-              <article class="role-card">
-                <p class="role-period">{item.period}</p>
-                <h3>{item.role}</h3>
-                <p>{item.summary}</p>
-              </article>
-            ))
-          }
-        </div>
-      </article>
-
-      <aside class="meta-card">
-        <p class="eyebrow">Operator Snapshot</p>
-        <h3>High-trust signals behind the profile</h3>
-        <p>
-          Certification work, OSINT instruction, DFIR lab creation, and competition performance all support a
-          profile built around investigation quality and technical training.
-        </p>
-        <div class="tag-list">
-          <span class="tag">eCIRv2</span>
-          <span class="tag">CCD</span>
-          <span class="tag">CARTP</span>
-          <span class="tag">ArcX TIA 101</span>
-          <span class="tag">Basel OSINT</span>
-        </div>
-        <div class="meta-line">
-          <span>{totalChallenges} challenge pages</span>
-          <span>{totalCollections} training collection(s)</span>
-          <span>2022-2026 event work</span>
-        </div>
-      </aside>
     </div>
   </section>
 
