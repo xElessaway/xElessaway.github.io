@@ -112,7 +112,7 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts.includes(
 
         {entry.data.references.length > 0 && (
           <div class="content-panel">
-            <p class="eyebrow">External Source Data</p>
+            <p class="eyebrow">References</p>
             <div class="stack">
               {entry.data.references.map((reference) => (
                 <a class="story-card" href={reference.url} target="_blank" rel="noreferrer">

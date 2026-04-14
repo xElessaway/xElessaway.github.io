@@ -14,7 +14,6 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const archiveLabel = entry.data.archiveSection === "reports" ? "Report" : "Writeup";
-const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry" : "Research brief";
 ---
 
 <BaseLayout title={`${entry.data.title} | Ahmed Elessaway`} description={entry.data.description}>
@@ -23,7 +22,6 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry
       <article class="panel story-hero-panel story-hero-panel-simple">
         <div class="ops-meta-strip">
           <span class="meta-chip">{entry.data.archiveSection}</span>
-          <span class="meta-chip">{entry.data.sourceLabel ?? "Research Brief"}</span>
           <span class="meta-chip">{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
         </div>
         <p class="eyebrow">{archiveLabel}</p>
@@ -53,25 +51,9 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry
               <dd>{archiveLabel}</dd>
             </div>
             <div>
-              <dt>Format</dt>
-              <dd>{formatLabel}</dd>
-            </div>
-            <div>
               <dt>Tags</dt>
               <dd>{entry.data.tags.join(", ")}</dd>
             </div>
-            {
-              entry.data.sourceUrl && (
-                <div class="story-meta-wide">
-                  <dt>Original Source</dt>
-                  <dd>
-                    <a href={entry.data.sourceUrl} target="_blank" rel="noreferrer">
-                      {entry.data.sourceLabel ?? "External source"}
-                    </a>
-                  </dd>
-                </div>
-              )
-            }
           </dl>
         </footer>
       </article>
