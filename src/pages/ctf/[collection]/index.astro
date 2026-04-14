@@ -26,7 +26,7 @@ const grouped = {
 };
 ---
 
-<BaseLayout title={`${entry.data.title} | CTF`} description={entry.data.summary}>
+<BaseLayout title={`${entry.data.title} | CTFs/Practice`} description={entry.data.summary}>
   <section class="ctf-hero">
     <div class="container">
       <article class="panel ctf-hero-panel">
@@ -35,14 +35,14 @@ const grouped = {
           <span class="meta-chip">{entry.data.year}</span>
           <span class="meta-chip">{challenges.length} challenge nodes</span>
         </div>
-        <p class="eyebrow">Mission Briefing</p>
+        <p class="eyebrow">Practice Briefing</p>
         <h1>{entry.data.title}</h1>
         <p class="lede">{entry.data.summary}</p>
         <div class="button-row">
           <a class="button button-primary" href={entry.data.githubUrl} target="_blank" rel="noreferrer">
             Open source repository
           </a>
-          <a class="button button-ghost" href="/ctf/">Back to collections</a>
+          <a class="button button-ghost" href="/ctf/">Back to CTFs/Practice</a>
         </div>
       </article>
     </div>
@@ -68,7 +68,7 @@ const grouped = {
                       <span class:list={["difficulty-pill", difficulty]}>{difficulty}</span>
                       <span class="meta-chip">#{challenge.data.order}</span>
                     </div>
-                    <p class="eyebrow">challenge_node</p>
+                    <p class="eyebrow">challenge</p>
                     <h3>{challenge.data.title}</h3>
                     <p>{challenge.data.prompt}</p>
                     <div class="meta-line">

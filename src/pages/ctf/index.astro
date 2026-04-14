@@ -21,17 +21,17 @@ const stats = collections.map((entry) => {
 });
 ---
 
-<BaseLayout title="CTF | Ahmed Elessaway (xElessaway)" description="OSINT challenge collections with simplified validation.">
+<BaseLayout title="CTFs/Practice | Ahmed Elessaway (xElessaway)" description="CTF collections and practice routes with simplified validation.">
   <section class="ctf-hero">
     <div class="container">
       <article class="panel ctf-hero-panel">
         <div class="ops-meta-strip">
-          <span class="meta-chip">training_archive // collections</span>
+          <span class="meta-chip">ctfs_practice // collections</span>
           <span class="meta-chip">{collections.length} collections</span>
           <span class="meta-chip">{challenges.length} challenge nodes</span>
         </div>
-        <p class="eyebrow">Training Modules</p>
-        <h1>Practical challenge collections for DFIR and OSINT workflows.</h1>
+        <p class="eyebrow">CTFs/Practice</p>
+        <h1>Hands-on practice collections for DFIR and OSINT workflows.</h1>
         <p class="lede">
           Collection discovery happens at the archive level. Every collection has its own route, every
           challenge gets a dedicated mission page, and answer checks remain lightweight enough for GitHub
@@ -50,7 +50,7 @@ const stats = collections.map((entry) => {
               <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
               <span class="meta-chip">{entry.data.year}</span>
             </div>
-            <p class="eyebrow">training_module</p>
+            <p class="eyebrow">practice_set</p>
             <h3>{entry.data.title}</h3>
             <p>{entry.data.summary}</p>
             <div class="tag-list">

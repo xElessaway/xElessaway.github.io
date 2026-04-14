@@ -27,7 +27,7 @@ const allPosts = await getCollection("blog", ({ data }) => !data.draft);
 const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts.includes(post.slug));
 ---
 
-<BaseLayout title={`${entry.data.name} | Threat Intelligence`} description={entry.data.motivation}>
+<BaseLayout title={`${entry.data.name} | Threat Intel`} description={entry.data.motivation}>
   <section class="dossier-hero">
     <div class="container">
       <article class="panel dossier-hero-panel">
@@ -37,7 +37,7 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts.includes(
           <span class="meta-chip">first_seen {entry.data.firstSeen}</span>
           <span class="meta-chip">last_seen {entry.data.lastSeen}</span>
         </div>
-        <p class="eyebrow">Intel Dossier</p>
+        <p class="eyebrow">Threat Intel Dossier</p>
         <h1>{entry.data.name}</h1>
         <p class="lede">{entry.data.motivation}</p>
         {entry.data.aliases.length > 0 && (

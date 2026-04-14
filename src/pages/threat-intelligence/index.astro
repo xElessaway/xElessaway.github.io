@@ -15,14 +15,14 @@ const trackingActors = actors.filter((entry) => entry.data.status === "tracking"
 ---
 
 <BaseLayout
-  title="Threat Intelligence | Ahmed Elessaway (xElessaway)"
+  title="Threat Intel | Ahmed Elessaway (xElessaway)"
   description="Structured threat actor dossiers with filtering by name, alias, tag, and status."
 >
   <section class="page-intro">
     <div class="container">
       <article class="panel page-intro-panel">
         <div class="ops-meta-strip">
-          <span class="meta-chip">intel_database // actor_index</span>
+          <span class="meta-chip">threat_intel // actor_index</span>
           <span class="meta-chip">{actors.length} dossiers</span>
           {actors.length > 0 ? (
             <>
@@ -33,7 +33,7 @@ const trackingActors = actors.filter((entry) => entry.data.status === "tracking"
             <span class="meta-chip">publishing_queue</span>
           )}
         </div>
-        <p class="eyebrow">Threat Intelligence Database</p>
+        <p class="eyebrow">Threat Intel</p>
         <h1>Structured actor dossiers for repeatable tracking.</h1>
         <p class="lede">
           The section is reserved for real published actor research. Sample entries have been removed, and the

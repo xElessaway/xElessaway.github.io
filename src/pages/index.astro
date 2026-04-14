@@ -21,15 +21,15 @@ const featuredCollection = collections.find((entry) => entry.data.featured) ?? c
 
 const entryPoints = [
   {
-    eyebrow: "Reports",
-    title: "Technical reports and writeups",
+    eyebrow: "Reports/Writeups",
+    title: "Investigations, reports, and technical writeups",
     description: "The main archive for investigations, walkthroughs, and practical security notes.",
     href: "/blog/",
-    action: "Open Archive",
+    action: "Open Reports/Writeups",
     meta: `${blogPosts.length} published`
   },
   {
-    eyebrow: "Threat Intelligence",
+    eyebrow: "Threat Intel",
     title: actorCount > 0 ? "Published dossiers and actor tracking" : "Threat intel framework ready",
     description:
       actorCount > 0
@@ -40,26 +40,26 @@ const entryPoints = [
     meta: `${actorCount} public dossiers`
   },
   {
-    eyebrow: "Training",
+    eyebrow: "CTFs/Practice",
     title: "CTFs and analyst labs",
-    description: "Challenge pages stay simple, with one clear validation flow and repeatable training structure.",
+    description: "Challenge pages stay simple, with one clear validation flow and repeatable practice structure.",
     href: featuredCollection ? `/ctf/${featuredCollection.slug}/` : "/ctf/",
-    action: "Open Training",
-    meta: featuredCollection?.data.title ?? "Training surface"
+    action: "Open CTFs/Practice",
+    meta: featuredCollection?.data.title ?? "Practice archive"
   }
 ];
 ---
 
-<BaseLayout title={`${siteMeta.title} | DFIR, OSINT, Threat Intelligence`} description={siteMeta.description}>
+<BaseLayout title={`${siteMeta.title} | DFIR, OSINT, Threat Intel`} description={siteMeta.description}>
   <section class="home-hero">
     <div class="container stack">
       <article class="panel home-hero-minimal">
         <h1>Ahmed Elessaway</h1>
-        <p class="lede">DFIR, OSINT, threat intelligence, and practical training.</p>
+        <p class="lede">DFIR, OSINT, threat intel, and hands-on practice.</p>
 
         <div class="button-row">
-          <a class="button button-primary" href="/blog/">Open Reports</a>
-          <a class="button button-ghost" href="/ctf/">Open Training</a>
+          <a class="button button-primary" href="/blog/">Open Reports/Writeups</a>
+          <a class="button button-ghost" href="/ctf/">Open CTFs/Practice</a>
           <a class="button button-ghost" href="/about/">View Profile</a>
         </div>
       </article>
@@ -69,11 +69,11 @@ const entryPoints = [
   <section class="content-section">
     <div class="container">
       <SectionHeader
-        eyebrow="Recent Reports"
+        eyebrow="Recent Reports/Writeups"
         title="Latest published work"
         description="The most recent public reports and technical writeups."
         actionHref="/blog/"
-        actionLabel="View Archive"
+        actionLabel="View Reports/Writeups"
       />
 
       <div class="card-grid">
@@ -107,7 +107,7 @@ const entryPoints = [
       <SectionHeader
         eyebrow="Explore"
         title="Three clear entry points"
-        description="Everything important stays behind the archive, the threat intel section, and the training surface."
+        description="Everything important stays behind the reports archive, the threat intel section, and the CTFs/practice area."
       />
 
       <div class="home-surface-grid">

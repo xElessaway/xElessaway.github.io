@@ -4,11 +4,11 @@ import { withBase } from "../utils/paths";
 
 const pathname = Astro.url.pathname;
 const moduleLabels: Record<string, { top: string; side: string; short: string }> = {
-  "/": { top: "Dashboard", side: "Operator Surface", short: "HM" },
-  "/blog/": { top: "Reports", side: "Investigation Archive", short: "RP" },
-  "/threat-intelligence/": { top: "Threats", side: "Intel Dossiers", short: "TI" },
-  "/ctf/": { top: "Training", side: "CTF Modules", short: "CTF" },
-  "/about/": { top: "Profile", side: "Operator Profile", short: "AB" }
+  "/": { top: "Home", side: "Main Page", short: "HM" },
+  "/blog/": { top: "Reports/Writeups", side: "Research Archive", short: "RW" },
+  "/threat-intelligence/": { top: "Threat Intel", side: "Intel Dossiers", short: "TI" },
+  "/ctf/": { top: "CTFs/Practice", side: "Practice Archive", short: "CP" },
+  "/about/": { top: "Profile", side: "Public Profile", short: "PF" }
 };
 ---
 

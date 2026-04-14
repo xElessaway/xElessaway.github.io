@@ -1,9 +1,9 @@
 export const siteMeta = {
   title: "Ahmed Elessaway (xElessaway)",
   description:
-    "Threat Intelligence and DFIR-focused cybersecurity engineer building blue-team labs, OSINT workflows, and practical investigation content.",
+    "Threat Intel and DFIR-focused cybersecurity engineer building blue-team labs, OSINT workflows, and practical investigation content.",
   tagline:
-    "DFIR, threat intelligence, OSINT, and blue-team training systems.",
+    "DFIR, threat intel, OSINT, and hands-on blue-team practice.",
   siteUrl: "https://xelessaway.github.io",
   socials: [
     {
@@ -25,9 +25,9 @@ export const siteMeta = {
   ],
   nav: [
     { label: "Home", href: "/" },
-    { label: "Blog", href: "/blog/" },
-    { label: "Threat Intelligence", href: "/threat-intelligence/" },
-    { label: "CTF", href: "/ctf/" },
-    { label: "About", href: "/about/" }
+    { label: "Reports/Writeups", href: "/blog/" },
+    { label: "Threat Intel", href: "/threat-intelligence/" },
+    { label: "CTFs/Practice", href: "/ctf/" },
+    { label: "Profile", href: "/about/" }
   ]
 };

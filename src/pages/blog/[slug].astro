@@ -13,7 +13,7 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const archiveLabel = entry.data.archiveSection === "reports" ? "Field report" : "Technical writeup";
+const archiveLabel = entry.data.archiveSection === "reports" ? "Report" : "Writeup";
 const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry" : "Research brief";
 ---
 
@@ -88,8 +88,8 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry
         <div class="meta-card">
           <p class="eyebrow">Archive Note</p>
           <p class="muted-copy">
-            Reports stay separated from writeups so the archive can hold both investigation narratives and
-            technical walkthroughs without flattening them into one stream.
+            Reports/Writeups stay separated so investigation narratives and technical walkthroughs keep their
+            own lane instead of collapsing into one stream.
           </p>
         </div>
       </aside>
