@@ -153,7 +153,7 @@ pre,
 
 .shell-bar {
   display: grid;
-  grid-template-columns: auto 1fr;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 1rem;
   height: 100%;
@@ -164,6 +164,7 @@ pre,
   display: flex;
   align-items: center;
   gap: 0.8rem;
+  justify-self: start;
 }
 
 .brand-mark {
@@ -215,9 +216,10 @@ pre,
 .site-nav {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  justify-self: end;
+  justify-content: center;
+  justify-self: center;
   gap: 1rem;
+  grid-column: 2;
 }
 
 .nav-link {
