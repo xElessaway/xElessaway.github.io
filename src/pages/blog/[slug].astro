@@ -19,7 +19,7 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry
 
 <BaseLayout title={`${entry.data.title} | Ahmed Elessaway`} description={entry.data.description}>
   <section class="story-hero">
-    <div class="container container-fluid">
+    <div class="container">
       <article class="panel story-hero-panel story-hero-panel-simple">
         <div class="ops-meta-strip">
           <span class="meta-chip">{entry.data.archiveSection}</span>
@@ -37,7 +37,7 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry
   </section>
 
   <section class="content-section">
-    <div class="container container-fluid">
+    <div class="container">
       <article class="content-panel prose story-panel story-panel-simple">
         <Content />
 

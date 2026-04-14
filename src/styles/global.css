@@ -116,11 +116,6 @@ pre,
   margin-inline: auto;
 }
 
-.container-fluid {
-  width: calc(100% - (var(--page-gutter) * 2));
-  max-width: none;
-}
-
 .page-main {
   position: relative;
   z-index: 1;

@@ -28,7 +28,7 @@ const grouped = {
 
 <BaseLayout title={`${entry.data.title} | CTFs/Practice`} description={entry.data.summary}>
   <section class="ctf-hero">
-    <div class="container container-fluid">
+    <div class="container">
       <article class="panel ctf-hero-panel">
         <div class="ops-meta-strip">
           <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
@@ -49,7 +49,7 @@ const grouped = {
   </section>
 
   <section class="content-section">
-    <div class="container container-fluid stack">
+    <div class="container stack">
       {
         Object.entries(grouped).map(([difficulty, items]) =>
           items.length > 0 && (
