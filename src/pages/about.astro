@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { siteMeta, toolGroups } from "../data/site";
+import { siteMeta } from "../data/site";
 
 const focusAreas = [
   "Threat Hunting",
@@ -92,22 +92,6 @@ const achievementHighlights = [
               <dd>Investigations, training systems, archive-quality research, and practical analyst workflows.</dd>
             </div>
           </dl>
-        </div>
-
-        <div class="meta-card">
-          <p class="eyebrow">Tool Stack</p>
-          <div class="tool-group-grid tool-group-grid-profile">
-            {
-              toolGroups.map((group) => (
-                <article class="tool-group">
-                  <p class="tool-group-label">{group.label}</p>
-                  <div class="tag-list">
-                    {group.tools.map((tool) => <span class="tag">{tool}</span>)}
-                  </div>
-                </article>
-              ))
-            }
-          </div>
         </div>
 
         <div class="meta-card">

@@ -862,42 +862,6 @@ p {
     var(--surface-high);
 }
 
-.tool-matrix {
-  display: grid;
-  gap: 0.65rem;
-}
-
-.tool-group-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
-}
-
-.tool-group {
-  display: grid;
-  gap: 0.45rem;
-  padding: 0.7rem;
-  background: var(--surface-high);
-  box-shadow: inset 0 0 0 1px rgba(61, 74, 62, 0.16);
-  transition:
-    background 180ms ease,
-    transform 180ms ease,
-    box-shadow 180ms ease;
-}
-
-.tool-group:hover {
-  transform: translateY(-1px);
-  background: var(--surface-strong);
-}
-
-.tool-group-label {
-  color: var(--primary);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.64rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1666,7 +1630,6 @@ p {
   .card-grid,
   .capability-grid,
   .home-surface-grid,
-  .tool-group-grid,
   .role-grid,
   .detail-grid,
   .footer-grid,
