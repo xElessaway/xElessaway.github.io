@@ -19,12 +19,6 @@ const actorCount = hasActorEntries ? (await getCollection("actors")).length : 0;
 const collections = await getCollection("ctfCollections");
 const featuredCollection = collections.find((entry) => entry.data.featured) ?? collections[0];
 
-const missionMetrics = [
-  { value: "3+", label: "Years in cyber engineering" },
-  { value: "200+", label: "Learners trained hands-on" },
-  { value: String(blogPosts.length), label: "Public reports and writeups" }
-];
-
 const entryPoints = [
   {
     eyebrow: "Reports",
@@ -59,42 +53,14 @@ const entryPoints = [
 <BaseLayout title={`${siteMeta.title} | DFIR, OSINT, Threat Intelligence`} description={siteMeta.description}>
   <section class="home-hero">
     <div class="container stack">
-      <article class="panel hero-panel hero-panel-primary home-hero-simple">
-        <div class="ops-meta-strip">
-          <span class="meta-chip">dfir</span>
-          <span class="meta-chip">osint</span>
-          <span class="meta-chip">threat_intelligence</span>
-        </div>
-
-        <p class="eyebrow">Home</p>
-        <h1>DFIR, OSINT, and threat intelligence.</h1>
-        <p class="lede">
-          A simple landing page for investigations, research notes, threat tracking, and practical training
-          content.
-        </p>
-
-        <div class="tag-list home-focus-tags">
-          <span class="tag">Investigations</span>
-          <span class="tag">Writeups</span>
-          <span class="tag">Threat Tracking</span>
-          <span class="tag">Training Labs</span>
-        </div>
+      <article class="panel home-hero-minimal">
+        <h1>Ahmed Elessaway</h1>
+        <p class="lede">DFIR, OSINT, threat intelligence, and practical training.</p>
 
         <div class="button-row">
           <a class="button button-primary" href="/blog/">Open Reports</a>
           <a class="button button-ghost" href="/ctf/">Open Training</a>
           <a class="button button-ghost" href="/about/">View Profile</a>
-        </div>
-
-        <div class="stats-grid">
-          {
-            missionMetrics.map((item) => (
-              <div class="stat-block">
-                <strong>{item.value}</strong>
-                <span>{item.label}</span>
-              </div>
-            ))
-          }
         </div>
       </article>
     </div>
