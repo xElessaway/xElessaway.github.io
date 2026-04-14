@@ -38,38 +38,6 @@ const collection = collections.find((item) => item.slug === entry.data.collectio
 
   <section class="content-section">
     <div class="container container-fluid stack">
-      <article class="content-panel prose challenge-panel-simple">
-        <p class="eyebrow">Challenge Brief</p>
-        <p>{entry.data.prompt}</p>
-        <p>
-          Recover the expected answer string, match the required format, and validate locally before using it
-          as the archive password or final answer key.
-        </p>
-
-        {
-          entry.data.image && (
-            <figure class="challenge-figure">
-              <img src={entry.data.image} alt={entry.data.title} class="challenge-image" />
-            </figure>
-          )
-        }
-
-        {
-          entry.data.assets.length > 0 && (
-            <div class="challenge-assets-block">
-              <p class="eyebrow">Challenge Assets</p>
-              <div class="asset-list">
-                {entry.data.assets.map((asset) => (
-                  <a href={asset.url} target={asset.kind === "external" ? "_blank" : undefined} rel="noreferrer">
-                    {asset.label}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )
-        }
-      </article>
-
       <div class="challenge-validator-inline">
         <CTFAnswerValidator
           collection={entry.data.collection}
@@ -80,6 +48,40 @@ const collection = collections.find((item) => item.slug === entry.data.collectio
           hint={entry.data.hint}
         />
       </div>
+
+      {
+        (entry.data.image || entry.data.assets.length > 0) && (
+          <article class="content-panel prose challenge-panel-simple challenge-support-panel">
+            <p class="eyebrow">Challenge Resources</p>
+            <p class="muted-copy">
+              Use the provided material, recover the expected answer string, and validate it in the checker below.
+            </p>
+
+            {
+              entry.data.image && (
+                <figure class="challenge-figure">
+                  <img src={entry.data.image} alt={entry.data.title} class="challenge-image" data-zoomable-image />
+                </figure>
+              )
+            }
+
+            {
+              entry.data.assets.length > 0 && (
+                <div class="challenge-assets-block">
+                  <p class="eyebrow">Challenge Assets</p>
+                  <div class="asset-list">
+                    {entry.data.assets.map((asset) => (
+                      <a href={asset.url} target={asset.kind === "external" ? "_blank" : undefined} rel="noreferrer">
+                        {asset.label}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+          </article>
+        )
+      }
 
       <article class="content-panel challenge-endnotes">
         <p class="eyebrow">Challenge Details</p>

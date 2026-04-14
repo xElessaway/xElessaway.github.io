@@ -42,5 +42,86 @@ const { title = siteMeta.title, description = siteMeta.description } = Astro.pro
       <slot />
     </main>
     <SiteFooter />
+    <dialog class="image-lightbox" data-image-lightbox aria-label="Expanded image viewer">
+      <button class="image-lightbox-close" type="button" data-image-lightbox-close aria-label="Close image viewer">
+        Close
+      </button>
+      <img class="image-lightbox-media" data-image-lightbox-media alt="" />
+      <p class="image-lightbox-caption" data-image-lightbox-caption hidden></p>
+    </dialog>
+
+    <script is:inline>
+      const lightbox = document.querySelector("[data-image-lightbox]");
+      const lightboxMedia = lightbox?.querySelector("[data-image-lightbox-media]");
+      const lightboxCaption = lightbox?.querySelector("[data-image-lightbox-caption]");
+      const lightboxClose = lightbox?.querySelector("[data-image-lightbox-close]");
+
+      const isZoomableImage = (element) =>
+        element instanceof HTMLImageElement &&
+        (element.matches(".prose img") || element.matches(".challenge-image") || element.hasAttribute("data-zoomable-image"));
+
+      const setZoomableState = () => {
+        document.querySelectorAll(".prose img, .challenge-image, img[data-zoomable-image]").forEach((element) => {
+          if (element instanceof HTMLImageElement) {
+            element.tabIndex = 0;
+            element.setAttribute("role", "button");
+            element.setAttribute("aria-haspopup", "dialog");
+          }
+        });
+      };
+
+      const openLightbox = (image) => {
+        if (!(lightbox instanceof HTMLDialogElement) || !(lightboxMedia instanceof HTMLImageElement)) {
+          return;
+        }
+
+        lightboxMedia.src = image.currentSrc || image.src;
+        lightboxMedia.alt = image.alt || "";
+
+        if (lightboxCaption instanceof HTMLElement) {
+          const caption = image.alt?.trim();
+          lightboxCaption.textContent = caption ?? "";
+          lightboxCaption.hidden = !caption;
+        }
+
+        lightbox.showModal();
+      };
+
+      const closeLightbox = () => {
+        if (lightbox instanceof HTMLDialogElement && lightbox.open) {
+          lightbox.close();
+        }
+      };
+
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+
+        if (target instanceof Element) {
+          const image = target.closest(".prose img, .challenge-image, img[data-zoomable-image]");
+
+          if (isZoomableImage(image)) {
+            event.preventDefault();
+            openLightbox(image);
+            return;
+          }
+        }
+
+        if (target === lightbox || target === lightboxClose) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+
+        if ((event.key === "Enter" || event.key === " ") && isZoomableImage(target)) {
+          event.preventDefault();
+          openLightbox(target);
+        }
+      });
+
+      setZoomableState();
+      document.addEventListener("astro:page-load", setZoomableState);
+    </script>
   </body>
 </html>

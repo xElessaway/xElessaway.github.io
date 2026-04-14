@@ -995,7 +995,8 @@ p {
 }
 
 .prose figure {
-  margin: 0.2rem 0;
+  width: min(100%, 54rem);
+  margin: 0.2rem auto;
   display: grid;
   gap: 0.55rem;
   padding: 0.65rem;
@@ -1005,7 +1006,10 @@ p {
 
 .prose img {
   width: 100%;
+  max-height: 34rem;
   height: auto;
+  object-fit: contain;
+  cursor: zoom-in;
 }
 
 .prose blockquote {
@@ -1086,7 +1090,9 @@ p {
 }
 
 .challenge-figure {
+  width: min(100%, 54rem);
   margin: 0;
+  margin-inline: auto;
   overflow: hidden;
   background: var(--surface-high);
   box-shadow: inset 0 0 0 1px rgba(61, 74, 62, 0.16);
@@ -1097,8 +1103,65 @@ p {
   gap: 0.7rem;
 }
 
+.challenge-support-panel {
+  gap: 0.85rem;
+}
+
 .challenge-validator-inline {
   width: 100%;
+}
+
+.challenge-image {
+  max-height: 34rem;
+  object-fit: contain;
+  cursor: zoom-in;
+}
+
+.image-lightbox {
+  width: min(92vw, 88rem);
+  max-width: 88rem;
+  padding: 1rem;
+  border: 0;
+  background: rgba(10, 12, 16, 0.96);
+  box-shadow:
+    inset 0 0 0 1px rgba(61, 74, 62, 0.18),
+    0 24px 64px rgba(0, 0, 0, 0.55);
+}
+
+.image-lightbox::backdrop {
+  background: rgba(6, 8, 11, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.image-lightbox-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  margin-left: auto;
+  margin-bottom: 0.85rem;
+  padding: 0.45rem 0.8rem;
+  border: 0;
+  background: var(--surface-high);
+  box-shadow: inset 0 0 0 1px rgba(61, 74, 62, 0.18);
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.image-lightbox-media {
+  width: 100%;
+  max-height: calc(92vh - 5rem);
+  object-fit: contain;
+}
+
+.image-lightbox-caption {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  text-align: center;
 }
 
 .filter-panel {
