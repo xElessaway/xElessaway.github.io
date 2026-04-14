@@ -22,7 +22,7 @@ const collection = collections.find((item) => item.slug === entry.data.collectio
 
 <BaseLayout title={`${entry.data.title} | ${collection?.data.title ?? "CTFs/Practice"}`} description={entry.data.prompt}>
   <section class="ctf-hero">
-    <div class="container">
+    <div class="container container-fluid">
       <article class="panel ctf-hero-panel">
         <div class="ops-meta-strip">
           <a class="meta-chip" href="/ctf/">ctfs/practice</a>
@@ -37,7 +37,7 @@ const collection = collections.find((item) => item.slug === entry.data.collectio
   </section>
 
   <section class="content-section">
-    <div class="container stack">
+    <div class="container container-fluid stack">
       <article class="content-panel prose challenge-panel-simple">
         <p class="eyebrow">Challenge Brief</p>
         <p>{entry.data.prompt}</p>
