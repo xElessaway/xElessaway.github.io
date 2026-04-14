@@ -50,11 +50,8 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
 
 <aside id="site-sidebar" class="site-sidebar" aria-label="Section navigation">
   <div class="sidebar-rail-head">
+    <span class="sidebar-rail-glyph" aria-hidden="true"></span>
     <p class="sidebar-rail-label">Navigation</p>
-    <button class="rail-toggle" type="button" aria-expanded="true" aria-controls="site-sidebar">
-      <span class="rail-toggle-icon" aria-hidden="true"></span>
-      <span class="rail-toggle-label">Collapse</span>
-    </button>
   </div>
 
   <nav class="side-nav">
@@ -80,28 +77,11 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
 
 <script>
   const menuToggle = document.querySelector(".menu-toggle");
-  const railToggle = document.querySelector(".rail-toggle");
   const sidebar = document.querySelector("#site-sidebar");
   const overlay = document.querySelector("[data-mobile-overlay]");
   const desktopMedia = window.matchMedia("(min-width: 1100px)");
-  const storageKey = "shell-sidebar-collapsed";
 
-  if (
-    menuToggle instanceof HTMLButtonElement &&
-    railToggle instanceof HTMLButtonElement &&
-    sidebar instanceof HTMLElement &&
-    overlay instanceof HTMLElement
-  ) {
-    const setDesktopState = (collapsed: boolean) => {
-      document.body.classList.toggle("sidebar-collapsed", collapsed);
-      railToggle.setAttribute("aria-expanded", String(!collapsed));
-      const label = railToggle.querySelector(".rail-toggle-label");
-
-      if (label instanceof HTMLElement) {
-        label.textContent = collapsed ? "Expand" : "Collapse";
-      }
-    };
-
+  if (menuToggle instanceof HTMLButtonElement && sidebar instanceof HTMLElement && overlay instanceof HTMLElement) {
     const closeMobileSidebar = () => {
       sidebar.classList.remove("is-open");
       overlay.hidden = true;
@@ -111,10 +91,6 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
     const syncViewportState = () => {
       if (desktopMedia.matches) {
         closeMobileSidebar();
-        setDesktopState(window.localStorage.getItem(storageKey) === "true");
-      } else {
-        document.body.classList.remove("sidebar-collapsed");
-        railToggle.setAttribute("aria-expanded", "true");
       }
     };
 
@@ -122,16 +98,6 @@ const moduleLabels: Record<string, { top: string; side: string; short: string }>
       const next = sidebar.classList.toggle("is-open");
       overlay.hidden = !next;
       menuToggle.setAttribute("aria-expanded", String(next));
-    });
-
-    railToggle.addEventListener("click", () => {
-      if (!desktopMedia.matches) {
-        return;
-      }
-
-      const next = !document.body.classList.contains("sidebar-collapsed");
-      setDesktopState(next);
-      window.localStorage.setItem(storageKey, String(next));
     });
 
     overlay.addEventListener("click", closeMobileSidebar);
