@@ -37,37 +37,40 @@ const collection = collections.find((item) => item.slug === entry.data.collectio
   </section>
 
   <section class="content-section">
-    <div class="container content-layout">
-      <article class="stack">
-        <div class="content-panel prose">
-          <p class="eyebrow">Challenge Brief</p>
-          <p>{entry.data.prompt}</p>
-          <p>
-            Recover the expected answer string, match the required format, and validate locally before using
-            it as the archive password or final answer key.
-          </p>
-        </div>
+    <div class="container story-shell stack">
+      <article class="content-panel prose challenge-panel-simple">
+        <p class="eyebrow">Challenge Brief</p>
+        <p>{entry.data.prompt}</p>
+        <p>
+          Recover the expected answer string, match the required format, and validate locally before using it
+          as the archive password or final answer key.
+        </p>
 
-        {entry.data.image && (
-          <div class="content-panel">
-            <p class="eyebrow">Reference Image</p>
-            <img src={entry.data.image} alt={entry.data.title} class="challenge-image" />
-          </div>
-        )}
+        {
+          entry.data.image && (
+            <figure class="challenge-figure">
+              <img src={entry.data.image} alt={entry.data.title} class="challenge-image" />
+            </figure>
+          )
+        }
 
-        <div class="content-panel">
-          <p class="eyebrow">Challenge Assets</p>
-          <div class="asset-list">
-            {entry.data.assets.map((asset) => (
-              <a href={asset.url} target={asset.kind === "external" ? "_blank" : undefined} rel="noreferrer">
-                {asset.label}
-              </a>
-            ))}
-          </div>
-        </div>
+        {
+          entry.data.assets.length > 0 && (
+            <div class="challenge-assets-block">
+              <p class="eyebrow">Challenge Assets</p>
+              <div class="asset-list">
+                {entry.data.assets.map((asset) => (
+                  <a href={asset.url} target={asset.kind === "external" ? "_blank" : undefined} rel="noreferrer">
+                    {asset.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )
+        }
       </article>
 
-      <aside class="stack">
+      <div class="challenge-validator-inline">
         <CTFAnswerValidator
           collection={entry.data.collection}
           challenge={entry.slug}
@@ -76,29 +79,29 @@ const collection = collections.find((item) => item.slug === entry.data.collectio
           answerHashes={entry.data.answerHashes}
           hint={entry.data.hint}
         />
+      </div>
 
-        <div class="meta-card">
-          <p class="eyebrow">Challenge Metadata</p>
-          <dl>
-            <div>
-              <dt>Practice Set</dt>
-              <dd>{collection?.data.title ?? entry.data.collection}</dd>
-            </div>
-            <div>
-              <dt>Difficulty</dt>
-              <dd>{entry.data.difficulty}</dd>
-            </div>
-            <div>
-              <dt>Password format</dt>
-              <dd class="mono">{entry.data.passwordFormat}</dd>
-            </div>
-            <div>
-              <dt>Assets</dt>
-              <dd>{entry.data.assets.length} linked file(s)</dd>
-            </div>
-          </dl>
-        </div>
-      </aside>
+      <article class="content-panel challenge-endnotes">
+        <p class="eyebrow">Challenge Details</p>
+        <dl class="story-meta-grid">
+          <div>
+            <dt>Practice Set</dt>
+            <dd>{collection?.data.title ?? entry.data.collection}</dd>
+          </div>
+          <div>
+            <dt>Difficulty</dt>
+            <dd>{entry.data.difficulty}</dd>
+          </div>
+          <div>
+            <dt>Password Format</dt>
+            <dd class="mono">{entry.data.passwordFormat}</dd>
+          </div>
+          <div>
+            <dt>Assets</dt>
+            <dd>{entry.data.assets.length} linked file(s)</dd>
+          </div>
+        </dl>
+      </article>
     </div>
   </section>
 </BaseLayout>

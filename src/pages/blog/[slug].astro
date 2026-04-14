@@ -19,8 +19,8 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry
 
 <BaseLayout title={`${entry.data.title} | Ahmed Elessaway`} description={entry.data.description}>
   <section class="story-hero">
-    <div class="container stack">
-      <article class="panel story-hero-panel">
+    <div class="container story-shell">
+      <article class="panel story-hero-panel story-hero-panel-simple">
         <div class="ops-meta-strip">
           <span class="meta-chip">{entry.data.archiveSection}</span>
           <span class="meta-chip">{entry.data.sourceLabel ?? "Research Brief"}</span>
@@ -33,46 +33,36 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry
           {entry.data.tags.map((tag) => <span>{tag}</span>)}
         </div>
       </article>
-
-      {
-        entry.data.cover && (
-          <div class="panel story-cover">
-            <img src={entry.data.cover} alt={entry.data.title} loading="lazy" />
-          </div>
-        )
-      }
     </div>
   </section>
 
   <section class="content-section">
-    <div class="container content-layout">
-      <article class="content-panel prose story-panel">
+    <div class="container story-shell">
+      <article class="content-panel prose story-panel story-panel-simple">
         <Content />
-      </article>
 
-      <aside class="stack">
-        <div class="meta-card">
-          <p class="eyebrow">Entry Metadata</p>
-          <dl>
+        <footer class="story-endnotes">
+          <p class="eyebrow">Entry Details</p>
+          <dl class="story-meta-grid">
             <div>
               <dt>Published</dt>
               <dd>{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</dd>
             </div>
             <div>
-              <dt>Archive</dt>
+              <dt>Type</dt>
               <dd>{archiveLabel}</dd>
-            </div>
-            <div>
-              <dt>Tags</dt>
-              <dd>{entry.data.tags.join(", ")}</dd>
             </div>
             <div>
               <dt>Format</dt>
               <dd>{formatLabel}</dd>
             </div>
+            <div>
+              <dt>Tags</dt>
+              <dd>{entry.data.tags.join(", ")}</dd>
+            </div>
             {
               entry.data.sourceUrl && (
-                <div>
+                <div class="story-meta-wide">
                   <dt>Original Source</dt>
                   <dd>
                     <a href={entry.data.sourceUrl} target="_blank" rel="noreferrer">
@@ -83,16 +73,8 @@ const formatLabel = entry.data.sourceLabel === "Medium" ? "Imported Medium entry
               )
             }
           </dl>
-        </div>
-
-        <div class="meta-card">
-          <p class="eyebrow">Archive Note</p>
-          <p class="muted-copy">
-            Reports/Writeups stay separated so investigation narratives and technical walkthroughs keep their
-            own lane instead of collapsing into one stream.
-          </p>
-        </div>
-      </aside>
+        </footer>
+      </article>
     </div>
   </section>
 </BaseLayout>
