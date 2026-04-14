@@ -9,9 +9,20 @@ const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
 const reports = posts.filter((post) => post.data.archiveSection === "reports");
 const writeups = posts.filter((post) => post.data.archiveSection === "writeups");
 
+const getSectionFilters = (entries: typeof posts) =>
+  [...entries.reduce((acc, post) => {
+    post.data.tags.forEach((tag) => {
+      acc.set(tag, (acc.get(tag) ?? 0) + 1);
+    });
+
+    return acc;
+  }, new Map<string, number>()).entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([tag, count]) => ({ tag, count }));
+
 const archiveSections = [
-  { id: "reports", label: "Reports", posts: reports },
-  { id: "writeups", label: "Writeups", posts: writeups }
+  { id: "reports", label: "Reports", posts: reports, filters: getSectionFilters(reports) },
+  { id: "writeups", label: "Writeups", posts: writeups, filters: getSectionFilters(writeups) }
 ];
 ---
 
@@ -57,67 +68,80 @@ const archiveSections = [
     <div class="container stack">
       {
         archiveSections.map((section, index) => {
-          const leadPost = section.posts[0];
-          const remainingPosts = section.posts.slice(1);
-
           return (
             <div class:list={["archive-panel", index === 0 && "is-visible"]} data-archive-panel={section.id} hidden={index !== 0}>
               {
-                leadPost ? (
+                section.posts.length > 0 ? (
                   <>
-                    <a class="lead-report lead-report-bounded" href={`/blog/${leadPost.slug}/`}>
-                      {leadPost.data.cover && (
-                        <div class="lead-report-media lead-report-media-bounded">
-                          <img src={leadPost.data.cover} alt={leadPost.data.title} loading="lazy" />
-                        </div>
-                      )}
+                    <div class="archive-toolbar">
+                      <div class="archive-filters" aria-label={`${section.label} filters`}>
+                        <button
+                          class="archive-filter is-active"
+                          type="button"
+                          data-archive-filter={section.id}
+                          data-tag="all"
+                        >
+                          <span>All</span>
+                          <span class="archive-count">{section.posts.length}</span>
+                        </button>
 
-                      <div class="lead-report-copy">
-                        <div class="status-row">
-                          <span class="meta-chip">{leadPost.data.archiveSection}</span>
-                          {leadPost.data.tags.slice(0, 3).map((tag) => <span class="tag">{tag}</span>)}
-                        </div>
-                        <p class="eyebrow">Lead {section.label.slice(0, -1)}</p>
-                        <h2>{leadPost.data.title}</h2>
-                        <p>{leadPost.data.description}</p>
-                        <div class="meta-line">
-                          <span>{leadPost.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</span>
-                          <span>{leadPost.data.sourceLabel ?? "Research Brief"}</span>
-                        </div>
+                        {
+                          section.filters.map((filter) => (
+                            <button
+                              class="archive-filter"
+                              type="button"
+                              data-archive-filter={section.id}
+                              data-tag={filter.tag}
+                            >
+                              <span>{filter.tag}</span>
+                              <span class="archive-count">{filter.count}</span>
+                            </button>
+                          ))
+                        }
                       </div>
-                    </a>
+                    </div>
 
-                    {
-                      remainingPosts.length > 0 ? (
-                        <div class="report-grid">
-                          {
-                            remainingPosts.map((post) => (
-                              <a class="story-card story-card-report" href={`/blog/${post.slug}/`}>
-                                {post.data.cover && (
-                                  <div class="card-media">
-                                    <img src={post.data.cover} alt={post.data.title} loading="lazy" />
-                                  </div>
-                                )}
-                                <div class="card-topline">
-                                  <span class="meta-chip">{post.data.archiveSection}</span>
-                                  {post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
-                                </div>
-                                <h3>{post.data.title}</h3>
-                                <p>{post.data.description}</p>
-                                <div class="meta-line">
-                                  <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
-                                  <span>{post.data.featured ? "featured" : "indexed"}</span>
-                                </div>
-                              </a>
-                            ))
-                          }
-                        </div>
-                      ) : (
-                        <article class="content-panel archive-empty">
-                          <p>No additional {section.label.toLowerCase()} are published yet.</p>
-                        </article>
-                      )
-                    }
+                    <div class="archive-results" data-archive-results={section.id}>
+                      {
+                        section.posts.map((post, postIndex) => (
+                          <a
+                            class:list={["story-card", "story-card-report", "archive-entry", postIndex === 0 && "is-lead"]}
+                            href={`/blog/${post.slug}/`}
+                            data-archive-entry={section.id}
+                            data-tags={post.data.tags.join("|")}
+                          >
+                            {post.data.cover && (
+                              <div class="card-media">
+                                <img src={post.data.cover} alt={post.data.title} loading="lazy" />
+                              </div>
+                            )}
+
+                            <div class="archive-entry-copy">
+                              <div class="card-topline">
+                                <span class="meta-chip">{post.data.archiveSection}</span>
+                                {post.data.tags.slice(0, postIndex === 0 ? 3 : 2).map((tag) => <span class="tag">{tag}</span>)}
+                              </div>
+
+                              <p class="eyebrow archive-entry-kicker">Lead {section.label.slice(0, -1)}</p>
+                              <h3>{post.data.title}</h3>
+                              <p>{post.data.description}</p>
+                              <div class="meta-line">
+                                <span>
+                                  {post.data.publishedAt.toLocaleDateString("en-US", {
+                                    dateStyle: postIndex === 0 ? "long" : "medium"
+                                  })}
+                                </span>
+                                <span>{postIndex === 0 ? post.data.sourceLabel ?? "Research Brief" : post.data.featured ? "featured" : "indexed"}</span>
+                              </div>
+                            </div>
+                          </a>
+                        ))
+                      }
+                    </div>
+
+                    <article class="content-panel archive-empty" data-archive-empty={section.id} hidden>
+                      <p>No {section.label.toLowerCase()} match this filter.</p>
+                    </article>
                   </>
                 ) : (
                   <article class="content-panel archive-empty">
@@ -135,6 +159,43 @@ const archiveSections = [
   <script>
     const archiveButtons = [...document.querySelectorAll("[data-archive-trigger]")];
     const archivePanels = [...document.querySelectorAll("[data-archive-panel]")];
+    const archiveFilters = [...document.querySelectorAll("[data-archive-filter]")];
+    const archiveResults = [...document.querySelectorAll("[data-archive-results]")];
+    const archiveEmptyStates = [...document.querySelectorAll("[data-archive-empty]")];
+
+    const applySectionFilter = (sectionId: string, activeTag: string) => {
+      const activeFilters = archiveFilters.filter(
+        (filter) => filter.getAttribute("data-archive-filter") === sectionId
+      );
+      const entries = [...document.querySelectorAll(`[data-archive-entry="${sectionId}"]`)];
+      const emptyState = archiveEmptyStates.find(
+        (state) => state.getAttribute("data-archive-empty") === sectionId
+      );
+
+      activeFilters.forEach((filter) => {
+        const isActive = filter.getAttribute("data-tag") === activeTag;
+        filter.classList.toggle("is-active", isActive);
+        filter.setAttribute("aria-pressed", String(isActive));
+      });
+
+      const visibleEntries = entries.filter((entry) => {
+        const tags = (entry.getAttribute("data-tags") ?? "").split("|").filter(Boolean);
+        const isVisible = activeTag === "all" || tags.includes(activeTag);
+        entry.toggleAttribute("hidden", !isVisible);
+        entry.classList.remove("is-lead");
+        return isVisible;
+      });
+
+      const firstVisible = visibleEntries[0];
+
+      if (firstVisible) {
+        firstVisible.classList.add("is-lead");
+      }
+
+      if (emptyState instanceof HTMLElement) {
+        emptyState.hidden = visibleEntries.length > 0;
+      }
+    };
 
     const applyArchiveState = (activeId: string) => {
       archiveButtons.forEach((button) => {
@@ -148,6 +209,10 @@ const archiveSections = [
         panel.toggleAttribute("hidden", !isActive);
         panel.classList.toggle("is-visible", isActive);
       });
+
+      if (window.location.hash !== `#${activeId}`) {
+        window.history.replaceState({}, "", `#${activeId}`);
+      }
     };
 
     archiveButtons.forEach((button) => {
@@ -155,6 +220,37 @@ const archiveSections = [
         const next = button.getAttribute("data-archive-trigger") ?? "reports";
         applyArchiveState(next);
       });
+    });
+
+    archiveFilters.forEach((filter) => {
+      filter.addEventListener("click", () => {
+        const sectionId = filter.getAttribute("data-archive-filter");
+        const activeTag = filter.getAttribute("data-tag") ?? "all";
+
+        if (sectionId) {
+          applySectionFilter(sectionId, activeTag);
+        }
+      });
+    });
+
+    archiveResults.forEach((resultSet) => {
+      const sectionId = resultSet.getAttribute("data-archive-results");
+
+      if (sectionId) {
+        applySectionFilter(sectionId, "all");
+      }
+    });
+
+    const initialArchive = window.location.hash.replace("#", "");
+    const isKnownArchive = archivePanels.some((panel) => panel.getAttribute("data-archive-panel") === initialArchive);
+    applyArchiveState(isKnownArchive ? initialArchive : "reports");
+
+    window.addEventListener("hashchange", () => {
+      const nextArchive = window.location.hash.replace("#", "");
+
+      if (archivePanels.some((panel) => panel.getAttribute("data-archive-panel") === nextArchive)) {
+        applyArchiveState(nextArchive);
+      }
     });
   </script>
 </BaseLayout>
