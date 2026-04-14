@@ -1030,11 +1030,6 @@ p {
   min-height: 240px;
 }
 
-.story-shell {
-  width: min(820px, 100%);
-  margin-inline: auto;
-}
-
 .story-hero-panel-simple {
   gap: 0.55rem;
 }
@@ -1098,7 +1093,7 @@ p {
 }
 
 .challenge-validator-inline {
-  width: min(100%, 820px);
+  width: 100%;
 }
 
 .filter-panel {
