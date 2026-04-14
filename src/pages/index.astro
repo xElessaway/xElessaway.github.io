@@ -3,7 +3,7 @@ import { getCollection } from "astro:content";
 import { readdir } from "node:fs/promises";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SectionHeader from "../components/SectionHeader.astro";
-import { siteMeta, toolGroups } from "../data/site";
+import { siteMeta } from "../data/site";
 
 const actorDirEntries = await readdir(new URL("../content/actors", import.meta.url), { withFileTypes: true }).catch(() => []);
 const hasActorEntries = actorDirEntries.some(
@@ -13,89 +13,77 @@ const hasActorEntries = actorDirEntries.some(
 const blogPosts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
 );
-const featuredPosts = blogPosts.filter((post) => post.data.featured).slice(0, 3);
-const actors = hasActorEntries ? (await getCollection("actors")).filter((entry) => entry.data.featured).slice(0, 3) : [];
-const collections = await getCollection("ctfCollections");
+const recentPosts = blogPosts.slice(0, 3);
 
+const actorCount = hasActorEntries ? (await getCollection("actors")).length : 0;
+const collections = await getCollection("ctfCollections");
 const featuredCollection = collections.find((entry) => entry.data.featured) ?? collections[0];
-const recentPosts = featuredPosts.length > 0 ? featuredPosts : blogPosts.slice(0, 3);
-const capabilityCards = [
-  {
-    kicker: "DFIR",
-    title: "Memory, disk, and host-focused investigations",
-    description:
-      "Hands-on forensic analysis across Windows and Linux systems using artifact review, evidence-led workflows, and practical host investigation methods.",
-    tags: ["Autopsy", "Memory Review", "Disk Artifacts", "Registry Analysis"]
-  },
-  {
-    kicker: "Threat Intelligence",
-    title: "Investigation context that stays useful",
-    description:
-      "Threat tracking, intel enrichment, and dossier structures built to support repeatable analysis and stronger defensive decisions.",
-    tags: ["OpenCTI", "Threat Hunting", "TTP Mapping", "Intel Enrichment"]
-  },
-  {
-    kicker: "Detection",
-    title: "Blue-team labs and realistic detection scenarios",
-    description:
-      "Attack simulations and training environments designed to sharpen analyst pivots, signal recognition, and response quality.",
-    tags: ["Splunk", "ELK", "Sentinel", "Attack Simulation"]
-  },
-  {
-    kicker: "OSINT",
-    title: "Collection, validation, and challenge design",
-    description:
-      "OSINT workflows translated into practical research notes, challenge design, and analyst-friendly investigative exercises.",
-    tags: ["OSINT", "Validation", "Challenge Design", "Analysis"]
-  }
-];
-const focusAreas = [
-  {
-    title: "Blue-team lab development",
-    description:
-      "Design and build attack simulations and hunting scenarios that sharpen analyst detection and response readiness."
-  },
-  {
-    title: "Forensics and evidence handling",
-    description:
-      "Practical Windows and Linux evidence workflows with memory, disk, and registry-focused DFIR methods."
-  },
-  {
-    title: "OSINT and intelligence training",
-    description:
-      "Hands-on instruction that turns threat intelligence and OSINT fundamentals into repeatable investigative workflows."
-  }
-];
+
 const missionMetrics = [
   { value: "3+", label: "Years in cyber engineering" },
   { value: "200+", label: "Learners trained hands-on" },
-  { value: "5", label: "Current cert track highlights" }
+  { value: String(blogPosts.length), label: "Public reports and writeups" }
+];
+
+const entryPoints = [
+  {
+    eyebrow: "Reports",
+    title: "Technical reports and writeups",
+    description: "The main archive for investigations, walkthroughs, and practical security notes.",
+    href: "/blog/",
+    action: "Open Archive",
+    meta: `${blogPosts.length} published`
+  },
+  {
+    eyebrow: "Threat Intelligence",
+    title: actorCount > 0 ? "Published dossiers and actor tracking" : "Threat intel framework ready",
+    description:
+      actorCount > 0
+        ? "Structured actor pages with timelines, TTP mapping, tooling, and references."
+        : "The structure is ready for real dossiers without filling the homepage with placeholder intel.",
+    href: "/threat-intelligence/",
+    action: "Open Threat Intel",
+    meta: `${actorCount} public dossiers`
+  },
+  {
+    eyebrow: "Training",
+    title: "CTFs and analyst labs",
+    description: "Challenge pages stay simple, with one clear validation flow and repeatable training structure.",
+    href: featuredCollection ? `/ctf/${featuredCollection.slug}/` : "/ctf/",
+    action: "Open Training",
+    meta: featuredCollection?.data.title ?? "Training surface"
+  }
 ];
 ---
 
 <BaseLayout title={`${siteMeta.title} | DFIR, OSINT, Threat Intelligence`} description={siteMeta.description}>
   <section class="home-hero">
-    <div class="container hero-grid">
-      <article class="panel hero-panel hero-panel-primary">
+    <div class="container stack">
+      <article class="panel hero-panel hero-panel-primary home-hero-simple">
         <div class="ops-meta-strip">
-          <span class="meta-chip">dfir_engineer</span>
+          <span class="meta-chip">dfir</span>
+          <span class="meta-chip">osint</span>
           <span class="meta-chip">threat_intelligence</span>
-          <span class="meta-chip">osint_workflows</span>
         </div>
-        <p class="eyebrow">Operational Profile</p>
-        <h1>
-          DFIR Engineer
-          <span class="accent-copy">& Threat Intelligence Operator</span>
-        </h1>
+
+        <p class="eyebrow">Home</p>
+        <h1>DFIR, OSINT, and threat intelligence.</h1>
         <p class="lede">
-          Threat Intelligence and DFIR-focused cybersecurity engineer building blue-team labs, investigation
-          workflows, practical OSINT training, and technical content that stays useful for defenders.
+          A simple landing page for investigations, research notes, threat tracking, and practical training
+          content.
         </p>
 
+        <div class="tag-list home-focus-tags">
+          <span class="tag">Investigations</span>
+          <span class="tag">Writeups</span>
+          <span class="tag">Threat Tracking</span>
+          <span class="tag">Training Labs</span>
+        </div>
+
         <div class="button-row">
-          <a class="button button-primary" href="/about/">View Profile</a>
-          <a class="button button-ghost" href="/blog/">Open Reports</a>
-          <a class="button button-ghost" href="/threat-intelligence/">Threat Intel</a>
+          <a class="button button-primary" href="/blog/">Open Reports</a>
+          <a class="button button-ghost" href="/ctf/">Open Training</a>
+          <a class="button button-ghost" href="/about/">View Profile</a>
         </div>
 
         <div class="stats-grid">
@@ -109,76 +97,15 @@ const missionMetrics = [
           }
         </div>
       </article>
-
-      <aside class="panel signal-panel">
-        <div class="panel-headline">
-          <div>
-            <p class="eyebrow">Current Operations</p>
-            <h3>Active Focus Areas</h3>
-          </div>
-        </div>
-
-        <div class="signal-list">
-          {
-            focusAreas.map((item) => (
-              <article class="signal-item">
-                <strong>{item.title}</strong>
-                <p class="muted-copy">{item.description}</p>
-              </article>
-            ))
-          }
-        </div>
-
-        <div class="tool-matrix">
-          <p class="eyebrow">Tool Stack</p>
-          <div class="tool-group-grid">
-            {
-              toolGroups.map((group) => (
-                <article class="tool-group">
-                  <p class="tool-group-label">{group.label}</p>
-                  <div class="tag-list">
-                    {group.tools.map((tool) => <span class="tag">{tool}</span>)}
-                  </div>
-                </article>
-              ))
-            }
-          </div>
-        </div>
-      </aside>
     </div>
   </section>
 
   <section class="content-section">
     <div class="container">
       <SectionHeader
-        eyebrow="Capabilities"
-        title="Detection, forensics, intelligence context"
-        description="The site is built around operational work: investigations, labs, dossiers, and archive-ready technical output."
-      />
-
-      <div class="capability-grid">
-        {
-          capabilityCards.map((card) => (
-            <article class="capability-card">
-              <p class="capability-kicker">{card.kicker}</p>
-              <h3>{card.title}</h3>
-              <p>{card.description}</p>
-              <div class="tag-list">
-                {card.tags.map((tag) => <span class="tag">{tag}</span>)}
-              </div>
-            </article>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="content-section">
-    <div class="container">
-      <SectionHeader
-        eyebrow="Latest Archive"
-        title="Reports and technical writeups"
-        description="Imported Medium posts and native entries stay in one archive, split cleanly between reports and writeups."
+        eyebrow="Recent Reports"
+        title="Latest published work"
+        description="The most recent public reports and technical writeups."
         actionHref="/blog/"
         actionLabel="View Archive"
       />
@@ -210,79 +137,28 @@ const missionMetrics = [
   </section>
 
   <section class="content-section">
-    <div class="container split-grid">
-      <article class="content-panel">
-        <SectionHeader
-          eyebrow="Threat Intelligence"
-          title="A threat intelligence framework without fake dossiers"
-          description="The section stays live for original actor research, but placeholder sample actors have been removed so only real published dossiers appear."
-          actionHref="/threat-intelligence/"
-          actionLabel="View Framework"
-        />
+    <div class="container">
+      <SectionHeader
+        eyebrow="Explore"
+        title="Three clear entry points"
+        description="Everything important stays behind the archive, the threat intel section, and the training surface."
+      />
 
+      <div class="home-surface-grid">
         {
-          actors.length > 0 ? (
-            <div class="card-grid card-grid-compact">
-              {actors.map((actor) => (
-                <a class="dossier-card" href={`/threat-intelligence/${actor.slug}/`}>
-                  <div class="status-row">
-                    <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
-                    <span class="meta-chip">{actor.data.origin}</span>
-                  </div>
-                  <h3>{actor.data.name}</h3>
-                  <p>{actor.data.motivation}</p>
-                  <div class="tag-list">
-                    {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
-                  </div>
-                  <div class="meta-line">
-                    <span>first_seen {actor.data.firstSeen}</span>
-                    <span>last_seen {actor.data.lastSeen}</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          ) : (
-            <article class="content-panel">
-              <div class="ops-meta-strip">
-                <span class="meta-chip">publication_state // clean</span>
-                <span class="meta-chip">0 public dossiers</span>
+          entryPoints.map((entry) => (
+            <a class="intel-link home-surface-card" href={entry.href}>
+              <p class="eyebrow">{entry.eyebrow}</p>
+              <h3>{entry.title}</h3>
+              <p>{entry.description}</p>
+              <div class="meta-line">
+                <span>{entry.meta}</span>
+                <span>{entry.action}</span>
               </div>
-              <p>
-                No public actor dossiers are published yet. The page structure is ready for verified threat
-                actor entries, timelines, TTP themes, tooling, and source references as that research is
-                added.
-              </p>
-              <div class="tag-list">
-                <span class="tag">Identity</span>
-                <span class="tag">Aliases</span>
-                <span class="tag">Timeline</span>
-                <span class="tag">TTP Mapping</span>
-                <span class="tag">Tooling</span>
-                <span class="tag">References</span>
-              </div>
-            </article>
-          )
+            </a>
+          ))
         }
-      </article>
-
-      <aside class="meta-card">
-        <p class="eyebrow">Training Surface</p>
-        <h3>CTFs and labs as practical analyst modules</h3>
-        <p>
-          Challenge pages stay structured as mission briefs with one validation path, asset access, and clean
-          solved-state handling for repeat visits.
-        </p>
-        <div class="button-row">
-          <a class="button button-primary" href="/ctf/">Open Training</a>
-          {
-            featuredCollection && (
-              <a class="button button-ghost" href={`/ctf/${featuredCollection.slug}/`}>
-                Open {featuredCollection.data.title}
-              </a>
-            )
-          }
-        </div>
-      </aside>
+      </div>
     </div>
   </section>
 </BaseLayout>

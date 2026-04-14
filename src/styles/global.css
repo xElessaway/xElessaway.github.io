@@ -607,6 +607,20 @@ p {
   padding: 0 0 0.95rem;
 }
 
+.home-hero-simple {
+  display: grid;
+  gap: 0.85rem;
+  max-width: 68rem;
+}
+
+.home-hero-simple h1 {
+  max-width: 10ch;
+}
+
+.home-focus-tags {
+  margin-top: -0.1rem;
+}
+
 .content-section {
   padding: 0.9rem 0;
 }
@@ -628,6 +642,7 @@ p {
 .content-layout,
 .card-grid,
 .capability-grid,
+.home-surface-grid,
 .role-grid,
 .detail-grid,
 .footer-grid,
@@ -671,6 +686,10 @@ p {
 
 .capability-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.home-surface-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .role-grid,
@@ -920,6 +939,13 @@ p {
 .intel-link {
   display: block;
   padding: 0.95rem;
+}
+
+.home-surface-card {
+  display: grid;
+  gap: 0.6rem;
+  align-content: start;
+  min-height: 220px;
 }
 
 .story-card h3,
@@ -1639,6 +1665,7 @@ p {
   .content-layout,
   .card-grid,
   .capability-grid,
+  .home-surface-grid,
   .tool-group-grid,
   .role-grid,
   .detail-grid,
