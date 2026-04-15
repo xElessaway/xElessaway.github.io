@@ -22,7 +22,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
       <p class="eyebrow">Validation</p>
       <h3>Validate Answer</h3>
     </div>
-    <span class="validator-status-badge" data-validator-badge hidden>Completed</span>
+    <span class="validator-status-badge">Completed</span>
   </div>
 
   <form class="validator-form">
@@ -65,7 +65,6 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
     const form = root.querySelector(".validator-form");
     const input = form?.querySelector("input");
     const state = root.querySelector("[data-validator-state]");
-    const badge = root.querySelector("[data-validator-badge]");
     const button = root.querySelector("[data-validator-button]");
     const hashes = JSON.parse(root.getAttribute("data-answer-hashes") ?? "[]");
     const storageKey = root.getAttribute("data-storage-key");
@@ -79,7 +78,24 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
       return;
     }
 
+    const resetPending = () => {
+      root.classList.remove("is-pending");
+      button.disabled = false;
+      button.textContent = "Validate";
+    };
+
+    const markPending = () => {
+      root.classList.remove("is-error");
+      root.classList.remove("is-solved");
+      root.classList.add("is-pending");
+      state.textContent = "Checking answer...";
+      input.setAttribute("aria-invalid", "false");
+      button.disabled = true;
+      button.textContent = "Checking...";
+    };
+
     const markSolved = () => {
+      root.classList.remove("is-pending");
       root.classList.remove("is-error");
       root.classList.add("is-solved");
       state.textContent = "Answer verified on this device. This challenge is complete.";
@@ -88,10 +104,6 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
       input.setAttribute("aria-invalid", "false");
       button.disabled = true;
       button.textContent = "Completed";
-
-      if (badge instanceof HTMLElement) {
-        badge.hidden = false;
-      }
     };
 
     if (storageKey && localStorage.getItem(storageKey) === "true") {
@@ -103,6 +115,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
 
       const raw = input.value;
       if (!raw.trim()) {
+        resetPending();
         root.classList.remove("is-solved");
         root.classList.add("is-error");
         state.textContent = "Enter an answer before validating.";
@@ -110,8 +123,8 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
         return;
       }
 
-      root.classList.remove("is-error");
-      state.textContent = "Checking answer hash...";
+      markPending();
+      await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
 
       try {
         const normalized = normalizeAnswer(raw);
@@ -125,17 +138,17 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
           return;
         }
 
+        resetPending();
         root.classList.remove("is-solved");
         root.classList.add("is-error");
         state.textContent = "Hash mismatch. Check the expected format and try again.";
         input.setAttribute("aria-invalid", "true");
-        button.textContent = "Validate";
       } catch (error) {
+        resetPending();
         root.classList.remove("is-solved");
         root.classList.add("is-error");
         state.textContent = "Validation failed in this browser session.";
         input.setAttribute("aria-invalid", "true");
-        button.textContent = "Validate";
       }
     });
   });
