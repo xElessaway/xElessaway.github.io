@@ -98,7 +98,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
       root.classList.remove("is-pending");
       root.classList.remove("is-error");
       root.classList.add("is-solved");
-      state.textContent = "Answer verified on this device. This challenge is complete.";
+      state.textContent = "Correct answer. Challenge complete.";
       input.value = "Solved on this device";
       input.disabled = true;
       input.setAttribute("aria-invalid", "false");
@@ -141,7 +141,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
         resetPending();
         root.classList.remove("is-solved");
         root.classList.add("is-error");
-        state.textContent = "Hash mismatch. Check the expected format and try again.";
+        state.textContent = "Wrong answer. Try again.";
         input.setAttribute("aria-invalid", "true");
       } catch (error) {
         resetPending();
