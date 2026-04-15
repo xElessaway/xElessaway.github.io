@@ -1,5 +1,7 @@
 import { buildGeneratedContent, createInitialValues, slugify, type IntakeField, type IntakeTemplate } from "../utils/intakeConsole";
 
+type StatusTone = "neutral" | "pending" | "success" | "error";
+
 const templatesElement = document.querySelector("#intake-console-templates");
 const initialStateElement = document.querySelector("#intake-console-initial-state");
 const consoleRoot = document.querySelector("[data-intake-console]");
@@ -34,6 +36,13 @@ const setActiveTemplate = (templateId: string) => {
     panel.hidden = !active;
     panel.classList.toggle("is-active", active);
   });
+};
+
+const setStatusTone = (element: HTMLElement, message: string, tone: StatusTone) => {
+  element.textContent = message;
+  element.classList.toggle("is-pending", tone === "pending");
+  element.classList.toggle("is-success", tone === "success");
+  element.classList.toggle("is-error", tone === "error");
 };
 
 const createObjectRow = (field: IntakeField): HTMLElement => {
@@ -166,9 +175,59 @@ const collectPanelValues = (panel: HTMLElement, template: IntakeTemplate): Recor
   return values;
 };
 
+const getPrimaryTitle = (template: IntakeTemplate, values: Record<string, unknown>): string => {
+  const preferredKeys = ["title", "name", "slug"];
+
+  for (const key of preferredKeys) {
+    const value = values[key];
+
+    if (typeof value === "string" && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return template.label;
+};
+
+const getDefaultCommitMessage = (template: IntakeTemplate, values: Record<string, unknown>): string => {
+  const title = getPrimaryTitle(template, values);
+
+  switch (template.id) {
+    case "report-writeup":
+      return `Publish report: ${title}`;
+    case "threat-intel":
+      return `Publish threat intel: ${title}`;
+    case "ctf-collection":
+      return `Publish CTF collection: ${title}`;
+    case "ctf-challenge":
+      return `Publish CTF challenge: ${title}`;
+    default:
+      return `Publish ${template.label.toLowerCase()}: ${title}`;
+  }
+};
+
+const syncCommitMessage = (panel: HTMLElement, template: IntakeTemplate, values: Record<string, unknown>) => {
+  const input = panel.querySelector("[data-submit-message]");
+
+  if (!(input instanceof HTMLInputElement)) {
+    return;
+  }
+
+  if (!input.dataset.manual) {
+    input.dataset.manual = "false";
+  }
+
+  if (input.dataset.manual !== "true" || !input.value.trim()) {
+    input.value = getDefaultCommitMessage(template, values);
+  }
+};
+
 const setActionState = (panel: HTMLElement, disabled: boolean) => {
-  panel.querySelectorAll<HTMLButtonElement>("[data-copy-markdown], [data-copy-path], [data-download-markdown]").forEach((button) => {
-    button.disabled = disabled;
+  panel.dataset.intakeReady = disabled ? "false" : "true";
+
+  panel.querySelectorAll<HTMLButtonElement>("[data-copy-markdown], [data-copy-path], [data-download-markdown], [data-submit-entry]").forEach((button) => {
+    const isPending = button.dataset.pending === "true";
+    button.disabled = disabled || isPending;
   });
 
   const previewLink = panel.querySelector("[data-preview-link]");
@@ -179,6 +238,109 @@ const setActionState = (panel: HTMLElement, disabled: boolean) => {
   }
 };
 
+const setSubmitPendingState = (panel: HTMLElement, pending: boolean) => {
+  const button = panel.querySelector("[data-submit-entry]");
+
+  if (!(button instanceof HTMLButtonElement)) {
+    return;
+  }
+
+  button.dataset.pending = pending ? "true" : "false";
+  button.disabled = pending || panel.dataset.intakeReady !== "true";
+  button.textContent = pending ? "Submitting..." : "Submit";
+};
+
+const encodeUtf8ToBase64 = (value: string): string => {
+  const bytes = new TextEncoder().encode(value);
+  let binary = "";
+
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return window.btoa(binary);
+};
+
+const encodeGitHubPath = (value: string): string => value.split("/").map((segment) => encodeURIComponent(segment)).join("/");
+
+const readGitHubError = async (response: Response): Promise<string> => {
+  try {
+    const payload = await response.json();
+
+    if (typeof payload?.message === "string" && payload.message.trim()) {
+      return payload.message.trim();
+    }
+  } catch {
+    return response.statusText || "GitHub request failed.";
+  }
+
+  return response.statusText || "GitHub request failed.";
+};
+
+const getFileSha = async (owner: string, repo: string, branch: string, path: string, token: string): Promise<string | undefined> => {
+  const endpoint = new URL(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeGitHubPath(path)}`);
+  endpoint.searchParams.set("ref", branch);
+
+  const response = await fetch(endpoint, {
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${token}`
+    }
+  });
+
+  if (response.status === 404) {
+    return undefined;
+  }
+
+  if (!response.ok) {
+    throw new Error(await readGitHubError(response));
+  }
+
+  const payload = (await response.json()) as { sha?: string };
+  return payload.sha;
+};
+
+const publishMarkdownFile = async ({
+  owner,
+  repo,
+  branch,
+  path,
+  content,
+  message,
+  token
+}: {
+  owner: string;
+  repo: string;
+  branch: string;
+  path: string;
+  content: string;
+  message: string;
+  token: string;
+}) => {
+  const sha = await getFileSha(owner, repo, branch, path, token);
+  const endpoint = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeGitHubPath(path)}`;
+  const response = await fetch(endpoint, {
+    method: "PUT",
+    headers: {
+      Accept: "application/vnd.github+json",
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message,
+      content: encodeUtf8ToBase64(content),
+      branch,
+      ...(sha ? { sha } : {})
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(await readGitHubError(response));
+  }
+
+  return (await response.json()) as { commit?: { html_url?: string } };
+};
+
 const renderPanel = async (panel: HTMLElement, template: IntakeTemplate) => {
   const values = collectPanelValues(panel, template);
   const output = panel.querySelector("[data-intake-output]");
@@ -186,13 +348,15 @@ const renderPanel = async (panel: HTMLElement, template: IntakeTemplate) => {
   const previewUrl = panel.querySelector("[data-intake-preview-url]");
   const previewLink = panel.querySelector("[data-preview-link]");
   const status = panel.querySelector("[data-intake-status]");
+  const submitStatus = panel.querySelector("[data-submit-status]");
 
   if (
     !(output instanceof HTMLTextAreaElement) ||
     !(targetPath instanceof HTMLInputElement) ||
     !(previewUrl instanceof HTMLInputElement) ||
     !(previewLink instanceof HTMLAnchorElement) ||
-    !(status instanceof HTMLElement)
+    !(status instanceof HTMLElement) ||
+    !(submitStatus instanceof HTMLElement)
   ) {
     return;
   }
@@ -200,16 +364,20 @@ const renderPanel = async (panel: HTMLElement, template: IntakeTemplate) => {
   const result = await buildGeneratedContent(template, values);
   const resolvedPreview = new URL(result.previewPath.replace(/^\//, ""), window.location.origin + baseUrl).toString();
 
+  syncCommitMessage(panel, template, values);
+
   output.value = result.markdown;
   targetPath.value = result.targetPath;
   previewUrl.value = resolvedPreview;
   previewLink.href = result.previewPath || "#";
 
   if (result.missingRequired.length > 0) {
-    status.textContent = `Missing required fields: ${result.missingRequired.join(", ")}`;
+    setStatusTone(status, `Missing required fields: ${result.missingRequired.join(", ")}`, "error");
+    setStatusTone(submitStatus, "Complete the required fields before submitting to GitHub.", "neutral");
     setActionState(panel, true);
   } else {
-    status.textContent = "Markdown ready. Copy or download the file.";
+    setStatusTone(status, "Markdown ready. Copy, download, or submit it directly to GitHub.", "success");
+    setStatusTone(submitStatus, "Submit commits the source markdown file. GitHub Actions then rebuilds the public site.", "neutral");
     setActionState(panel, false);
   }
 };
@@ -382,6 +550,16 @@ const resetPanel = (panel: HTMLElement, template: IntakeTemplate) => {
       }
     });
 
+  const commitMessageInput = panel.querySelector("[data-submit-message]");
+  if (commitMessageInput instanceof HTMLInputElement) {
+    commitMessageInput.dataset.manual = "false";
+  }
+
+  const submitTokenInput = panel.querySelector("[data-submit-token]");
+  if (submitTokenInput instanceof HTMLInputElement) {
+    submitTokenInput.value = "";
+  }
+
   applyDerivedFieldValues(panel, template);
   scheduleRender(panel, template);
 };
@@ -393,9 +571,21 @@ const wireOutputActions = (panel: HTMLElement, template: IntakeTemplate) => {
   const copyPath = panel.querySelector("[data-copy-path]");
   const downloadButton = panel.querySelector("[data-download-markdown]");
   const clearButton = panel.querySelector("[data-clear-form]");
+  const commitMessageInput = panel.querySelector("[data-submit-message]");
 
   if (!(output instanceof HTMLTextAreaElement) || !(targetPath instanceof HTMLInputElement)) {
     return;
+  }
+
+  if (commitMessageInput instanceof HTMLInputElement) {
+    commitMessageInput.dataset.manual = "false";
+
+    commitMessageInput.addEventListener("input", () => {
+      const values = collectPanelValues(panel, template);
+      const derivedValue = getDefaultCommitMessage(template, values);
+      commitMessageInput.dataset.manual =
+        commitMessageInput.value.trim() && commitMessageInput.value.trim() !== derivedValue ? "true" : "false";
+    });
   }
 
   copyMarkdown?.addEventListener("click", async () => {
@@ -419,6 +609,84 @@ const wireOutputActions = (panel: HTMLElement, template: IntakeTemplate) => {
 
   clearButton?.addEventListener("click", () => {
     resetPanel(panel, template);
+  });
+};
+
+const wireSubmitAction = (panel: HTMLElement) => {
+  const submitButton = panel.querySelector("[data-submit-entry]");
+  const output = panel.querySelector("[data-intake-output]");
+  const targetPath = panel.querySelector("[data-intake-target-path]");
+  const submitStatus = panel.querySelector("[data-submit-status]");
+  const ownerInput = panel.querySelector("[data-submit-owner]");
+  const repoInput = panel.querySelector("[data-submit-repo]");
+  const branchInput = panel.querySelector("[data-submit-branch]");
+  const messageInput = panel.querySelector("[data-submit-message]");
+  const tokenInput = panel.querySelector("[data-submit-token]");
+
+  if (
+    !(submitButton instanceof HTMLButtonElement) ||
+    !(output instanceof HTMLTextAreaElement) ||
+    !(targetPath instanceof HTMLInputElement) ||
+    !(submitStatus instanceof HTMLElement) ||
+    !(ownerInput instanceof HTMLInputElement) ||
+    !(repoInput instanceof HTMLInputElement) ||
+    !(branchInput instanceof HTMLInputElement) ||
+    !(messageInput instanceof HTMLInputElement) ||
+    !(tokenInput instanceof HTMLInputElement)
+  ) {
+    return;
+  }
+
+  submitButton.addEventListener("click", async () => {
+    if (panel.dataset.intakeReady !== "true") {
+      setStatusTone(submitStatus, "Complete the required fields before submitting to GitHub.", "error");
+      return;
+    }
+
+    const owner = ownerInput.value.trim();
+    const repo = repoInput.value.trim();
+    const branch = branchInput.value.trim() || "main";
+    const message = messageInput.value.trim();
+    const token = tokenInput.value.trim();
+    const path = targetPath.value.trim();
+    const content = output.value;
+
+    if (!owner || !repo || !message || !path) {
+      setStatusTone(submitStatus, "Owner, repository, branch, commit message, and target path are required.", "error");
+      return;
+    }
+
+    if (!token) {
+      setStatusTone(submitStatus, "Paste a GitHub token before submitting.", "error");
+      return;
+    }
+
+    setSubmitPendingState(panel, true);
+    setStatusTone(submitStatus, "Submitting markdown to GitHub...", "pending");
+
+    try {
+      await publishMarkdownFile({
+        owner,
+        repo,
+        branch,
+        path,
+        content,
+        message,
+        token
+      });
+
+      tokenInput.value = "";
+      setStatusTone(
+        submitStatus,
+        `Submitted to ${owner}/${repo} on ${branch}. GitHub Actions will rebuild the public site next.`,
+        "success"
+      );
+    } catch (error) {
+      const messageText = error instanceof Error ? error.message : "GitHub rejected the publish request.";
+      setStatusTone(submitStatus, `Submit failed: ${messageText}`, "error");
+    } finally {
+      setSubmitPendingState(panel, false);
+    }
   });
 };
 
@@ -457,6 +725,7 @@ panelMap.forEach((panel, templateId) => {
   });
 
   wireOutputActions(panel, template);
+  wireSubmitAction(panel);
   scheduleRender(panel, template);
 });
 

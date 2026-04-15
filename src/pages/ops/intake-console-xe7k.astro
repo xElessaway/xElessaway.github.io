@@ -105,10 +105,16 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
                   <div class="section-heading">
                     <p class="eyebrow">{template.label}</p>
                     <h2>{template.label}</h2>
+                    <p class="muted-copy">Fill the fields, review the generated markdown, then submit it directly to the repository when ready.</p>
                   </div>
-                  <div class="meta-line">
-                    <span>{template.contentType}</span>
-                    <span>{template.targetPathPattern}</span>
+                  <div class="intake-template-head-meta">
+                    <div class="meta-line">
+                      <span>{template.contentType}</span>
+                      <span>{template.targetPathPattern}</span>
+                    </div>
+                    <div class="meta-line">
+                      <span>{template.previewPathPattern}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -282,24 +288,97 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
                       <p class="eyebrow">Generated Output</p>
                       <h3>Ready-to-save markdown</h3>
                       <p class="muted-copy">
-                        Copy the file, place it in the shown repo path, add any referenced assets manually, then build and
-                        push.
+                        Review the generated file, then submit it to the repository or copy it out manually.
                       </p>
                     </div>
 
                     <div class="stack">
-                      <label class="intake-output-field">
-                        <span class="intake-field-label">Target Path</span>
-                        <input class="filter-input intake-output-input" type="text" readonly data-intake-target-path />
-                      </label>
+                      <div class="intake-output-grid">
+                        <label class="intake-output-field">
+                          <span class="intake-field-label">Target Path</span>
+                          <input class="filter-input intake-output-input" type="text" readonly data-intake-target-path />
+                        </label>
 
-                      <label class="intake-output-field">
-                        <span class="intake-field-label">Preview URL</span>
-                        <input class="filter-input intake-output-input" type="text" readonly data-intake-preview-url />
-                      </label>
+                        <label class="intake-output-field">
+                          <span class="intake-field-label">Preview URL</span>
+                          <input class="filter-input intake-output-input" type="text" readonly data-intake-preview-url />
+                        </label>
+                      </div>
+
+                      <section class="meta-card intake-submit-panel">
+                        <div class="section-heading">
+                          <p class="eyebrow">Repository Submit</p>
+                          <h3>Publish to GitHub</h3>
+                          <p class="muted-copy">
+                            Paste a fine-grained token with repository contents read/write for this repo only. The token is
+                            never stored in the browser.
+                          </p>
+                        </div>
+
+                        <div class="intake-field-grid intake-submit-grid">
+                          <label class="intake-field">
+                            <span class="intake-field-label">Owner</span>
+                            <input
+                              class="filter-input intake-text-input"
+                              type="text"
+                              value="xElessaway"
+                              spellcheck="false"
+                              data-submit-owner
+                            />
+                          </label>
+
+                          <label class="intake-field">
+                            <span class="intake-field-label">Repository</span>
+                            <input
+                              class="filter-input intake-text-input"
+                              type="text"
+                              value="xElessaway.github.io"
+                              spellcheck="false"
+                              data-submit-repo
+                            />
+                          </label>
+
+                          <label class="intake-field">
+                            <span class="intake-field-label">Branch</span>
+                            <input
+                              class="filter-input intake-text-input"
+                              type="text"
+                              value="main"
+                              spellcheck="false"
+                              data-submit-branch
+                            />
+                          </label>
+
+                          <label class="intake-field intake-field-wide">
+                            <span class="intake-field-label">Commit Message</span>
+                            <input
+                              class="filter-input intake-text-input"
+                              type="text"
+                              spellcheck="false"
+                              data-submit-message
+                            />
+                          </label>
+
+                          <label class="intake-field intake-field-wide">
+                            <span class="intake-field-label">GitHub Token</span>
+                            <span class="intake-field-help">Fine-grained token, contents read/write, used only for this request.</span>
+                            <input
+                              class="filter-input intake-text-input"
+                              type="password"
+                              autocomplete="off"
+                              spellcheck="false"
+                              placeholder="github_pat_..."
+                              data-submit-token
+                            />
+                          </label>
+                        </div>
+                      </section>
 
                       <div class="button-row intake-output-actions">
-                        <button class="button button-primary" type="button" data-copy-markdown>
+                        <button class="button button-primary" type="button" data-submit-entry>
+                          Submit
+                        </button>
+                        <button class="button button-ghost" type="button" data-copy-markdown>
                           Copy Markdown
                         </button>
                         <button class="button button-ghost" type="button" data-copy-path>
@@ -320,15 +399,19 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
                         Complete the required fields to generate a valid file.
                       </p>
 
+                      <p class="validator-state intake-status" data-submit-status>
+                        Submit will commit the source markdown file. GitHub Actions then rebuilds the public site.
+                      </p>
+
                       <textarea class="intake-output-code" readonly spellcheck="false" data-intake-output></textarea>
 
                       <div class="meta-card intake-checklist">
                         <p class="eyebrow">Checklist</p>
                         <div class="stack muted-copy">
-                          <p>1. Copy or download the generated markdown file.</p>
-                          <p>2. Save it to the target path shown above.</p>
+                          <p>1. Fill the required fields until the file is valid.</p>
+                          <p>2. Submit directly to GitHub, or copy/download the markdown manually.</p>
                           <p>3. Add any referenced assets under `public/downloads` or `public/media`.</p>
-                          <p>4. Run `npm run build`, then commit and push.</p>
+                          <p>4. After submit, wait for GitHub Actions to sync the public site output.</p>
                         </div>
                       </div>
                     </div>
