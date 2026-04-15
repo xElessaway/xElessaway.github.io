@@ -22,12 +22,13 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
       <p class="eyebrow">Validation</p>
       <h3>Validate Answer</h3>
     </div>
+    <span class="validator-status-badge" data-validator-badge hidden>Completed</span>
   </div>
 
   <form class="validator-form">
     <label class="sr-only" for="challenge-answer">Challenge answer</label>
     <input id="challenge-answer" name="answer" type="text" autocomplete="off" placeholder={passwordFormat} />
-    <button class="button button-primary" type="submit">Validate</button>
+    <button class="button button-primary" type="submit" data-validator-button>Validate</button>
   </form>
 
   <p class="validator-state" data-validator-state>Ready.</p>
@@ -64,17 +65,33 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
     const form = root.querySelector(".validator-form");
     const input = form?.querySelector("input");
     const state = root.querySelector("[data-validator-state]");
+    const badge = root.querySelector("[data-validator-badge]");
+    const button = root.querySelector("[data-validator-button]");
     const hashes = JSON.parse(root.getAttribute("data-answer-hashes") ?? "[]");
     const storageKey = root.getAttribute("data-storage-key");
 
-    if (!(form instanceof HTMLFormElement) || !(input instanceof HTMLInputElement) || !(state instanceof HTMLElement)) {
+    if (
+      !(form instanceof HTMLFormElement) ||
+      !(input instanceof HTMLInputElement) ||
+      !(state instanceof HTMLElement) ||
+      !(button instanceof HTMLButtonElement)
+    ) {
       return;
     }
 
     const markSolved = () => {
+      root.classList.remove("is-error");
       root.classList.add("is-solved");
-      state.textContent = "Solved on this device. Format and answer hash matched.";
+      state.textContent = "Answer verified on this device. This challenge is complete.";
+      input.value = "Solved on this device";
+      input.disabled = true;
       input.setAttribute("aria-invalid", "false");
+      button.disabled = true;
+      button.textContent = "Completed";
+
+      if (badge instanceof HTMLElement) {
+        badge.hidden = false;
+      }
     };
 
     if (storageKey && localStorage.getItem(storageKey) === "true") {
@@ -112,11 +129,13 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
         root.classList.add("is-error");
         state.textContent = "Hash mismatch. Check the expected format and try again.";
         input.setAttribute("aria-invalid", "true");
+        button.textContent = "Validate";
       } catch (error) {
         root.classList.remove("is-solved");
         root.classList.add("is-error");
         state.textContent = "Validation failed in this browser session.";
         input.setAttribute("aria-invalid", "true");
+        button.textContent = "Validate";
       }
     });
   });
