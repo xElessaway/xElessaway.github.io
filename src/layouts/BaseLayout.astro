@@ -8,9 +8,10 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  robots?: string;
 }
 
-const { title = siteMeta.title, description = siteMeta.description } = Astro.props;
+const { title = siteMeta.title, description = siteMeta.description, robots } = Astro.props;
 ---
 
 <!doctype html>
@@ -19,6 +20,7 @@ const { title = siteMeta.title, description = siteMeta.description } = Astro.pro
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    {robots && <meta name="robots" content={robots} />}
     <meta name="generator" content={Astro.generator} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

@@ -1,0 +1,350 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../utils/paths";
+import { createInitialValues, type IntakeField, type IntakeItemField, type IntakeTemplate } from "../../utils/intakeConsole";
+
+const templates = (await getCollection("intakeTemplates"))
+  .map((entry) => ({
+    ...entry.data,
+    bodyTemplate: entry.body.trim()
+  }))
+  .sort((left, right) => left.label.localeCompare(right.label)) as IntakeTemplate[];
+
+const initialTemplateId = templates[0]?.id ?? "";
+const initialState = Object.fromEntries(templates.map((template) => [template.id, createInitialValues(template)]));
+const templateStateMap = initialState as Record<string, Record<string, unknown>>;
+const templatesJson = JSON.stringify(templates).replace(/</g, "\\u003c");
+const initialStateJson = JSON.stringify(initialState).replace(/</g, "\\u003c");
+
+function textareaValue(value: unknown): string {
+  if (Array.isArray(value)) {
+    return value.join("\n");
+  }
+
+  return typeof value === "string" ? value : "";
+}
+
+function objectRows(value: unknown): Record<string, unknown>[] {
+  return Array.isArray(value) ? (value as Record<string, unknown>[]) : [];
+}
+
+function itemFieldValue(field: IntakeItemField, row: Record<string, unknown>): string | number {
+  const value = row[field.name];
+
+  if (field.type === "number") {
+    return typeof value === "number" ? value : "";
+  }
+
+  return typeof value === "string" ? value : "";
+}
+
+function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>): boolean {
+  return Boolean(row[field.name]);
+}
+---
+
+<BaseLayout
+  title="Internal Intake Console | Ahmed Elessaway"
+  description="Hidden internal route for generating markdown content files."
+  robots="noindex,nofollow"
+>
+  <section class="page-intro">
+    <div class="container">
+      <article class="panel page-intro-panel intake-console-hero">
+        <div class="ops-meta-strip">
+          <span class="meta-chip">hidden_route // url_only</span>
+          <span class="meta-chip">{templates.length} templates</span>
+          <span class="meta-chip">manual_publish</span>
+        </div>
+        <p class="eyebrow">Internal Intake Console</p>
+        <h1>Generate markdown entries without exposing a public CMS.</h1>
+        <p class="lede">
+          This route is intentionally unlinked. It generates ready-to-save content files for reports, threat intel,
+          CTF collections, and CTF challenges. It does not write to the repository from the browser.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container">
+      <div class="panel intake-console-shell" data-intake-console data-base-url={withBase("/")}>
+        <div class="intake-console-tabs" role="tablist" aria-label="Intake templates">
+          {
+            templates.map((template) => (
+              <button
+                class:list={["archive-trigger", "intake-template-tab", template.id === initialTemplateId && "is-active"]}
+                type="button"
+                role="tab"
+                aria-selected={template.id === initialTemplateId ? "true" : "false"}
+                aria-controls={`intake-panel-${template.id}`}
+                id={`intake-tab-${template.id}`}
+                data-intake-tab={template.id}
+              >
+                {template.label}
+              </button>
+            ))
+          }
+        </div>
+
+        {
+          templates.map((template) => {
+            const templateState = templateStateMap[template.id] ?? {};
+
+            return (
+              <section
+                class:list={["intake-template-panel", template.id === initialTemplateId && "is-active"]}
+                id={`intake-panel-${template.id}`}
+                role="tabpanel"
+                aria-labelledby={`intake-tab-${template.id}`}
+                data-intake-panel={template.id}
+                hidden={template.id !== initialTemplateId}
+              >
+                <div class="intake-template-head">
+                  <div class="section-heading">
+                    <p class="eyebrow">{template.label}</p>
+                    <h2>{template.label}</h2>
+                  </div>
+                  <div class="meta-line">
+                    <span>{template.contentType}</span>
+                    <span>{template.targetPathPattern}</span>
+                  </div>
+                </div>
+
+                <div class="intake-template-layout">
+                  <form class="intake-template-form stack" data-intake-form novalidate>
+                    {
+                      template.fieldGroups.map((group) => (
+                        <section class="content-panel intake-field-group">
+                          <div class="section-heading">
+                            <h3>{group.label}</h3>
+                            {group.description && <p class="muted-copy">{group.description}</p>}
+                          </div>
+
+                          <div class="intake-field-grid">
+                            {
+                              group.fields.map((fieldName) => {
+                                const field = template.fields.find((entry) => entry.name === fieldName) as IntakeField;
+                                const value = templateState[field.name];
+
+                                if (field.type === "text" || field.type === "date" || field.type === "number") {
+                                  return (
+                                    <label class="intake-field">
+                                      <span class="intake-field-label">{field.label}</span>
+                                      {field.description && <span class="intake-field-help">{field.description}</span>}
+                                      <input
+                                        class="filter-input intake-text-input"
+                                        type={field.type === "number" ? "number" : field.type}
+                                        value={typeof value === "string" || typeof value === "number" ? value : ""}
+                                        placeholder={field.placeholder ?? ""}
+                                        data-intake-field={field.name}
+                                        data-field-type={field.type}
+                                        data-derive-from={field.deriveFrom ?? ""}
+                                      />
+                                    </label>
+                                  );
+                                }
+
+                                if (field.type === "select") {
+                                  return (
+                                    <label class="intake-field">
+                                      <span class="intake-field-label">{field.label}</span>
+                                      {field.description && <span class="intake-field-help">{field.description}</span>}
+                                      <select class="filter-input intake-select" data-intake-field={field.name} data-field-type={field.type}>
+                                        {(field.options ?? []).map((option) => (
+                                          <option value={option.value} selected={option.value === value}>
+                                            {option.label}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    </label>
+                                  );
+                                }
+
+                                if (field.type === "checkbox") {
+                                  return (
+                                    <label class="intake-checkbox">
+                                      <input
+                                        type="checkbox"
+                                        checked={Boolean(value)}
+                                        data-intake-field={field.name}
+                                        data-field-type={field.type}
+                                      />
+                                      <span>
+                                        <strong>{field.label}</strong>
+                                        {field.description && <span class="intake-field-help">{field.description}</span>}
+                                      </span>
+                                    </label>
+                                  );
+                                }
+
+                                if (field.type === "objectList") {
+                                  const rows = objectRows(value);
+
+                                  return (
+                                    <div class="intake-field intake-field-wide">
+                                      <div class="intake-field-header">
+                                        <span class="intake-field-label">{field.label}</span>
+                                        {field.description && <span class="intake-field-help">{field.description}</span>}
+                                      </div>
+                                      <div class="intake-object-list" data-intake-field={field.name} data-field-type={field.type}>
+                                        <div class="stack" data-object-list-rows>
+                                          {rows.map((row) => (
+                                            <div class="intake-object-row" data-object-row>
+                                              <div class="intake-object-row-grid">
+                                                {(field.fields ?? []).map((itemField) => (
+                                                  <label class="intake-field">
+                                                    <span class="intake-field-label">{itemField.label}</span>
+                                                    {itemField.type === "textarea" ? (
+                                                      <textarea
+                                                        class="filter-input intake-textarea"
+                                                        rows="3"
+                                                        placeholder={itemField.placeholder ?? ""}
+                                                        data-object-field={itemField.name}
+                                                        data-object-field-type={itemField.type}
+                                                      >{itemFieldValue(itemField, row)}</textarea>
+                                                    ) : itemField.type === "select" ? (
+                                                      <select
+                                                        class="filter-input intake-select"
+                                                        data-object-field={itemField.name}
+                                                        data-object-field-type={itemField.type}
+                                                      >
+                                                        {(itemField.options ?? []).map((option) => (
+                                                          <option
+                                                            value={option.value}
+                                                            selected={option.value === itemFieldValue(itemField, row)}
+                                                          >
+                                                            {option.label}
+                                                          </option>
+                                                        ))}
+                                                      </select>
+                                                    ) : itemField.type === "checkbox" ? (
+                                                      <input
+                                                        type="checkbox"
+                                                        checked={itemFieldChecked(itemField, row)}
+                                                        data-object-field={itemField.name}
+                                                        data-object-field-type={itemField.type}
+                                                      />
+                                                    ) : (
+                                                      <input
+                                                        class="filter-input intake-text-input"
+                                                        type={itemField.type === "number" ? "number" : itemField.type}
+                                                        value={itemFieldValue(itemField, row)}
+                                                        placeholder={itemField.placeholder ?? ""}
+                                                        data-object-field={itemField.name}
+                                                        data-object-field-type={itemField.type}
+                                                      />
+                                                    )}
+                                                  </label>
+                                                ))}
+                                              </div>
+                                              <button class="button button-ghost intake-row-remove" type="button" data-remove-row>
+                                                Remove
+                                              </button>
+                                            </div>
+                                          ))}
+                                        </div>
+                                        <p class="muted-copy intake-object-empty" data-object-empty hidden>
+                                          No entries yet.
+                                        </p>
+                                        <button class="button button-ghost intake-row-add" type="button" data-add-row={field.name}>
+                                          {field.addLabel ?? `Add ${field.itemLabel ?? field.label}`}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+
+                                return (
+                                  <label class:list={["intake-field", field.type === "markdownBody" && "intake-field-wide"]}>
+                                    <span class="intake-field-label">{field.label}</span>
+                                    {field.description && <span class="intake-field-help">{field.description}</span>}
+                                    <textarea
+                                      class="filter-input intake-textarea"
+                                      rows={field.rows ?? (field.type === "markdownBody" ? 16 : 6)}
+                                      placeholder={field.placeholder ?? ""}
+                                      data-intake-field={field.name}
+                                      data-field-type={field.type}
+                                    >{textareaValue(value)}</textarea>
+                                  </label>
+                                );
+                              })
+                            }
+                          </div>
+                        </section>
+                      ))
+                    }
+                  </form>
+
+                  <aside class="content-panel intake-output-panel">
+                    <div class="section-heading">
+                      <p class="eyebrow">Generated Output</p>
+                      <h3>Ready-to-save markdown</h3>
+                      <p class="muted-copy">
+                        Copy the file, place it in the shown repo path, add any referenced assets manually, then build and
+                        push.
+                      </p>
+                    </div>
+
+                    <div class="stack">
+                      <label class="intake-output-field">
+                        <span class="intake-field-label">Target Path</span>
+                        <input class="filter-input intake-output-input" type="text" readonly data-intake-target-path />
+                      </label>
+
+                      <label class="intake-output-field">
+                        <span class="intake-field-label">Preview URL</span>
+                        <input class="filter-input intake-output-input" type="text" readonly data-intake-preview-url />
+                      </label>
+
+                      <div class="button-row intake-output-actions">
+                        <button class="button button-primary" type="button" data-copy-markdown>
+                          Copy Markdown
+                        </button>
+                        <button class="button button-ghost" type="button" data-copy-path>
+                          Copy Path
+                        </button>
+                        <button class="button button-ghost" type="button" data-download-markdown>
+                          Download .md
+                        </button>
+                        <a class="button button-ghost" href="#" target="_blank" rel="noreferrer" data-preview-link>
+                          Open Preview
+                        </a>
+                        <button class="button button-ghost" type="button" data-clear-form>
+                          Clear Form
+                        </button>
+                      </div>
+
+                      <p class="validator-state intake-status" data-intake-status>
+                        Complete the required fields to generate a valid file.
+                      </p>
+
+                      <textarea class="intake-output-code" readonly spellcheck="false" data-intake-output></textarea>
+
+                      <div class="meta-card intake-checklist">
+                        <p class="eyebrow">Checklist</p>
+                        <div class="stack muted-copy">
+                          <p>1. Copy or download the generated markdown file.</p>
+                          <p>2. Save it to the target path shown above.</p>
+                          <p>3. Add any referenced assets under `public/downloads` or `public/media`.</p>
+                          <p>4. Run `npm run build`, then commit and push.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </aside>
+                </div>
+              </section>
+            );
+          })
+        }
+      </div>
+    </div>
+  </section>
+
+  <script is:inline type="application/json" id="intake-console-templates" set:html={templatesJson}></script>
+  <script is:inline type="application/json" id="intake-console-initial-state" set:html={initialStateJson}></script>
+  <script>
+    import "../../scripts/intakeConsoleClient";
+  </script>
+</BaseLayout>

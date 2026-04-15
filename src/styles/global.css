@@ -1688,6 +1688,200 @@ summary:focus-visible {
   color: var(--muted);
 }
 
+.intake-console-shell {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 1.8vw, 1.4rem);
+}
+
+.intake-console-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.intake-template-tab {
+  min-height: 36px;
+}
+
+.intake-template-panel {
+  display: none;
+  gap: 1rem;
+}
+
+.intake-template-panel.is-active {
+  display: grid;
+}
+
+.intake-template-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+  padding-bottom: 0.75rem;
+  box-shadow: inset 0 -1px 0 rgba(61, 74, 62, 0.16);
+}
+
+.intake-template-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.88fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.intake-template-form {
+  min-width: 0;
+}
+
+.intake-field-group {
+  display: grid;
+  gap: 0.95rem;
+}
+
+.intake-field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+}
+
+.intake-field,
+.intake-output-field {
+  display: grid;
+  gap: 0.42rem;
+  min-width: 0;
+}
+
+.intake-field-wide {
+  grid-column: 1 / -1;
+}
+
+.intake-field-header {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.intake-field-label {
+  color: var(--text);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.intake-field-help {
+  color: var(--soft);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.67rem;
+  letter-spacing: 0.04em;
+}
+
+.intake-textarea {
+  width: 100%;
+  min-height: 9rem;
+  padding: 0.9rem 1rem;
+  resize: vertical;
+  text-transform: none;
+  line-height: 1.55;
+}
+
+.intake-field[data-field-type="markdownBody"] .intake-textarea,
+.intake-field-wide .intake-textarea {
+  min-height: 14rem;
+}
+
+.intake-select {
+  appearance: none;
+  cursor: pointer;
+}
+
+.intake-checkbox {
+  display: flex;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.85rem 0.95rem;
+  background: var(--surface-high);
+  box-shadow: inset 0 0 0 1px rgba(61, 74, 62, 0.16);
+}
+
+.intake-checkbox input {
+  margin: 0.2rem 0 0;
+}
+
+.intake-checkbox strong {
+  display: block;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.82rem;
+}
+
+.intake-object-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.intake-object-row {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  background: var(--surface-high);
+  box-shadow: inset 0 0 0 1px rgba(61, 74, 62, 0.16);
+}
+
+.intake-object-row-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.intake-row-add,
+.intake-row-remove {
+  width: fit-content;
+}
+
+.intake-output-panel {
+  display: grid;
+  gap: 1rem;
+  position: sticky;
+  top: calc(var(--header-h) + 1rem);
+}
+
+.intake-output-actions {
+  margin-top: 0;
+}
+
+.intake-output-input {
+  text-transform: none;
+}
+
+.intake-output-code {
+  width: 100%;
+  min-height: 28rem;
+  padding: 0.95rem 1rem;
+  border: 0;
+  resize: vertical;
+  background: #0e1116;
+  box-shadow: inset 0 0 0 1px rgba(61, 74, 62, 0.18);
+  color: var(--text);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.74rem;
+  line-height: 1.6;
+}
+
+.intake-status {
+  margin: 0;
+}
+
+.intake-checklist {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.button.is-disabled,
+.button[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.55;
+}
+
 .site-footer {
   margin-top: 2rem;
   padding-top: 1rem;
@@ -1810,13 +2004,19 @@ summary:focus-visible {
   .report-grid,
   .archive-results,
   .dossier-layout,
-  .dossier-grid {
+  .dossier-grid,
+  .intake-template-layout {
     grid-template-columns: 1fr;
   }
 
   .lead-report,
   .archive-entry.is-lead {
     grid-template-columns: 1fr;
+  }
+
+  .intake-output-panel {
+    position: static;
+    top: auto;
   }
 
   .challenge-summary-meta {
@@ -1830,6 +2030,11 @@ summary:focus-visible {
   }
 
   .story-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intake-field-grid,
+  .intake-object-row-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1870,6 +2075,10 @@ summary:focus-visible {
   .site-nav {
     left: 0.75rem;
     right: 0.75rem;
+  }
+
+  .intake-console-tabs {
+    display: grid;
   }
 
   .brand-copy small {

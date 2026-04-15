@@ -44,21 +44,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
 </section>
 
 <script>
-  const normalizeAnswer = (value: string) =>
-    value
-      .normalize("NFKD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase()
-      .trim()
-      .replace(/[`'"’"]/g, "")
-      .replace(/[_\s]+/g, " ")
-      .replace(/\s+/g, " ");
-
-  const hashAnswer = async (value: string) => {
-    const bytes = new TextEncoder().encode(value);
-    const digest = await crypto.subtle.digest("SHA-256", bytes);
-    return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-  };
+  import { normalizeAndHashAnswer } from "../utils/ctfAnswer";
 
   document.querySelectorAll("[data-ctf-validator]").forEach((card) => {
     const root = card;
@@ -127,8 +113,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
       await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
 
       try {
-        const normalized = normalizeAnswer(raw);
-        const digest = await hashAnswer(normalized);
+        const digest = await normalizeAndHashAnswer(raw);
 
         if (hashes.includes(digest)) {
           if (storageKey) {
