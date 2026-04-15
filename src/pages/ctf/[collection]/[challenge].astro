@@ -18,6 +18,10 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const collections = await getCollection("ctfCollections");
 const collection = collections.find((item) => item.slug === entry.data.collection);
+const challengeImage = entry.data.image ?? entry.data.assets.find((asset) => asset.kind === "image")?.url;
+const flagArchive = entry.data.assets.find(
+  (asset) => asset.kind === "archive" || asset.label.toLowerCase().includes("flag archive")
+);
 ---
 
 <BaseLayout title={`${entry.data.title} | ${collection?.data.title ?? "CTFs/Practice"}`} description={entry.data.prompt}>
@@ -32,78 +36,53 @@ const collection = collections.find((item) => item.slug === entry.data.collectio
         <p class="eyebrow">Practice Brief</p>
         <h1>{entry.data.title}</h1>
         <p class="lede">{entry.data.prompt}</p>
+        {
+          challengeImage && (
+            <figure class="challenge-brief-figure">
+              <img src={challengeImage} alt={entry.data.title} class="challenge-image" data-zoomable-image />
+            </figure>
+          )
+        }
       </article>
     </div>
   </section>
 
   <section class="content-section">
     <div class="container stack">
+      <article class="content-panel challenge-summary-strip">
+        <div class="challenge-summary-meta">
+          <div>
+            <span class="challenge-summary-label">Practice Set</span>
+            <strong>{collection?.data.title ?? entry.data.collection}</strong>
+          </div>
+          <div>
+            <span class="challenge-summary-label">Difficulty</span>
+            <strong class="challenge-summary-value">{entry.data.difficulty}</strong>
+          </div>
+          <div>
+            <span class="challenge-summary-label">Archive</span>
+            {
+              flagArchive ? (
+                <a class="challenge-archive-link" href={flagArchive.url}>
+                  {flagArchive.label}
+                </a>
+              ) : (
+                <strong class="challenge-summary-value">No archive</strong>
+              )
+            }
+          </div>
+        </div>
+      </article>
+
       <div class="challenge-validator-inline">
         <CTFAnswerValidator
           collection={entry.data.collection}
           challenge={entry.slug}
-          difficulty={entry.data.difficulty}
           passwordFormat={entry.data.passwordFormat}
           answerHashes={entry.data.answerHashes}
           hint={entry.data.hint}
         />
       </div>
-
-      {
-        (entry.data.image || entry.data.assets.length > 0) && (
-          <article class="content-panel prose challenge-panel-simple challenge-support-panel">
-            <p class="eyebrow">Challenge Resources</p>
-            <p class="muted-copy">
-              Use the provided material, recover the expected answer string, and validate it in the checker below.
-            </p>
-
-            {
-              entry.data.image && (
-                <figure class="challenge-figure">
-                  <img src={entry.data.image} alt={entry.data.title} class="challenge-image" data-zoomable-image />
-                </figure>
-              )
-            }
-
-            {
-              entry.data.assets.length > 0 && (
-                <div class="challenge-assets-block">
-                  <p class="eyebrow">Challenge Assets</p>
-                  <div class="asset-list">
-                    {entry.data.assets.map((asset) => (
-                      <a href={asset.url} target={asset.kind === "external" ? "_blank" : undefined} rel="noreferrer">
-                        {asset.label}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              )
-            }
-          </article>
-        )
-      }
-
-      <article class="content-panel challenge-endnotes">
-        <p class="eyebrow">Challenge Details</p>
-        <dl class="story-meta-grid">
-          <div>
-            <dt>Practice Set</dt>
-            <dd>{collection?.data.title ?? entry.data.collection}</dd>
-          </div>
-          <div>
-            <dt>Difficulty</dt>
-            <dd>{entry.data.difficulty}</dd>
-          </div>
-          <div>
-            <dt>Password Format</dt>
-            <dd class="mono">{entry.data.passwordFormat}</dd>
-          </div>
-          <div>
-            <dt>Assets</dt>
-            <dd>{entry.data.assets.length} linked file(s)</dd>
-          </div>
-        </dl>
-      </article>
     </div>
   </section>
 </BaseLayout>

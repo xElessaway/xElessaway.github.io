@@ -2,47 +2,35 @@
 interface Props {
   collection: string;
   challenge: string;
-  difficulty: string;
   passwordFormat: string;
   answerHashes: string[];
   hint?: string;
 }
 
-const { collection, challenge, difficulty, passwordFormat, answerHashes, hint } = Astro.props;
+const { collection, challenge, passwordFormat, answerHashes, hint } = Astro.props;
 const storageKey = `ctf:solved:${collection}:${challenge}`;
 ---
 
 <section
-  class="validator-card"
+  class="validator-card validator-card-compact"
   data-ctf-validator
   data-answer-hashes={JSON.stringify(answerHashes)}
   data-storage-key={storageKey}
 >
   <div class="validator-head">
     <div>
-      <p class="eyebrow">Submission Node</p>
+      <p class="eyebrow">Validation</p>
       <h3>Validate Answer</h3>
     </div>
-    <span class:list={["difficulty-pill", difficulty]}>{difficulty}</span>
-  </div>
-
-  <p class="validator-copy">
-    Enter the recovered value using the expected format below. Validation runs in the browser and solved
-    state is stored only on this device.
-  </p>
-
-  <div class="validator-format">
-    <span>Expected format</span>
-    <code>{passwordFormat}</code>
   </div>
 
   <form class="validator-form">
     <label class="sr-only" for="challenge-answer">Challenge answer</label>
-    <input id="challenge-answer" name="answer" type="text" autocomplete="off" placeholder="ENTER_RECOVERED_VALUE" />
-    <button class="button button-primary" type="submit">Verify Hash</button>
+    <input id="challenge-answer" name="answer" type="text" autocomplete="off" placeholder={passwordFormat} />
+    <button class="button button-primary" type="submit">Validate</button>
   </form>
 
-  <p class="validator-state" data-validator-state>Validation node ready.</p>
+  <p class="validator-state" data-validator-state>Ready.</p>
 
   {
     hint && (
