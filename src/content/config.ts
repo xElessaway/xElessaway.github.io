@@ -146,7 +146,7 @@ const ctfCollections = defineCollection({
     summary: z.string(),
     status: z.enum(["active", "retired", "archived"]),
     year: z.string(),
-    githubUrl: z.string().url(),
+    githubUrl: z.string().url().optional(),
     featured: z.boolean().default(false)
   })
 });

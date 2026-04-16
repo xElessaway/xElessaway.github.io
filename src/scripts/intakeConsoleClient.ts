@@ -13,6 +13,11 @@ const panelMap = new Map<string, HTMLElement>();
 const tabButtons = [...document.querySelectorAll<HTMLElement>("[data-intake-tab]")];
 const renderTimers = new Map<string, number>();
 const baseUrl = consoleRoot?.getAttribute("data-base-url") ?? "/";
+const submitDefaults = {
+  owner: consoleRoot?.getAttribute("data-submit-owner-default") ?? "xElessaway",
+  repo: consoleRoot?.getAttribute("data-submit-repo-default") ?? "xElessaway.github.io",
+  branch: consoleRoot?.getAttribute("data-submit-branch-default") ?? "main"
+};
 
 document.querySelectorAll<HTMLElement>("[data-intake-panel]").forEach((panel) => {
   const panelId = panel.getAttribute("data-intake-panel");
@@ -373,11 +378,11 @@ const renderPanel = async (panel: HTMLElement, template: IntakeTemplate) => {
 
   if (result.missingRequired.length > 0) {
     setStatusTone(status, `Missing required fields: ${result.missingRequired.join(", ")}`, "error");
-    setStatusTone(submitStatus, "Complete the required fields before submitting to GitHub.", "neutral");
+    setStatusTone(submitStatus, "Complete the required fields before submitting to xElessaway.github.io.", "neutral");
     setActionState(panel, true);
   } else {
     setStatusTone(status, "Markdown ready. Copy, download, or submit it directly to GitHub.", "success");
-    setStatusTone(submitStatus, "Submit commits the source markdown file. GitHub Actions then rebuilds the public site.", "neutral");
+    setStatusTone(submitStatus, "Submit commits the source markdown file to xElessaway.github.io. GitHub Actions then rebuild the public site.", "neutral");
     setActionState(panel, false);
   }
 };
@@ -617,9 +622,6 @@ const wireSubmitAction = (panel: HTMLElement) => {
   const output = panel.querySelector("[data-intake-output]");
   const targetPath = panel.querySelector("[data-intake-target-path]");
   const submitStatus = panel.querySelector("[data-submit-status]");
-  const ownerInput = panel.querySelector("[data-submit-owner]");
-  const repoInput = panel.querySelector("[data-submit-repo]");
-  const branchInput = panel.querySelector("[data-submit-branch]");
   const messageInput = panel.querySelector("[data-submit-message]");
   const tokenInput = panel.querySelector("[data-submit-token]");
 
@@ -628,9 +630,6 @@ const wireSubmitAction = (panel: HTMLElement) => {
     !(output instanceof HTMLTextAreaElement) ||
     !(targetPath instanceof HTMLInputElement) ||
     !(submitStatus instanceof HTMLElement) ||
-    !(ownerInput instanceof HTMLInputElement) ||
-    !(repoInput instanceof HTMLInputElement) ||
-    !(branchInput instanceof HTMLInputElement) ||
     !(messageInput instanceof HTMLInputElement) ||
     !(tokenInput instanceof HTMLInputElement)
   ) {
@@ -639,13 +638,13 @@ const wireSubmitAction = (panel: HTMLElement) => {
 
   submitButton.addEventListener("click", async () => {
     if (panel.dataset.intakeReady !== "true") {
-      setStatusTone(submitStatus, "Complete the required fields before submitting to GitHub.", "error");
+      setStatusTone(submitStatus, "Complete the required fields before submitting to xElessaway.github.io.", "error");
       return;
     }
 
-    const owner = ownerInput.value.trim();
-    const repo = repoInput.value.trim();
-    const branch = branchInput.value.trim() || "main";
+    const owner = submitDefaults.owner.trim();
+    const repo = submitDefaults.repo.trim();
+    const branch = submitDefaults.branch.trim() || "main";
     const message = messageInput.value.trim();
     const token = tokenInput.value.trim();
     const path = targetPath.value.trim();

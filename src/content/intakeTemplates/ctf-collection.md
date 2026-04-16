@@ -13,7 +13,6 @@ fieldGroups:
       - summary
       - status
       - year
-      - githubUrl
       - featured
   - label: "Notes"
     description: "Optional markdown notes stored in the file body."
@@ -29,7 +28,6 @@ frontmatterOrder:
   - summary
   - status
   - year
-  - githubUrl
   - featured
 fields:
   - name: title
@@ -64,17 +62,12 @@ fields:
     type: text
     required: true
     placeholder: "2026"
-  - name: githubUrl
-    label: "GitHub URL"
-    type: text
-    required: true
-    placeholder: "https://github.com/..."
   - name: featured
     label: "Featured"
     type: checkbox
   - name: notes
     label: "Markdown Notes"
     type: markdownBody
-    rows: 16
+    rows: 10
 ---
 {{notes}}

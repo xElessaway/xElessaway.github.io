@@ -69,7 +69,14 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
 
   <section class="content-section">
     <div class="container">
-      <div class="panel intake-console-shell" data-intake-console data-base-url={withBase("/")}>
+      <div
+        class="intake-console-shell"
+        data-intake-console
+        data-base-url={withBase("/")}
+        data-submit-owner-default="xElessaway"
+        data-submit-repo-default="xElessaway.github.io"
+        data-submit-branch-default="main"
+      >
         <div class="intake-console-tabs" role="tablist" aria-label="Intake templates">
           {
             templates.map((template) => (
@@ -101,11 +108,13 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
                 data-intake-panel={template.id}
                 hidden={template.id !== initialTemplateId}
               >
-                <div class="intake-template-head">
+                <div class="content-panel intake-template-head">
                   <div class="section-heading">
                     <p class="eyebrow">{template.label}</p>
                     <h2>{template.label}</h2>
-                    <p class="muted-copy">Fill the fields, review the generated markdown, then submit it directly to the repository when ready.</p>
+                    <p class="muted-copy">
+                      Fill the fields, review the generated markdown, then submit it directly to the site repository when ready.
+                    </p>
                   </div>
                   <div class="intake-template-head-meta">
                     <div class="meta-line">
@@ -310,45 +319,18 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
                           <p class="eyebrow">Repository Submit</p>
                           <h3>Publish to GitHub</h3>
                           <p class="muted-copy">
-                            Paste a fine-grained token with repository contents read/write for this repo only. The token is
-                            never stored in the browser.
+                            This hidden route publishes to `xElessaway/xElessaway.github.io` on `main`. Paste a fine-grained
+                            token with repository contents read/write for that repo only. The token is never stored in the browser.
                           </p>
                         </div>
 
+                        <div class="ops-meta-strip">
+                          <span class="meta-chip">owner // xElessaway</span>
+                          <span class="meta-chip">repo // xElessaway.github.io</span>
+                          <span class="meta-chip">branch // main</span>
+                        </div>
+
                         <div class="intake-field-grid intake-submit-grid">
-                          <label class="intake-field">
-                            <span class="intake-field-label">Owner</span>
-                            <input
-                              class="filter-input intake-text-input"
-                              type="text"
-                              value="xElessaway"
-                              spellcheck="false"
-                              data-submit-owner
-                            />
-                          </label>
-
-                          <label class="intake-field">
-                            <span class="intake-field-label">Repository</span>
-                            <input
-                              class="filter-input intake-text-input"
-                              type="text"
-                              value="xElessaway.github.io"
-                              spellcheck="false"
-                              data-submit-repo
-                            />
-                          </label>
-
-                          <label class="intake-field">
-                            <span class="intake-field-label">Branch</span>
-                            <input
-                              class="filter-input intake-text-input"
-                              type="text"
-                              value="main"
-                              spellcheck="false"
-                              data-submit-branch
-                            />
-                          </label>
-
                           <label class="intake-field intake-field-wide">
                             <span class="intake-field-label">Commit Message</span>
                             <input
@@ -404,16 +386,6 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
                       </p>
 
                       <textarea class="intake-output-code" readonly spellcheck="false" data-intake-output></textarea>
-
-                      <div class="meta-card intake-checklist">
-                        <p class="eyebrow">Checklist</p>
-                        <div class="stack muted-copy">
-                          <p>1. Fill the required fields until the file is valid.</p>
-                          <p>2. Submit directly to GitHub, or copy/download the markdown manually.</p>
-                          <p>3. Add any referenced assets under `public/downloads` or `public/media`.</p>
-                          <p>4. After submit, wait for GitHub Actions to sync the public site output.</p>
-                        </div>
-                      </div>
                     </div>
                   </aside>
                 </div>

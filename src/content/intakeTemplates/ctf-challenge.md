@@ -142,6 +142,6 @@ fields:
   - name: notes
     label: "Markdown Notes"
     type: markdownBody
-    rows: 14
+    rows: 10
 ---
 {{notes}}
