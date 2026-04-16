@@ -1,0 +1,97 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Hidden private route for local solve progress and GoatCounter analytics."><meta name="robots" content="noindex,nofollow"><meta name="generator" content="Astro v5.18.1"><meta property="og:title" content="Private Stats Console | Ahmed Elessaway"><meta property="og:description" content="Hidden private route for local solve progress and GoatCounter analytics."><meta property="og:type" content="website"><meta property="og:url" content="https://xelessaway.github.io/ops/stats-console-xe7k/"><meta property="og:site_name" content="Ahmed Elessaway (xElessaway)"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet"><title>Private Stats Console | Ahmed Elessaway</title><link rel="stylesheet" href="/_astro/about.D0cjVUIu.css"></head> <body class="ops-root"> <div class="scanline-overlay" aria-hidden="true"></div> <div class="noise-overlay" aria-hidden="true"></div> <header class="site-header"> <div class="shell-bar"> <div class="shell-left"> <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav"> <span class="sr-only">Toggle navigation</span> <span></span> </button> <a class="brand-mark" href="/"> <span class="brand-signal" aria-hidden="true"></span> <span class="brand-copy"> <strong>Ahmed Elessaway</strong> <small>xElessaway</small> </span> </a> </div> <nav id="site-nav" class="site-nav" aria-label="Primary navigation"> <a class="nav-link" href="/"> Home </a><a class="nav-link" href="/blog/"> Reports/Writeups </a><a class="nav-link" href="/threat-intelligence/"> Threat Intel </a><a class="nav-link" href="/ctf/"> CTFs/Practice </a><a class="nav-link" href="/about/"> Profile </a> </nav> </div> </header> <script type="module">const n=document.querySelector(".menu-toggle"),e=document.querySelector("#site-nav"),s=window.matchMedia("(min-width: 1100px)");if(n instanceof HTMLButtonElement&&e instanceof HTMLElement){const i=()=>{e.classList.remove("is-open"),n.setAttribute("aria-expanded","false")},c=()=>{s.matches&&i()};n.addEventListener("click",()=>{const t=e.classList.toggle("is-open");n.setAttribute("aria-expanded",String(t))}),e.querySelectorAll("a").forEach(t=>{t.addEventListener("click",()=>{i()})}),document.addEventListener("click",t=>{const a=t.target;!s.matches&&e.classList.contains("is-open")&&a instanceof Node&&!e.contains(a)&&!n.contains(a)&&i()}),"addEventListener"in s&&s.addEventListener("change",c),c()}</script> <main class="page-main">  <section class="page-intro"> <div class="container"> <article class="panel page-intro-panel stats-console-hero"> <div class="ops-meta-strip"> <span class="meta-chip">hidden_route // url_only</span> <span class="meta-chip">local_progress</span> <span class="meta-chip">goatcounter_embed</span> </div> <p class="eyebrow">Private Stats Console</p> <h1>Track personal solves and review site analytics in one place.</h1> <p class="lede">
+This route is intentionally unlinked. Challenge progress stays in your browser. Public traffic analytics load
+          from GoatCounter without exposing any credentials in this site.
+</p> </article> </div> </section> <section class="content-section"> <div class="container"> <div class="stats-console-shell" data-private-stats> <section class="content-panel"> <div class="section-header"> <div class="section-heading"> <p class="eyebrow">My Progress</p> <h2>Local challenge stats</h2> <p class="muted-copy">
+Solves, attempts, and timestamps are stored only in this browser. Export if you want a backup before
+                clearing storage or changing devices.
+</p> </div> </div> <div class="stats-metric-grid"> <article class="meta-card stats-metric-card"> <p class="eyebrow">Solved</p> <strong class="stats-metric-value" data-private-stat="solvedCount">0</strong> <p class="muted-copy">Challenges completed on this browser.</p> </article> <article class="meta-card stats-metric-card"> <p class="eyebrow">Completion</p> <strong class="stats-metric-value" data-private-stat="completionRate">0%</strong> <p class="muted-copy">Solved against the current public challenge set.</p> </article> <article class="meta-card stats-metric-card"> <p class="eyebrow">Collections</p> <strong class="stats-metric-value" data-private-stat="collectionCount">0</strong> <p class="muted-copy">Collections with at least one solved challenge.</p> </article> <article class="meta-card stats-metric-card"> <p class="eyebrow">Attempts</p> <strong class="stats-metric-value" data-private-stat="attemptCount">0</strong> <p class="muted-copy">Tracked answer submissions on this browser.</p> </article> </div> <div class="button-row"> <button class="button button-primary" type="button" data-progress-export>
+Export Progress
+</button> <button class="button button-ghost" type="button" data-progress-import>
+Import Progress
+</button> <button class="button button-ghost" type="button" data-progress-reset>
+Reset Progress
+</button> </div> <input class="sr-only" type="file" accept="application/json" data-progress-import-input> <p class="validator-state" data-private-stats-status>
+Local solve tracking is ready. No data leaves this browser from this section.
+</p> </section> <div class="stats-console-grid"> <section class="content-panel"> <div class="section-header"> <div class="section-heading"> <p class="eyebrow">Collection Progress</p> <h3>Progress by practice set</h3> <p class="muted-copy">Current solve rate for each published collection.</p> </div> </div> <div class="stats-progress-list" data-collection-progress></div> </section> <section class="content-panel"> <div class="section-header"> <div class="section-heading"> <p class="eyebrow">Recent Solves</p> <h3>Latest completed challenges</h3> <p class="muted-copy">Challenges solved on this browser, newest first when timestamps exist.</p> </div> </div> <div class="stats-recent-list" data-recent-solves></div> </section> </div> <section class="content-panel"> <div class="section-header"> <div class="section-heading"> <p class="eyebrow">Site Analytics</p> <h2>GoatCounter dashboard</h2> <p class="muted-copy">
+This frame shows pageviews, countries, referrers, and top paths from GoatCounter. It does not use any
+                token inside this site.
+</p> </div> <a class="section-action" href="https://xelessaway.goatcounter.com/" target="_blank" rel="noreferrer">
+Open GoatCounter
+</a> </div> <div class="ops-meta-strip"> <span class="meta-chip">provider // goatcounter</span> <span class="meta-chip">site // xelessaway</span> <span class="meta-chip">visits // countries // paths</span> </div> <div class="stats-analytics-frame-shell"> <iframe class="stats-analytics-frame" src="https://xelessaway.goatcounter.com/?hideui=1" title="GoatCounter analytics dashboard" loading="lazy" referrerpolicy="no-referrer"></iframe> </div> <details class="hint-box"> <summary>Embed not loading?</summary> <p>
+In GoatCounter, allow <code>xelessaway.github.io</code> under the embed settings. If the dashboard still
+              does not render here, open GoatCounter in a separate tab and sign in there first.
+</p> </details> </section> </div> </div> </section> <script type="application/json" id="private-stats-config">{"challenges":[{"collection":"discord-challenges","slug":"operation-luminous-stag-decoding-the-certificate-trail","title":"Operation Luminous Stag: Decoding the Certificate Trail","difficulty":"medium","order":1,"path":"/ctf/discord-challenges/operation-luminous-stag-decoding-the-certificate-trail/"},{"collection":"discord-challenges","slug":"the-academic-leak","title":"The Academic Leak","difficulty":"easy","order":1,"path":"/ctf/discord-challenges/the-academic-leak/"},{"collection":"discord-challenges","slug":"missing-cat-and-the-seller","title":"Missing cat and the seller","difficulty":"easy","order":2,"path":"/ctf/discord-challenges/missing-cat-and-the-seller/"},{"collection":"osint-1","slug":"jabalya","title":"Jabalya","difficulty":"easy","order":1,"path":"/ctf/osint-1/jabalya/"},{"collection":"osint-1","slug":"jenin","title":"Jenin","difficulty":"easy","order":2,"path":"/ctf/osint-1/jenin/"},{"collection":"osint-1","slug":"khan-yunis","title":"Khan Yunis","difficulty":"easy","order":3,"path":"/ctf/osint-1/khan-yunis/"},{"collection":"osint-1","slug":"nablus","title":"Nablus","difficulty":"easy","order":4,"path":"/ctf/osint-1/nablus/"},{"collection":"osint-1","slug":"deir-al-balah","title":"Deir al-Balah","difficulty":"medium","order":5,"path":"/ctf/osint-1/deir-al-balah/"},{"collection":"osint-1","slug":"gaza","title":"Gaza","difficulty":"medium","order":6,"path":"/ctf/osint-1/gaza/"},{"collection":"osint-1","slug":"ramallah","title":"Ramallah","difficulty":"medium","order":7,"path":"/ctf/osint-1/ramallah/"},{"collection":"osint-1","slug":"jerusalem","title":"Jerusalem","difficulty":"hard","order":8,"path":"/ctf/osint-1/jerusalem/"},{"collection":"osint-1","slug":"rafah","title":"Rafah","difficulty":"hard","order":9,"path":"/ctf/osint-1/rafah/"}],"collections":[{"slug":"discord-challenges","title":"Discord Challenges","path":"/ctf/discord-challenges/"},{"slug":"osint-1","title":"First OSINT CTF","path":"/ctf/osint-1/"}]}</script> <script type="module" src="/_astro/stats-console-xe7k.astro_astro_type_script_index_0_lang.BOy02Drk.js"></script>  </main> <footer class="site-footer"> <div class="container footer-grid footer-grid-compact"> <div class="footer-links footer-links-inline"> <a href="/">Home</a><a href="/blog/">Reports/Writeups</a><a href="/threat-intelligence/">Threat Intel</a><a href="/ctf/">CTFs/Practice</a><a href="/about/">Profile</a> </div> <div class="footer-links footer-links-inline footer-links-right"> <a href="https://github.com/xelessaway" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.linkedin.com/in/ahmedelessaway/" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://x.com/ahmed_elessaway" target="_blank" rel="noreferrer">X</a><a href="https://xelessaway.medium.com/" target="_blank" rel="noreferrer">Medium</a> </div> </div> </footer> <dialog class="image-lightbox" data-image-lightbox aria-label="Expanded image viewer"> <button class="image-lightbox-close" type="button" data-image-lightbox-close aria-label="Close image viewer">
+Close
+</button> <img class="image-lightbox-media" data-image-lightbox-media alt=""> <p class="image-lightbox-caption" data-image-lightbox-caption hidden></p> </dialog> <script>
+      const lightbox = document.querySelector("[data-image-lightbox]");
+      const lightboxMedia = lightbox?.querySelector("[data-image-lightbox-media]");
+      const lightboxCaption = lightbox?.querySelector("[data-image-lightbox-caption]");
+      const lightboxClose = lightbox?.querySelector("[data-image-lightbox-close]");
+
+      const isZoomableImage = (element) =>
+        element instanceof HTMLImageElement &&
+        (element.matches(".prose img") || element.matches(".challenge-image") || element.hasAttribute("data-zoomable-image"));
+
+      const setZoomableState = () => {
+        document.querySelectorAll(".prose img, .challenge-image, img[data-zoomable-image]").forEach((element) => {
+          if (element instanceof HTMLImageElement) {
+            element.tabIndex = 0;
+            element.setAttribute("role", "button");
+            element.setAttribute("aria-haspopup", "dialog");
+          }
+        });
+      };
+
+      const openLightbox = (image) => {
+        if (!(lightbox instanceof HTMLDialogElement) || !(lightboxMedia instanceof HTMLImageElement)) {
+          return;
+        }
+
+        lightboxMedia.src = image.currentSrc || image.src;
+        lightboxMedia.alt = image.alt || "";
+
+        if (lightboxCaption instanceof HTMLElement) {
+          const caption = image.alt?.trim();
+          lightboxCaption.textContent = caption ?? "";
+          lightboxCaption.hidden = !caption;
+        }
+
+        lightbox.showModal();
+      };
+
+      const closeLightbox = () => {
+        if (lightbox instanceof HTMLDialogElement && lightbox.open) {
+          lightbox.close();
+        }
+      };
+
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+
+        if (target instanceof Element) {
+          const image = target.closest(".prose img, .challenge-image, img[data-zoomable-image]");
+
+          if (isZoomableImage(image)) {
+            event.preventDefault();
+            openLightbox(image);
+            return;
+          }
+        }
+
+        if (target === lightbox || target === lightboxClose) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+
+        if ((event.key === "Enter" || event.key === " ") && isZoomableImage(target)) {
+          event.preventDefault();
+          openLightbox(target);
+        }
+      });
+
+      setZoomableState();
+      document.addEventListener("astro:page-load", setZoomableState);
+    </script> </body> </html>

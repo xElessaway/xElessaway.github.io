@@ -45,6 +45,7 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
 
 <script>
   import { normalizeAndHashAnswer } from "../utils/ctfAnswer";
+  import { readSolveRecord, writeSolveRecord } from "../utils/solveTracker";
 
   document.querySelectorAll("[data-ctf-validator]").forEach((card) => {
     const root = card;
@@ -92,7 +93,9 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
       button.textContent = "Completed";
     };
 
-    if (storageKey && localStorage.getItem(storageKey) === "true") {
+    const existingRecord = storageKey ? readSolveRecord(storageKey, localStorage) : null;
+
+    if (existingRecord?.solved) {
       markSolved();
     }
 
@@ -113,11 +116,23 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
       await new Promise((resolve) => requestAnimationFrame(() => resolve(undefined)));
 
       try {
+        const timestamp = new Date().toISOString();
+        const currentRecord = storageKey ? readSolveRecord(storageKey, localStorage) : null;
+        const attempts = (currentRecord?.attempts ?? 0) + 1;
         const digest = await normalizeAndHashAnswer(raw);
 
         if (hashes.includes(digest)) {
           if (storageKey) {
-            localStorage.setItem(storageKey, "true");
+            writeSolveRecord(
+              storageKey,
+              {
+                solved: true,
+                solvedAt: currentRecord?.solvedAt ?? timestamp,
+                attempts,
+                lastTriedAt: timestamp
+              },
+              localStorage
+            );
           }
           markSolved();
           return;
@@ -128,6 +143,19 @@ const storageKey = `ctf:solved:${collection}:${challenge}`;
         root.classList.add("is-error");
         state.textContent = "Wrong answer. Try again.";
         input.setAttribute("aria-invalid", "true");
+
+        if (storageKey) {
+          writeSolveRecord(
+            storageKey,
+            {
+              solved: false,
+              solvedAt: currentRecord?.solvedAt,
+              attempts,
+              lastTriedAt: timestamp
+            },
+            localStorage
+          );
+        }
       } catch (error) {
         resetPending();
         root.classList.remove("is-solved");

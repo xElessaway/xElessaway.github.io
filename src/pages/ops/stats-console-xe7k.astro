@@ -1,0 +1,198 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { withBase } from "../../utils/paths";
+
+const [challengeEntries, collectionEntries] = await Promise.all([
+  getCollection("ctfChallenges"),
+  getCollection("ctfCollections")
+]);
+
+const challenges = challengeEntries
+  .sort((left, right) => {
+    const collectionOrder = left.data.collection.localeCompare(right.data.collection);
+
+    if (collectionOrder !== 0) {
+      return collectionOrder;
+    }
+
+    return left.data.order - right.data.order;
+  })
+  .map((entry) => ({
+    collection: entry.data.collection,
+    slug: entry.slug,
+    title: entry.data.title,
+    difficulty: entry.data.difficulty,
+    order: entry.data.order,
+    path: withBase(`/ctf/${entry.data.collection}/${entry.slug}/`)
+  }));
+
+const collections = collectionEntries
+  .sort((left, right) => left.data.title.localeCompare(right.data.title))
+  .map((entry) => ({
+    slug: entry.slug,
+    title: entry.data.title,
+    path: withBase(`/ctf/${entry.slug}/`)
+  }));
+
+const statsConfigJson = JSON.stringify({ challenges, collections }).replace(/</g, "\\u003c");
+const goatcounterDashboardUrl = "https://xelessaway.goatcounter.com/?hideui=1";
+---
+
+<BaseLayout
+  title="Private Stats Console | Ahmed Elessaway"
+  description="Hidden private route for local solve progress and GoatCounter analytics."
+  robots="noindex,nofollow"
+>
+  <section class="page-intro">
+    <div class="container">
+      <article class="panel page-intro-panel stats-console-hero">
+        <div class="ops-meta-strip">
+          <span class="meta-chip">hidden_route // url_only</span>
+          <span class="meta-chip">local_progress</span>
+          <span class="meta-chip">goatcounter_embed</span>
+        </div>
+        <p class="eyebrow">Private Stats Console</p>
+        <h1>Track personal solves and review site analytics in one place.</h1>
+        <p class="lede">
+          This route is intentionally unlinked. Challenge progress stays in your browser. Public traffic analytics load
+          from GoatCounter without exposing any credentials in this site.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="container">
+      <div class="stats-console-shell" data-private-stats>
+        <section class="content-panel">
+          <div class="section-header">
+            <div class="section-heading">
+              <p class="eyebrow">My Progress</p>
+              <h2>Local challenge stats</h2>
+              <p class="muted-copy">
+                Solves, attempts, and timestamps are stored only in this browser. Export if you want a backup before
+                clearing storage or changing devices.
+              </p>
+            </div>
+          </div>
+
+          <div class="stats-metric-grid">
+            <article class="meta-card stats-metric-card">
+              <p class="eyebrow">Solved</p>
+              <strong class="stats-metric-value" data-private-stat="solvedCount">0</strong>
+              <p class="muted-copy">Challenges completed on this browser.</p>
+            </article>
+
+            <article class="meta-card stats-metric-card">
+              <p class="eyebrow">Completion</p>
+              <strong class="stats-metric-value" data-private-stat="completionRate">0%</strong>
+              <p class="muted-copy">Solved against the current public challenge set.</p>
+            </article>
+
+            <article class="meta-card stats-metric-card">
+              <p class="eyebrow">Collections</p>
+              <strong class="stats-metric-value" data-private-stat="collectionCount">0</strong>
+              <p class="muted-copy">Collections with at least one solved challenge.</p>
+            </article>
+
+            <article class="meta-card stats-metric-card">
+              <p class="eyebrow">Attempts</p>
+              <strong class="stats-metric-value" data-private-stat="attemptCount">0</strong>
+              <p class="muted-copy">Tracked answer submissions on this browser.</p>
+            </article>
+          </div>
+
+          <div class="button-row">
+            <button class="button button-primary" type="button" data-progress-export>
+              Export Progress
+            </button>
+            <button class="button button-ghost" type="button" data-progress-import>
+              Import Progress
+            </button>
+            <button class="button button-ghost" type="button" data-progress-reset>
+              Reset Progress
+            </button>
+          </div>
+
+          <input class="sr-only" type="file" accept="application/json" data-progress-import-input />
+
+          <p class="validator-state" data-private-stats-status>
+            Local solve tracking is ready. No data leaves this browser from this section.
+          </p>
+        </section>
+
+        <div class="stats-console-grid">
+          <section class="content-panel">
+            <div class="section-header">
+              <div class="section-heading">
+                <p class="eyebrow">Collection Progress</p>
+                <h3>Progress by practice set</h3>
+                <p class="muted-copy">Current solve rate for each published collection.</p>
+              </div>
+            </div>
+
+            <div class="stats-progress-list" data-collection-progress></div>
+          </section>
+
+          <section class="content-panel">
+            <div class="section-header">
+              <div class="section-heading">
+                <p class="eyebrow">Recent Solves</p>
+                <h3>Latest completed challenges</h3>
+                <p class="muted-copy">Challenges solved on this browser, newest first when timestamps exist.</p>
+              </div>
+            </div>
+
+            <div class="stats-recent-list" data-recent-solves></div>
+          </section>
+        </div>
+
+        <section class="content-panel">
+          <div class="section-header">
+            <div class="section-heading">
+              <p class="eyebrow">Site Analytics</p>
+              <h2>GoatCounter dashboard</h2>
+              <p class="muted-copy">
+                This frame shows pageviews, countries, referrers, and top paths from GoatCounter. It does not use any
+                token inside this site.
+              </p>
+            </div>
+            <a class="section-action" href="https://xelessaway.goatcounter.com/" target="_blank" rel="noreferrer">
+              Open GoatCounter
+            </a>
+          </div>
+
+          <div class="ops-meta-strip">
+            <span class="meta-chip">provider // goatcounter</span>
+            <span class="meta-chip">site // xelessaway</span>
+            <span class="meta-chip">visits // countries // paths</span>
+          </div>
+
+          <div class="stats-analytics-frame-shell">
+            <iframe
+              class="stats-analytics-frame"
+              src={goatcounterDashboardUrl}
+              title="GoatCounter analytics dashboard"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+            ></iframe>
+          </div>
+
+          <details class="hint-box">
+            <summary>Embed not loading?</summary>
+            <p>
+              In GoatCounter, allow <code>xelessaway.github.io</code> under the embed settings. If the dashboard still
+              does not render here, open GoatCounter in a separate tab and sign in there first.
+            </p>
+          </details>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline type="application/json" id="private-stats-config" set:html={statsConfigJson}></script>
+  <script>
+    import "../../scripts/privateStatsConsole";
+  </script>
+</BaseLayout>
