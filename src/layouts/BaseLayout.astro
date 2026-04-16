@@ -12,6 +12,7 @@ interface Props {
 }
 
 const { title = siteMeta.title, description = siteMeta.description, robots } = Astro.props;
+const enableAnalytics = !robots?.includes("noindex");
 ---
 
 <!doctype html>
@@ -34,6 +35,16 @@ const { title = siteMeta.title, description = siteMeta.description, robots } = A
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
+    {
+      enableAnalytics && (
+        <script
+          is:inline
+          data-goatcounter="https://xelessaway.goatcounter.com/count"
+          async
+          src="https://gc.zgo.at/count.js"
+        ></script>
+      )
+    }
     <title>{title}</title>
   </head>
   <body class="ops-root">
