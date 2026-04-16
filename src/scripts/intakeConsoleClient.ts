@@ -180,53 +180,6 @@ const collectPanelValues = (panel: HTMLElement, template: IntakeTemplate): Recor
   return values;
 };
 
-const getPrimaryTitle = (template: IntakeTemplate, values: Record<string, unknown>): string => {
-  const preferredKeys = ["title", "name", "slug"];
-
-  for (const key of preferredKeys) {
-    const value = values[key];
-
-    if (typeof value === "string" && value.trim()) {
-      return value.trim();
-    }
-  }
-
-  return template.label;
-};
-
-const getDefaultCommitMessage = (template: IntakeTemplate, values: Record<string, unknown>): string => {
-  const title = getPrimaryTitle(template, values);
-
-  switch (template.id) {
-    case "report-writeup":
-      return `Publish report: ${title}`;
-    case "threat-intel":
-      return `Publish threat intel: ${title}`;
-    case "ctf-collection":
-      return `Publish CTF collection: ${title}`;
-    case "ctf-challenge":
-      return `Publish CTF challenge: ${title}`;
-    default:
-      return `Publish ${template.label.toLowerCase()}: ${title}`;
-  }
-};
-
-const syncCommitMessage = (panel: HTMLElement, template: IntakeTemplate, values: Record<string, unknown>) => {
-  const input = panel.querySelector("[data-submit-message]");
-
-  if (!(input instanceof HTMLInputElement)) {
-    return;
-  }
-
-  if (!input.dataset.manual) {
-    input.dataset.manual = "false";
-  }
-
-  if (input.dataset.manual !== "true" || !input.value.trim()) {
-    input.value = getDefaultCommitMessage(template, values);
-  }
-};
-
 const setActionState = (panel: HTMLElement, disabled: boolean) => {
   panel.dataset.intakeReady = disabled ? "false" : "true";
 
@@ -252,98 +205,26 @@ const setSubmitPendingState = (panel: HTMLElement, pending: boolean) => {
 
   button.dataset.pending = pending ? "true" : "false";
   button.disabled = pending || panel.dataset.intakeReady !== "true";
-  button.textContent = pending ? "Submitting..." : "Submit";
+  button.textContent = pending ? "Opening..." : "Open GitHub Draft";
 };
 
-const encodeUtf8ToBase64 = (value: string): string => {
-  const bytes = new TextEncoder().encode(value);
-  let binary = "";
-
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return window.btoa(binary);
+const buildGitHubDraftUrl = (path: string): string => {
+  const owner = encodeURIComponent(submitDefaults.owner.trim());
+  const repo = encodeURIComponent(submitDefaults.repo.trim());
+  const branch = encodeURIComponent(submitDefaults.branch.trim() || "main");
+  const draftUrl = new URL(`https://github.com/${owner}/${repo}/new/${branch}`);
+  draftUrl.searchParams.set("filename", path);
+  return draftUrl.toString();
 };
 
-const encodeGitHubPath = (value: string): string => value.split("/").map((segment) => encodeURIComponent(segment)).join("/");
-
-const readGitHubError = async (response: Response): Promise<string> => {
-  try {
-    const payload = await response.json();
-
-    if (typeof payload?.message === "string" && payload.message.trim()) {
-      return payload.message.trim();
-    }
-  } catch {
-    return response.statusText || "GitHub request failed.";
-  }
-
-  return response.statusText || "GitHub request failed.";
-};
-
-const getFileSha = async (owner: string, repo: string, branch: string, path: string, token: string): Promise<string | undefined> => {
-  const endpoint = new URL(`https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeGitHubPath(path)}`);
-  endpoint.searchParams.set("ref", branch);
-
-  const response = await fetch(endpoint, {
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token}`
-    }
-  });
-
-  if (response.status === 404) {
-    return undefined;
-  }
-
-  if (!response.ok) {
-    throw new Error(await readGitHubError(response));
-  }
-
-  const payload = (await response.json()) as { sha?: string };
-  return payload.sha;
-};
-
-const publishMarkdownFile = async ({
-  owner,
-  repo,
-  branch,
-  path,
-  content,
-  message,
-  token
-}: {
-  owner: string;
-  repo: string;
-  branch: string;
-  path: string;
-  content: string;
-  message: string;
-  token: string;
-}) => {
-  const sha = await getFileSha(owner, repo, branch, path, token);
-  const endpoint = `https://api.github.com/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodeGitHubPath(path)}`;
-  const response = await fetch(endpoint, {
-    method: "PUT",
-    headers: {
-      Accept: "application/vnd.github+json",
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      message,
-      content: encodeUtf8ToBase64(content),
-      branch,
-      ...(sha ? { sha } : {})
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error(await readGitHubError(response));
-  }
-
-  return (await response.json()) as { commit?: { html_url?: string } };
+const downloadMarkdownFile = (fileName: string, markdown: string) => {
+  const blob = new Blob([markdown], { type: "text/markdown;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = fileName;
+  anchor.click();
+  URL.revokeObjectURL(url);
 };
 
 const renderPanel = async (panel: HTMLElement, template: IntakeTemplate) => {
@@ -369,8 +250,6 @@ const renderPanel = async (panel: HTMLElement, template: IntakeTemplate) => {
   const result = await buildGeneratedContent(template, values);
   const resolvedPreview = new URL(result.previewPath.replace(/^\//, ""), window.location.origin + baseUrl).toString();
 
-  syncCommitMessage(panel, template, values);
-
   output.value = result.markdown;
   targetPath.value = result.targetPath;
   previewUrl.value = resolvedPreview;
@@ -378,11 +257,11 @@ const renderPanel = async (panel: HTMLElement, template: IntakeTemplate) => {
 
   if (result.missingRequired.length > 0) {
     setStatusTone(status, `Missing required fields: ${result.missingRequired.join(", ")}`, "error");
-    setStatusTone(submitStatus, "Complete the required fields before submitting to xElessaway.github.io.", "neutral");
+    setStatusTone(submitStatus, "Complete the required fields before opening the GitHub draft.", "neutral");
     setActionState(panel, true);
   } else {
-    setStatusTone(status, "Markdown ready. Copy, download, or submit it directly to GitHub.", "success");
-    setStatusTone(submitStatus, "Submit commits the source markdown file to xElessaway.github.io. GitHub Actions then rebuild the public site.", "neutral");
+    setStatusTone(status, "Markdown ready. Copy it, download it, or open the GitHub draft.", "success");
+    setStatusTone(submitStatus, "Open GitHub Draft copies the markdown, downloads a backup, and opens the new-file page in xElessaway.github.io.", "neutral");
     setActionState(panel, false);
   }
 };
@@ -555,16 +434,6 @@ const resetPanel = (panel: HTMLElement, template: IntakeTemplate) => {
       }
     });
 
-  const commitMessageInput = panel.querySelector("[data-submit-message]");
-  if (commitMessageInput instanceof HTMLInputElement) {
-    commitMessageInput.dataset.manual = "false";
-  }
-
-  const submitTokenInput = panel.querySelector("[data-submit-token]");
-  if (submitTokenInput instanceof HTMLInputElement) {
-    submitTokenInput.value = "";
-  }
-
   applyDerivedFieldValues(panel, template);
   scheduleRender(panel, template);
 };
@@ -576,21 +445,9 @@ const wireOutputActions = (panel: HTMLElement, template: IntakeTemplate) => {
   const copyPath = panel.querySelector("[data-copy-path]");
   const downloadButton = panel.querySelector("[data-download-markdown]");
   const clearButton = panel.querySelector("[data-clear-form]");
-  const commitMessageInput = panel.querySelector("[data-submit-message]");
 
   if (!(output instanceof HTMLTextAreaElement) || !(targetPath instanceof HTMLInputElement)) {
     return;
-  }
-
-  if (commitMessageInput instanceof HTMLInputElement) {
-    commitMessageInput.dataset.manual = "false";
-
-    commitMessageInput.addEventListener("input", () => {
-      const values = collectPanelValues(panel, template);
-      const derivedValue = getDefaultCommitMessage(template, values);
-      commitMessageInput.dataset.manual =
-        commitMessageInput.value.trim() && commitMessageInput.value.trim() !== derivedValue ? "true" : "false";
-    });
   }
 
   copyMarkdown?.addEventListener("click", async () => {
@@ -603,13 +460,7 @@ const wireOutputActions = (panel: HTMLElement, template: IntakeTemplate) => {
 
   downloadButton?.addEventListener("click", () => {
     const fileName = targetPath.value.split("/").filter(Boolean).at(-1) ?? `${template.id}.md`;
-    const blob = new Blob([output.value], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.click();
-    URL.revokeObjectURL(url);
+    downloadMarkdownFile(fileName, output.value);
   });
 
   clearButton?.addEventListener("click", () => {
@@ -622,67 +473,68 @@ const wireSubmitAction = (panel: HTMLElement) => {
   const output = panel.querySelector("[data-intake-output]");
   const targetPath = panel.querySelector("[data-intake-target-path]");
   const submitStatus = panel.querySelector("[data-submit-status]");
-  const messageInput = panel.querySelector("[data-submit-message]");
-  const tokenInput = panel.querySelector("[data-submit-token]");
 
   if (
     !(submitButton instanceof HTMLButtonElement) ||
     !(output instanceof HTMLTextAreaElement) ||
     !(targetPath instanceof HTMLInputElement) ||
-    !(submitStatus instanceof HTMLElement) ||
-    !(messageInput instanceof HTMLInputElement) ||
-    !(tokenInput instanceof HTMLInputElement)
+    !(submitStatus instanceof HTMLElement)
   ) {
     return;
   }
 
   submitButton.addEventListener("click", async () => {
     if (panel.dataset.intakeReady !== "true") {
-      setStatusTone(submitStatus, "Complete the required fields before submitting to xElessaway.github.io.", "error");
+      setStatusTone(submitStatus, "Complete the required fields before opening the GitHub draft.", "error");
       return;
     }
 
-    const owner = submitDefaults.owner.trim();
-    const repo = submitDefaults.repo.trim();
-    const branch = submitDefaults.branch.trim() || "main";
-    const message = messageInput.value.trim();
-    const token = tokenInput.value.trim();
     const path = targetPath.value.trim();
     const content = output.value;
+    const fileName = path.split("/").filter(Boolean).at(-1) ?? "entry.md";
 
-    if (!owner || !repo || !message || !path) {
-      setStatusTone(submitStatus, "Owner, repository, branch, commit message, and target path are required.", "error");
-      return;
-    }
-
-    if (!token) {
-      setStatusTone(submitStatus, "Paste a GitHub token before submitting.", "error");
+    if (!path) {
+      setStatusTone(submitStatus, "Target path is required before opening the GitHub draft.", "error");
       return;
     }
 
     setSubmitPendingState(panel, true);
-    setStatusTone(submitStatus, "Submitting markdown to GitHub...", "pending");
+    setStatusTone(submitStatus, "Preparing GitHub draft...", "pending");
 
     try {
-      await publishMarkdownFile({
-        owner,
-        repo,
-        branch,
-        path,
-        content,
-        message,
-        token
-      });
+      let copiedToClipboard = true;
 
-      tokenInput.value = "";
-      setStatusTone(
-        submitStatus,
-        `Submitted to ${owner}/${repo} on ${branch}. GitHub Actions will rebuild the public site next.`,
-        "success"
-      );
+      try {
+        await navigator.clipboard.writeText(content);
+      } catch {
+        copiedToClipboard = false;
+      }
+
+      downloadMarkdownFile(fileName, content);
+
+      const draftUrl = buildGitHubDraftUrl(path);
+      const draftWindow = window.open(draftUrl, "_blank", "noopener,noreferrer");
+
+      if (draftWindow) {
+        setStatusTone(
+          submitStatus,
+          copiedToClipboard
+            ? "GitHub draft opened. Markdown copied to clipboard and backup file downloaded."
+            : "GitHub draft opened. Clipboard access failed, but the backup file was downloaded.",
+          "success"
+        );
+      } else {
+        setStatusTone(
+          submitStatus,
+          copiedToClipboard
+            ? "Popup blocked. Markdown copied and backup file downloaded. Open the GitHub draft manually from the repo."
+            : "Popup blocked and clipboard access failed. Use the downloaded file and open the GitHub draft manually.",
+          "error"
+        );
+      }
     } catch (error) {
-      const messageText = error instanceof Error ? error.message : "GitHub rejected the publish request.";
-      setStatusTone(submitStatus, `Submit failed: ${messageText}`, "error");
+      const messageText = error instanceof Error ? error.message : "Unable to prepare the GitHub draft.";
+      setStatusTone(submitStatus, `Draft preparation failed: ${messageText}`, "error");
     } finally {
       setSubmitPendingState(panel, false);
     }

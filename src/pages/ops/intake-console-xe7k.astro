@@ -55,7 +55,7 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
         <div class="ops-meta-strip">
           <span class="meta-chip">hidden_route // url_only</span>
           <span class="meta-chip">{templates.length} templates</span>
-          <span class="meta-chip">manual_publish</span>
+          <span class="meta-chip">github_draft</span>
         </div>
         <p class="eyebrow">Internal Intake Console</p>
         <h1>Generate markdown entries without exposing a public CMS.</h1>
@@ -297,7 +297,7 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
                       <p class="eyebrow">Generated Output</p>
                       <h3>Ready-to-save markdown</h3>
                       <p class="muted-copy">
-                        Review the generated file, then submit it to the repository or copy it out manually.
+                        Review the generated file, then open a GitHub draft or copy it out manually.
                       </p>
                     </div>
 
@@ -316,11 +316,11 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
 
                       <section class="meta-card intake-submit-panel">
                         <div class="section-heading">
-                          <p class="eyebrow">Repository Submit</p>
-                          <h3>Publish to GitHub</h3>
+                          <p class="eyebrow">GitHub Draft</p>
+                          <h3>Open a ready path in GitHub</h3>
                           <p class="muted-copy">
-                            This hidden route publishes to `xElessaway/xElessaway.github.io` on `main`. Paste a fine-grained
-                            token with repository contents read/write for that repo only. The token is never stored in the browser.
+                            This hidden route opens the new-file editor for `xElessaway/xElessaway.github.io` on `main`,
+                            copies the markdown to your clipboard, and downloads a backup `.md` file.
                           </p>
                         </div>
 
@@ -329,36 +329,11 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
                           <span class="meta-chip">repo // xElessaway.github.io</span>
                           <span class="meta-chip">branch // main</span>
                         </div>
-
-                        <div class="intake-field-grid intake-submit-grid">
-                          <label class="intake-field intake-field-wide">
-                            <span class="intake-field-label">Commit Message</span>
-                            <input
-                              class="filter-input intake-text-input"
-                              type="text"
-                              spellcheck="false"
-                              data-submit-message
-                            />
-                          </label>
-
-                          <label class="intake-field intake-field-wide">
-                            <span class="intake-field-label">GitHub Token</span>
-                            <span class="intake-field-help">Fine-grained token, contents read/write, used only for this request.</span>
-                            <input
-                              class="filter-input intake-text-input"
-                              type="password"
-                              autocomplete="off"
-                              spellcheck="false"
-                              placeholder="github_pat_..."
-                              data-submit-token
-                            />
-                          </label>
-                        </div>
                       </section>
 
                       <div class="button-row intake-output-actions">
                         <button class="button button-primary" type="button" data-submit-entry>
-                          Submit
+                          Open GitHub Draft
                         </button>
                         <button class="button button-ghost" type="button" data-copy-markdown>
                           Copy Markdown
@@ -382,7 +357,7 @@ function itemFieldChecked(field: IntakeItemField, row: Record<string, unknown>):
                       </p>
 
                       <p class="validator-state intake-status" data-submit-status>
-                        Submit will commit the source markdown file. GitHub Actions then rebuilds the public site.
+                        Draft opens GitHub with the target path, copies the markdown, and downloads a backup file.
                       </p>
 
                       <textarea class="intake-output-code" readonly spellcheck="false" data-intake-output></textarea>
