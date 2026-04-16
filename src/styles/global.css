@@ -821,6 +821,15 @@ p {
   color: var(--muted);
 }
 
+.challenge-card-excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 8;
+  -webkit-box-orient: vertical;
+  min-height: calc(1.58em * 8);
+  text-overflow: ellipsis;
+}
+
 .panel .eyebrow,
 .story-card .eyebrow,
 .dossier-card .eyebrow,
