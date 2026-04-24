@@ -58,6 +58,10 @@ const DESCRIPTION_OVERRIDES = new Map([
   [
     "osint-ctf-beginner-roadmap",
     "Structured starter roadmap for learning OSINT challenge workflows across core disciplines and tool choices."
+  ],
+  [
+    "one-facebook-message-exposed-a-100m-crypto-fraud-network-heres-how",
+    "OSINT investigation mapping a fake crypto exchange fraud network from one Facebook lure to DNS, backend, certificate, and WebSocket infrastructure."
   ]
 ]);
 
