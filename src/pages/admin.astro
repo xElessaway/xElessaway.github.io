@@ -31,7 +31,28 @@ const ctfChallenges = (await getCollection("ctfChallenges")).map((c) => ({
   body: c.body
 }));
 
+const actorList = (await getCollection("actors")).map((a) => ({
+  slug: a.slug,
+  name: a.data.name,
+  aliases: a.data.aliases || [],
+  status: a.data.status,
+  origin: a.data.origin,
+  motivation: a.data.motivation,
+  targets: a.data.targets || [],
+  firstSeen: a.data.firstSeen,
+  lastSeen: a.data.lastSeen,
+  tools: a.data.tools || [],
+  ttps: a.data.ttps || [],
+  tags: a.data.tags || [],
+  timeline: a.data.timeline || [],
+  references: a.data.references || [],
+  relatedPosts: a.data.relatedPosts || [],
+  featured: a.data.featured || false,
+  body: a.body
+}));
+
 const existingPostsJson = JSON.stringify(blogPosts).replace(/</g, "\\u003c");
+const existingActorsJson = JSON.stringify(actorList).replace(/</g, "\\u003c");
 const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u003c");
 ---
 
@@ -79,6 +100,10 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
           <span class="material-symbols-outlined">article</span>
           Research Article
         </button>
+        <button type="button" class="studio-tab" data-type="actors">
+          <span class="material-symbols-outlined">security</span>
+          Threat Intel Dossier
+        </button>
         <button type="button" class="studio-tab" data-type="ctf">
           <span class="material-symbols-outlined">flag</span>
           CTF Challenge
@@ -87,16 +112,16 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
 
       <div class="studio-actions-top">
         <button type="button" class="button button-ghost" id="studio-import-btn" title="Paste article from Medium or web and auto-format with self-hosted images">
-          <Icon name="magic" size={16} /> Import from Medium / Web
+          <Icon name="magic" size={16} /> Import
         </button>
         <button type="button" class="button button-ghost" id="studio-new-btn">
-          <Icon name="add" size={16} /> New Post
+          <Icon name="add" size={16} /> New Item
         </button>
         <button type="button" class="button button-ghost" id="studio-save-draft">
-          <Icon name="save" size={16} /> Save Local Draft
+          <Icon name="save" size={16} /> Save Draft
         </button>
         <button type="button" class="button button-primary studio-publish-btn" id="studio-publish-btn">
-          <Icon name="rocket_launch" size={16} /> Publish to GitHub
+          <Icon name="rocket_launch" size={16} /> Publish
         </button>
       </div>
     </div>
@@ -134,12 +159,12 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
 
             <label class="studio-field studio-field-wide">
               <span class="studio-label">Short Description / Lede *</span>
-              <textarea id="post-desc" class="studio-input" rows="2" placeholder="Brief 1-2 sentence summary for archive cards and search previews..."></textarea>
+              <textarea id="post-desc" class="studio-input" rows="2" placeholder="Brief 1-2 sentence summary..."></textarea>
             </label>
 
             <label class="studio-field">
               <span class="studio-label">Tags (comma separated)</span>
-              <input type="text" id="post-tags" class="studio-input" placeholder="dfir, memory, osint, malware" value="dfir, investigation" />
+              <input type="text" id="post-tags" class="studio-input" placeholder="dfir, memory, osint" value="dfir, investigation" />
             </label>
 
             <label class="studio-field">
@@ -153,8 +178,8 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
             </label>
 
             <label class="studio-field">
-              <span class="studio-label">Original Medium / External URL</span>
-              <input type="url" id="post-source-url" class="studio-input" placeholder="https://xelessaway.medium.com/..." />
+              <span class="studio-label">Original Medium URL</span>
+              <input type="url" id="post-source-url" class="studio-input" placeholder="https://..." />
             </label>
 
             <div class="studio-field-checkboxes">
@@ -170,56 +195,125 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
           </div>
         </div>
 
-        <!-- Markdown Toolbar & Image Upload -->
+        <!-- Metadata Form for Threat Intel Actors -->
+        <div id="form-actors" class="studio-meta-group" style="display: none;">
+          <div class="studio-input-grid">
+            <label class="studio-field studio-field-wide">
+              <span class="studio-label">Actor / Cluster Name *</span>
+              <input type="text" id="actor-name" class="studio-input" placeholder="e.g. APT29" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Dossier Slug (URL) *</span>
+              <input type="text" id="actor-slug" class="studio-input mono" placeholder="apt29" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Tracking Status *</span>
+              <select id="actor-status" class="studio-input">
+                <option value="active">Active (Ongoing)</option>
+                <option value="tracking">Tracking</option>
+                <option value="disrupted">Disrupted</option>
+                <option value="historic">Historic</option>
+              </select>
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Origin / Region *</span>
+              <input type="text" id="actor-origin" class="studio-input" placeholder="Unknown" value="Unknown" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">First Seen (YYYY-MM)</span>
+              <input type="text" id="actor-first-seen" class="studio-input" placeholder="2026-05" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Last Seen (YYYY-MM)</span>
+              <input type="text" id="actor-last-seen" class="studio-input" placeholder="2026-08" />
+            </label>
+
+            <label class="studio-field studio-field-wide">
+              <span class="studio-label">Motivation &amp; Objectives *</span>
+              <textarea id="actor-motivation" class="studio-input" rows="2" placeholder="e.g. Commodity malware, credential theft..."></textarea>
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Known Aliases (comma separated)</span>
+              <input type="text" id="actor-aliases" class="studio-input" placeholder="Alias1, Alias2" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Targeted Sectors (comma separated)</span>
+              <input type="text" id="actor-targets" class="studio-input" placeholder="Finance, Defense" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Tooling (comma separated)</span>
+              <input type="text" id="actor-tools" class="studio-input" placeholder="Remcos RAT, Cobalt Strike" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">MITRE TTPs (comma separated)</span>
+              <input type="text" id="actor-ttps" class="studio-input" placeholder="T1059, T1027" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Tags (comma separated)</span>
+              <input type="text" id="actor-tags" class="studio-input" placeholder="dfir, malware" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Related Report Slugs (comma separated)</span>
+              <input type="text" id="actor-related-posts" class="studio-input" placeholder="report-slug-1, report-slug-2" />
+            </label>
+
+            <div class="studio-field-checkboxes">
+              <label class="studio-checkbox-label">
+                <input type="checkbox" id="actor-featured" />
+                <span>Featured Dossier</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Markdown Toolbar -->
         <div class="studio-toolbar">
-          <button type="button" class="toolbar-btn" data-tool="h2" title="Heading 2">H2</button>
-          <button type="button" class="toolbar-btn" data-tool="h3" title="Heading 3">H3</button>
-          <button type="button" class="toolbar-btn" data-tool="bold" title="Bold"><strong>B</strong></button>
-          <button type="button" class="toolbar-btn" data-tool="italic" title="Italic"><em>I</em></button>
-          <button type="button" class="toolbar-btn" data-tool="quote" title="Callout Quote">Quote</button>
-          <button type="button" class="toolbar-btn" data-tool="code" title="Code Block">Code</button>
-          <button type="button" class="toolbar-btn" data-tool="link" title="Link">Link</button>
-          <button type="button" class="toolbar-btn" data-tool="image" title="Image Figure">Figure</button>
-          <button type="button" class="toolbar-btn" data-tool="table" title="Table">Table</button>
-          <button type="button" class="toolbar-btn" data-tool="bullet" title="Bullet List">&bull; List</button>
-          <button type="button" class="toolbar-btn toolbar-defang-btn" data-tool="defang" title="Defang malicious URLs &amp; IPs (e.g. hxxps://, 192[.]168[.]1[.]1)" style="font-weight: 700; color: var(--secondary);">🛡️ Defang IOCs</button>
-          
-          <!-- Image Upload Trigger -->
-          <label class="toolbar-btn toolbar-upload-btn" title="Upload Image to GitHub">
+          <button type="button" class="toolbar-btn" data-tool="h2">H2</button>
+          <button type="button" class="toolbar-btn" data-tool="h3">H3</button>
+          <button type="button" class="toolbar-btn" data-tool="bold"><strong>B</strong></button>
+          <button type="button" class="toolbar-btn" data-tool="italic"><em>I</em></button>
+          <button type="button" class="toolbar-btn" data-tool="quote">Quote</button>
+          <button type="button" class="toolbar-btn" data-tool="code">Code</button>
+          <button type="button" class="toolbar-btn toolbar-defang-btn" data-tool="defang">🛡️ Defang</button>
+          <label class="toolbar-btn toolbar-upload-btn">
             <span class="material-symbols-outlined" style="font-size: 16px;">upload_file</span>
-            Upload Image
+            Upload
             <input type="file" id="image-file-input" accept="image/*" style="display: none;" />
           </label>
         </div>
 
         <!-- Markdown Textarea -->
         <div class="studio-editor-area">
-          <textarea id="markdown-editor" class="studio-editor-textarea" spellcheck="false" placeholder="Write your investigation notes in Markdown or HTML here..."></textarea>
+          <textarea id="markdown-editor" class="studio-editor-textarea" spellcheck="false" placeholder="Write content here..."></textarea>
         </div>
       </div>
 
-      <!-- Right: Live Inked Intel Paper Manuscript Preview -->
+      <!-- Right: Preview -->
       <div class="studio-preview-pane">
         <div class="studio-preview-header">
           <span class="eyebrow">Live Paper Preview</span>
           <span class="studio-preview-tag" id="editing-indicator">New Post Mode</span>
         </div>
-
         <div class="studio-paper-container">
           <header class="article-dossier-header" style="margin-bottom: 1.5rem; padding: 1.5rem;">
-            <div class="article-tape-sticker" aria-hidden="true"></div>
-            <div class="article-meta-ribbon">
-              <span class="article-type-pill" id="preview-section-badge">Investigation Report</span>
-              <span class="article-status-pill"><span class="pulse-dot"></span> LIVE PREVIEW</span>
-            </div>
-            <h1 class="article-title" id="preview-title" style="font-size: 1.85rem;">Untitled Investigation</h1>
-            <p class="article-lede" id="preview-desc" style="font-size: 1rem;">Description summary will appear here...</p>
+            <h1 class="article-title" id="preview-title" style="font-size: 1.85rem;">Untitled</h1>
+            <p class="article-lede" id="preview-desc" style="font-size: 1rem;">Summary will appear here...</p>
             <div class="article-tags-wrap" id="preview-tags-wrap"></div>
           </header>
-
           <main class="article-manuscript-panel" style="padding: 1.5rem;">
             <div class="article-prose prose" id="preview-body">
-              <p><em>Start writing to see the rendered manuscript...</em></p>
+              <p><em>Start writing...</em></p>
             </div>
           </main>
         </div>
@@ -227,146 +321,54 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
     </div>
   </div>
 
-  <!-- Library Modal Dialog: Edit / Delete Existing Posts -->
   <dialog id="library-dialog" class="studio-dialog studio-dialog-large">
     <div class="studio-dialog-content">
       <div class="studio-dialog-head">
-        <div>
-          <h3>Content Library</h3>
-          <p class="studio-dialog-desc">Select any published post to edit or remove it directly from GitHub.</p>
-        </div>
+        <h3>Content Library</h3>
         <button type="button" class="button button-ghost" id="library-dialog-close">✕</button>
       </div>
-
       <div class="library-search-wrap">
-        <input type="search" id="library-search" class="studio-input" placeholder="Search by title, tag, slug..." />
+        <input type="search" id="library-search" class="studio-input" placeholder="Search library..." />
       </div>
-
-      <div class="library-items-list" id="library-list">
-        <!-- Rendered dynamically -->
-      </div>
+      <div class="library-items-list" id="library-list"></div>
     </div>
   </dialog>
 
-  <!-- Delete Confirmation Modal -->
   <dialog id="delete-dialog" class="studio-dialog">
     <div class="studio-dialog-content">
       <div class="studio-dialog-head">
         <h3 style="color: var(--alert);">Confirm Deletion</h3>
         <button type="button" class="button button-ghost" id="delete-dialog-close">✕</button>
       </div>
-      <p class="studio-dialog-desc">
-        Are you sure you want to permanently delete <strong id="delete-target-title">this post</strong> from your GitHub repository?
-      </p>
-      <p class="validator-state is-error" style="margin: 0.5rem 0 1.25rem;">
-        This will trigger GitHub Actions to remove the post from your live website.
-      </p>
+      <p class="studio-dialog-desc">Are you sure you want to delete <strong id="delete-target-title">this item</strong>?</p>
       <div class="button-row" style="justify-content: flex-end;">
         <button type="button" class="button button-ghost" id="delete-cancel-btn">Cancel</button>
-        <button type="button" class="button button-primary" id="delete-confirm-btn" style="background: var(--alert); border-color: var(--alert);">
-          Yes, Delete from GitHub
-        </button>
+        <button type="button" class="button button-primary" id="delete-confirm-btn" style="background: var(--alert); border-color: var(--alert);">Delete</button>
       </div>
     </div>
   </dialog>
 
-  <!-- Token Modal Dialog -->
   <dialog id="token-dialog" class="studio-dialog">
     <div class="studio-dialog-content">
       <div class="studio-dialog-head">
-        <h3>Configure GitHub Publishing Token</h3>
+        <h3>Configure GitHub Token</h3>
         <button type="button" class="button button-ghost" id="token-dialog-close">✕</button>
       </div>
-
-      <p class="studio-dialog-desc">
-        To publish, edit, and delete files directly on GitHub, enter a free <strong>GitHub Personal Access Token</strong> with <code>repo</code> write permissions.
-      </p>
-
-      <ol class="studio-token-steps">
-        <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noreferrer" class="text-link">GitHub Token Settings &nearr;</a></li>
-        <li>Generate a token for repository: <strong><code>xElessaway/xElessaway.github.io</code></strong></li>
-        <li>Grant <strong>Contents (Read & Write)</strong> permissions.</li>
-        <li>Paste your token below (saved only in your browser's private localStorage):</li>
-      </ol>
-
-      <label class="studio-field studio-field-wide" style="margin: 1.25rem 0;">
-        <span class="studio-label">Personal Access Token (ghp_... or github_pat_...)</span>
-        <input type="password" id="github-token-input" class="studio-input mono" placeholder="github_pat_11..." autocomplete="off" />
+      <label class="studio-field studio-field-wide">
+        <span class="studio-label">Personal Access Token</span>
+        <input type="password" id="github-token-input" class="studio-input mono" placeholder="github_pat_..." />
       </label>
-
       <div class="button-row" style="justify-content: flex-end;">
-        <button type="button" class="button button-ghost" id="token-clear-btn">Clear Token</button>
-        <button type="button" class="button button-primary" id="token-save-btn">Verify & Save Token</button>
+        <button type="button" class="button button-ghost" id="token-clear-btn">Clear</button>
+        <button type="button" class="button button-primary" id="token-save-btn">Verify & Save</button>
       </div>
-
-      <p id="token-verify-msg" class="validator-state" style="margin-top: 1rem;"></p>
+      <p id="token-verify-msg" class="validator-state"></p>
     </div>
   </dialog>
 
-  <!-- Smart Import Dialog -->
-  <dialog id="import-dialog" class="studio-dialog">
-    <div class="studio-dialog-content">
-      <div class="studio-dialog-head">
-        <div>
-          <span class="eyebrow">Smart Article Importer</span>
-          <h2 style="font-size: 1.4rem; margin-top: 0.25rem;">Import from Medium / Web</h2>
-        </div>
-        <button type="button" class="studio-dialog-close" id="import-dialog-close">&times;</button>
-      </div>
-
-      <p class="studio-dialog-desc">
-        Select and copy your article on Medium (<strong>Ctrl+C</strong>), then click anywhere in the box below and press <strong>Ctrl+V</strong>. Headings, code blocks, quotes, and screenshots will be automatically converted and loaded!
-      </p>
-
-      <!-- Live Rich Paste Area (contenteditable preserves full HTML DOM and images) -->
-      <div
-        id="smart-paste-box"
-        class="smart-paste-box"
-        contenteditable="true"
-        spellcheck="false"
-      >
-        <div class="paste-placeholder" id="paste-placeholder">
-          <div class="paste-zone-icon">📋</div>
-          <p class="paste-zone-title"><strong>Click here &amp; press Ctrl+V to paste</strong></p>
-          <p class="paste-zone-sub">Your formatted text, headings, code, and screenshots will appear here</p>
-        </div>
-      </div>
-
-      <div class="import-options-row" style="display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 1rem 0;">
-        <label class="studio-checkbox-label">
-          <input type="checkbox" id="import-opt-metadata" checked />
-          <span>Auto-detect Title, Description, &amp; Tags</span>
-        </label>
-        <label class="studio-checkbox-label">
-          <input type="checkbox" id="import-opt-images" checked />
-          <span>Self-host images to GitHub repository</span>
-        </label>
-        <label class="studio-checkbox-label">
-          <input type="checkbox" id="import-opt-defang" checked />
-          <span>Defang IOCs (hxxps://, 192[.]168[.]1[.]1)</span>
-        </label>
-      </div>
-
-      <div class="button-row" style="justify-content: flex-end;">
-        <button type="button" class="button button-ghost" id="import-cancel-btn">Cancel</button>
-        <button type="button" class="button button-primary" id="import-process-btn">
-          <Icon name="magic" size={16} /> Load into Editor
-        </button>
-      </div>
-
-      <div id="import-progress-box" class="import-progress-box" hidden style="margin-top: 1rem;">
-        <p id="import-progress-text" class="validator-state is-pending" style="margin: 0;">Processing article and images...</p>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- Seeded JSON Data -->
   <script is:inline type="application/json" id="studio-seed-posts" set:html={existingPostsJson}></script>
-  <script is:inline type="application/json" id="studio-seed-challenges" set:html={existingChallengesJson}></script>
-
-  <!-- Marked Parser Script & Turndown HTML-to-Markdown Parser -->
+  <script is:inline type="application/json" id="studio-seed-actors" set:html={existingActorsJson}></script>
   <script is:inline src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script is:inline src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.min.js"></script>
 
   <script is:inline>
     const GITHUB_OWNER = "xElessaway";
@@ -375,10 +377,11 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
     const TOKEN_KEY = "xelessaway_gh_token";
 
     let libraryPosts = JSON.parse(document.getElementById("studio-seed-posts")?.textContent || "[]");
-    let currentOriginalSlug = ""; // If editing an existing post
-    let currentOriginalSha = "";  // GitHub file SHA if fetched
+    let libraryActors = JSON.parse(document.getElementById("studio-seed-actors")?.textContent || "[]");
+    let currentStudioMode = "blog";
+    let currentOriginalSlug = "";
+    let currentOriginalSha = "";
 
-    // Form elements
     const titleInput = document.getElementById("post-title");
     const slugInput = document.getElementById("post-slug");
     const descInput = document.getElementById("post-desc");
@@ -389,817 +392,184 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
     const sourceUrlInput = document.getElementById("post-source-url");
     const featuredCheck = document.getElementById("post-featured");
     const draftCheck = document.getElementById("post-draft");
+
+    const actorNameInput = document.getElementById("actor-name");
+    const actorSlugInput = document.getElementById("actor-slug");
+    const actorStatusInput = document.getElementById("actor-status");
+    const actorOriginInput = document.getElementById("actor-origin");
+    const actorFirstSeenInput = document.getElementById("actor-first-seen");
+    const actorLastSeenInput = document.getElementById("actor-last-seen");
+    const actorMotivationInput = document.getElementById("actor-motivation");
+    const actorAliasesInput = document.getElementById("actor-aliases");
+    const actorTargetsInput = document.getElementById("actor-targets");
+    const actorToolsInput = document.getElementById("actor-tools");
+    const actorTtpsInput = document.getElementById("actor-ttps");
+    const actorTagsInput = document.getElementById("actor-tags");
+    const actorRelatedPostsInput = document.getElementById("actor-related-posts");
+    const actorFeaturedCheck = document.getElementById("actor-featured");
+
     const editor = document.getElementById("markdown-editor");
     const editingIndicator = document.getElementById("editing-indicator");
-    const imageFileInput = document.getElementById("image-file-input");
-
-    // Preview elements
-    const previewTitle = document.getElementById("preview-title");
-    const previewDesc = document.getElementById("preview-desc");
-    const previewBadge = document.getElementById("preview-section-badge");
-    const previewTags = document.getElementById("preview-tags-wrap");
-    const previewBody = document.getElementById("preview-body");
-
-    // Dialogs
-    const tokenDialog = document.getElementById("token-dialog");
-    const tokenModalOpen = document.getElementById("token-modal-open");
-    const tokenDialogClose = document.getElementById("token-dialog-close");
-    const tokenInput = document.getElementById("github-token-input");
-    const tokenSaveBtn = document.getElementById("token-save-btn");
-    const tokenClearBtn = document.getElementById("token-clear-btn");
-    const tokenVerifyMsg = document.getElementById("token-verify-msg");
-    const authIndicator = document.getElementById("auth-status-indicator");
-    const authText = document.getElementById("auth-status-text");
-    const authIcon = document.getElementById("auth-status-icon");
-
-    const libraryDialog = document.getElementById("library-dialog");
-    const libraryModalOpen = document.getElementById("library-modal-open");
-    const libraryDialogClose = document.getElementById("library-dialog-close");
-    const librarySearch = document.getElementById("library-search");
-    const libraryList = document.getElementById("library-list");
-
-    const deleteDialog = document.getElementById("delete-dialog");
-    const deleteDialogClose = document.getElementById("delete-dialog-close");
-    const deleteCancelBtn = document.getElementById("delete-cancel-btn");
-    const deleteConfirmBtn = document.getElementById("delete-confirm-btn");
-    const deleteTargetTitle = document.getElementById("delete-target-title");
-    let pendingDeleteSlug = "";
-
-    // Smart Importer Dialog
-    const importDialog = document.getElementById("import-dialog");
-    const importModalOpen = document.getElementById("studio-import-btn");
-    const importDialogClose = document.getElementById("import-dialog-close");
-    const importCancelBtn = document.getElementById("import-cancel-btn");
-    const importProcessBtn = document.getElementById("import-process-btn");
-    const smartPasteBox = document.getElementById("smart-paste-box");
-    const pastePlaceholder = document.getElementById("paste-placeholder");
-    const importOptMetadata = document.getElementById("import-opt-metadata");
-    const importOptImages = document.getElementById("import-opt-images");
-    const importOptDefang = document.getElementById("import-opt-defang");
-    const importProgressBox = document.getElementById("import-progress-box");
-    const importProgressText = document.getElementById("import-progress-text");
-
-    // Action buttons
     const publishBtn = document.getElementById("studio-publish-btn");
-    const newBtn = document.getElementById("studio-new-btn");
-    const saveDraftBtn = document.getElementById("studio-save-draft");
+    const libraryList = document.getElementById("library-list");
+    const deleteDialog = document.getElementById("delete-dialog");
+    const deleteTargetTitle = document.getElementById("delete-target-title");
+    const deleteConfirmBtn = document.getElementById("delete-confirm-btn");
     const alertBox = document.getElementById("studio-alert");
     const alertMsg = document.getElementById("studio-alert-msg");
     const alertIcon = document.getElementById("studio-alert-icon");
 
-    if (dateInput) {
-      dateInput.value = new Date().toISOString().split("T")[0];
-    }
+    function generateSlug(text) { return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, ""); }
 
-    function generateSlug(text) {
-      return text
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/(^-|-$)+/g, "");
-    }
-
-    titleInput?.addEventListener("input", () => {
-      if (!slugInput.dataset.manual && !currentOriginalSlug) {
-        slugInput.value = generateSlug(titleInput.value);
-      }
-      updatePreview();
-    });
-
-    slugInput?.addEventListener("input", () => {
-      slugInput.dataset.manual = "true";
+    document.querySelectorAll(".studio-tab").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const type = tab.getAttribute("data-type");
+        if (type === currentStudioMode) return;
+        document.querySelectorAll(".studio-tab").forEach((t) => t.classList.remove("is-active"));
+        tab.classList.add("is-active");
+        currentStudioMode = type;
+        if (type === "actors") {
+          document.getElementById("form-blog").style.display = "none";
+          document.getElementById("form-actors").style.display = "block";
+        } else {
+          document.getElementById("form-blog").style.display = "block";
+          document.getElementById("form-actors").style.display = "none";
+        }
+        resetToNewPost();
+      });
     });
 
     function updatePreview() {
-      if (previewTitle) previewTitle.textContent = titleInput.value.trim() || "Untitled Investigation";
-      if (previewDesc) previewDesc.textContent = descInput.value.trim() || "Description summary will appear here...";
-      if (previewBadge) previewBadge.textContent = sectionInput.value === "reports" ? "Investigation Report" : "CTF Writeup";
-
-      if (previewTags) {
-        const rawTags = tagsInput.value.split(",").map((t) => t.trim()).filter(Boolean);
-        previewTags.innerHTML = rawTags.map((t) => `<span class="article-tag-chip">#${t}</span>`).join("");
+      if (currentStudioMode === "actors") {
+        document.getElementById("preview-title").textContent = actorNameInput.value.trim() || "Threat Intel Dossier";
+        document.getElementById("preview-desc").textContent = actorMotivationInput.value.trim() || "Motivation summary...";
+      } else {
+        document.getElementById("preview-title").textContent = titleInput.value.trim() || "Untitled";
+        document.getElementById("preview-desc").textContent = descInput.value.trim() || "Description summary...";
       }
-
-      if (previewBody && typeof marked !== "undefined") {
-        const rawContent = editor.value.trim();
-        previewBody.innerHTML = rawContent ? marked.parse(rawContent) : "<p><em>Start typing to see the rendered manuscript...</em></p>";
+      if (typeof marked !== "undefined") {
+        document.getElementById("preview-body").innerHTML = marked.parse(editor.value);
       }
     }
 
-    [descInput, sectionInput, tagsInput, editor].forEach((el) => {
-      el?.addEventListener("input", updatePreview);
-    });
+    [titleInput, actorNameInput, editor, descInput, actorMotivationInput].forEach(el => el?.addEventListener("input", updatePreview));
 
-    // Reset / New Post
     function resetToNewPost() {
       currentOriginalSlug = "";
       currentOriginalSha = "";
-      titleInput.value = "";
-      slugInput.value = "";
-      delete slugInput.dataset.manual;
-      descInput.value = "";
-      sectionInput.value = "reports";
-      tagsInput.value = "dfir, investigation";
-      coverInput.value = "";
-      dateInput.value = new Date().toISOString().split("T")[0];
-      sourceUrlInput.value = "";
-      featuredCheck.checked = false;
-      draftCheck.checked = false;
       editor.value = "";
-      editingIndicator.textContent = "New Post Mode";
-      editingIndicator.style.color = "var(--secondary)";
-      publishBtn.innerHTML = `<span class="material-symbols-outlined">rocket_launch</span> Publish to GitHub`;
+      editingIndicator.textContent = "New Mode";
       updatePreview();
-      showAlert("Ready to create a new post.", "info");
     }
 
-    newBtn?.addEventListener("click", resetToNewPost);
-
-    // Load Post into Editor
-    function loadPostIntoEditor(post) {
-      currentOriginalSlug = post.slug;
-      currentOriginalSha = "";
-      titleInput.value = post.title || "";
-      slugInput.value = post.slug || "";
-      slugInput.dataset.manual = "true";
-      descInput.value = post.description || "";
-      sectionInput.value = post.archiveSection || "reports";
-      tagsInput.value = (post.tags || []).join(", ");
-      coverInput.value = post.cover || "";
-      dateInput.value = post.publishedAt || "";
-      sourceUrlInput.value = post.sourceUrl || "";
-      featuredCheck.checked = Boolean(post.featured);
-      draftCheck.checked = Boolean(post.draft);
-      editor.value = post.body || "";
-
-      editingIndicator.textContent = `Editing: ${post.slug}.md`;
-      editingIndicator.style.color = "var(--primary)";
-      publishBtn.innerHTML = `<span class="material-symbols-outlined">sync</span> Update Post on GitHub`;
-      updatePreview();
-      libraryDialog.close();
-      showAlert(`Loaded "${post.title}" into editor for updating.`, "success");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-
-    // Render Library List
-    function renderLibrary(filterText = "") {
-      if (!libraryList) return;
-      const query = filterText.trim().toLowerCase();
-      const filtered = libraryPosts.filter((p) => {
-        const text = `${p.title} ${p.slug} ${(p.tags || []).join(" ")}`.toLowerCase();
-        return !query || text.includes(query);
-      });
-
-      if (filtered.length === 0) {
-        libraryList.innerHTML = `<p class="validator-state">No matching articles found.</p>`;
-        return;
+    function loadPostIntoEditor(item, type = "blog") {
+      currentOriginalSlug = item.slug;
+      currentStudioMode = type;
+      if (type === "actors") {
+        actorNameInput.value = item.name;
+        actorMotivationInput.value = item.motivation;
+        editor.value = item.body;
+      } else {
+        titleInput.value = item.title;
+        descInput.value = item.description;
+        editor.value = item.body;
       }
+      editingIndicator.textContent = `Editing: ${type}/${item.slug}.md`;
+      updatePreview();
+      document.getElementById("library-dialog").close();
+    }
 
-      libraryList.innerHTML = filtered.map((post) => `
+    function renderLibrary(filterText = "") {
+      const query = filterText.trim().toLowerCase();
+      const combined = [
+        ...libraryPosts.map((p) => ({ ...p, __type: "blog" })),
+        ...libraryActors.map((a) => ({ ...a, __type: "actors" }))
+      ];
+      const filtered = combined.filter((item) => {
+        const title = item.title || item.name || "";
+        return !query || title.toLowerCase().includes(query);
+      });
+      libraryList.innerHTML = filtered.map((item) => `
         <div class="library-item-card">
-          <div class="library-item-info">
-            <span class="library-item-meta">${post.publishedAt} // ${post.archiveSection.toUpperCase()}</span>
-            <h4 class="library-item-title">${post.title}</h4>
-            <span class="library-item-slug mono">src/content/blog/${post.slug}.md</span>
-          </div>
-          <div class="library-item-actions">
-            <button type="button" class="button button-ghost btn-sm" onclick="window._loadPost('${post.slug}')">
-              <span class="material-symbols-outlined">edit</span> Edit
-            </button>
-            <a href="/blog/${post.slug}/" target="_blank" class="button button-ghost btn-sm">
-              <span class="material-symbols-outlined">visibility</span> View
-            </a>
-            <button type="button" class="button button-ghost btn-sm btn-delete" onclick="window._promptDelete('${post.slug}', '${post.title.replace(/'/g, "\\'")}')">
-              <span class="material-symbols-outlined">delete</span> Delete
-            </button>
-          </div>
+          <h4>${item.name || item.title}</h4>
+          <button onclick="window._loadItem('${item.slug}', '${item.__type}')">Edit</button>
+          <button onclick="window._confirmDelete('${item.slug}', '${item.name || item.title}', '${item.__type}')">Delete</button>
         </div>
       `).join("");
     }
 
-    window._loadPost = (slug) => {
-      const post = libraryPosts.find((p) => p.slug === slug);
-      if (post) loadPostIntoEditor(post);
+    window._loadItem = (slug, type) => {
+      const list = type === "actors" ? libraryActors : libraryPosts;
+      const item = list.find((p) => p.slug === slug);
+      if (item) loadPostIntoEditor(item, type);
     };
 
-    window._promptDelete = (slug, title) => {
+    let pendingDeleteSlug = "";
+    let pendingDeleteType = "blog";
+    window._confirmDelete = (slug, title, type = "blog") => {
       pendingDeleteSlug = slug;
-      deleteTargetTitle.textContent = title;
+      pendingDeleteType = type;
+      deleteTargetTitle.textContent = `${title} (${type}/${slug}.md)`;
       deleteDialog.showModal();
     };
 
-    libraryModalOpen?.addEventListener("click", () => {
-      renderLibrary(librarySearch.value);
-      libraryDialog.showModal();
+    document.getElementById("library-modal-open")?.addEventListener("click", () => {
+      renderLibrary();
+      document.getElementById("library-dialog").showModal();
     });
 
-    libraryDialogClose?.addEventListener("click", () => libraryDialog.close());
-    librarySearch?.addEventListener("input", (e) => renderLibrary(e.target.value));
+    function getStoredToken() { return localStorage.getItem(TOKEN_KEY) || ""; }
 
-    // Delete post execution
-    deleteDialogClose?.addEventListener("click", () => deleteDialog.close());
-    deleteCancelBtn?.addEventListener("click", () => deleteDialog.close());
-
-    deleteConfirmBtn?.addEventListener("click", async () => {
-      const token = getStoredToken();
-      if (!token) {
-        deleteDialog.close();
-        tokenModalOpen?.click();
-        showAlert("Please configure your GitHub token to delete files.", "error");
-        return;
-      }
-
-      const slug = pendingDeleteSlug;
-      const targetPath = `src/content/blog/${slug}.md`;
-      deleteConfirmBtn.disabled = true;
-      deleteConfirmBtn.textContent = "Deleting from GitHub...";
-
-      try {
-        // 1. Get SHA of file to delete
-        const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}?ref=${GITHUB_BRANCH}`, {
-          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
-        });
-
-        if (!getRes.ok) {
-          showAlert(`Failed to locate ${targetPath} on GitHub.`, "error");
-          deleteDialog.close();
-          return;
-        }
-
-        const fileData = await getRes.json();
-
-        // 2. Delete file via GitHub API
-        const delRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}`, {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github+json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: `feat(content): remove "${slug}.md" via Inked Intel Studio`,
-            sha: fileData.sha,
-            branch: GITHUB_BRANCH
-          })
-        });
-
-        if (delRes.ok) {
-          // Remove from local library list
-          libraryPosts = libraryPosts.filter((p) => p.slug !== slug);
-          document.getElementById("library-count").textContent = String(libraryPosts.length);
-          renderLibrary(librarySearch.value);
-          deleteDialog.close();
-          showAlert(`🗑️ Successfully deleted "${slug}.md" from GitHub. Site is updating!`, "success");
-          if (currentOriginalSlug === slug) resetToNewPost();
-        } else {
-          const err = await delRes.json();
-          showAlert(`Deletion failed: ${err.message || "Unknown error"}`, "error");
-        }
-      } catch (e) {
-        showAlert("Network error while deleting post.", "error");
-      } finally {
-        deleteConfirmBtn.disabled = false;
-        deleteConfirmBtn.textContent = "Yes, Delete from GitHub";
-      }
-    });
-
-    // Image Upload directly to GitHub
-    imageFileInput?.addEventListener("change", async (e) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-
-      const token = getStoredToken();
-      if (!token) {
-        tokenModalOpen?.click();
-        showAlert("Configure your GitHub token to upload images directly.", "error");
-        return;
-      }
-
-      showAlert(`Uploading "${file.name}" to GitHub media repository...`, "info");
-
-      try {
-        const reader = new FileReader();
-        reader.onload = async () => {
-          const base64Data = reader.result.split(",")[1];
-          const cleanFileName = `${Date.now()}_${file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-")}`;
-          const uploadPath = `public/images/uploads/${cleanFileName}`;
-
-          const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${uploadPath}`, {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              Accept: "application/vnd.github+json",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              message: `feat(media): upload image "${cleanFileName}" via Inked Intel Studio`,
-              content: base64Data,
-              branch: GITHUB_BRANCH
-            })
-          });
-
-          if (res.ok) {
-            const rawUrl = `/images/uploads/${cleanFileName}`;
-            const figureSnippet = `\n\n<figure><img src="${rawUrl}" alt="${file.name.replace(/\.[^/.]+$/, "")}" /><figcaption>Exhibit: ${file.name.replace(/\.[^/.]+$/, "")}</figcaption></figure>\n\n`;
-            
-            const start = editor.selectionStart;
-            const end = editor.selectionEnd;
-            editor.setRangeText(figureSnippet, start, end, "end");
-            editor.focus();
-            updatePreview();
-            showAlert(`✅ Image uploaded and inserted into article!`, "success");
-          } else {
-            showAlert("Failed to upload image to GitHub repository.", "error");
-          }
-        };
-        reader.readAsDataURL(file);
-      } catch (err) {
-        showAlert("Error reading or uploading image.", "error");
-      }
-    });
-
-    // =========================================================================
-    // SMART WEB & MEDIUM IMPORTER ENGINE
-    // =========================================================================
-
-    function getTurndownService() {
-      if (typeof TurndownService === "undefined") return null;
-      const td = new TurndownService({
-        headingStyle: "atx",
-        hr: "---",
-        bulletListMarker: "-",
-        codeBlockStyle: "fenced",
-        emDelimiter: "*"
-      });
-
-      // Format figures with images and captions
-      td.addRule("figure", {
-        filter: "figure",
-        replacement: function (content, node) {
-          const img = node.querySelector("img");
-          const caption = node.querySelector("figcaption");
-          if (img) {
-            const src = img.getAttribute("src") || img.getAttribute("data-src") || "";
-            const alt = img.getAttribute("alt") || caption?.textContent?.trim() || "Article Exhibit";
-            const capText = caption?.textContent?.trim() || "";
-            return `\n\n<figure><img src="${src}" alt="${alt}" />${capText ? `<figcaption>${capText}</figcaption>` : ""}</figure>\n\n`;
-          }
-          return content;
-        }
-      });
-
-      // Direct images
-      td.addRule("img", {
-        filter: function (node) {
-          return node.nodeName === "IMG" && node.parentNode.nodeName !== "FIGURE";
-        },
-        replacement: function (content, node) {
-          const src = node.getAttribute("src") || node.getAttribute("data-src") || "";
-          const alt = node.getAttribute("alt") || "Article Exhibit";
-          return `\n\n<figure><img src="${src}" alt="${alt}" /><figcaption>${alt}</figcaption></figure>\n\n`;
-        }
-      });
-
-      // Medium code blocks
-      td.addRule("pre", {
-        filter: "pre",
-        replacement: function (content, node) {
-          const text = node.textContent || "";
-          return `\n\n\`\`\`bash\n${text.trim()}\n\`\`\`\n\n`;
-        }
-      });
-
-      // Clean Medium noise tags
-      td.remove(["script", "style", "nav", "button", "footer", "iframe", "svg"]);
-
-      return td;
-    }
-
-    async function uploadBase64Image(base64Data, filename, token) {
-      const uploadPath = `public/images/uploads/${filename}`;
-      const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${uploadPath}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github+json",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: `feat(media): auto-host imported image "${filename}" via Inked Intel Studio`,
-          content: base64Data,
-          branch: GITHUB_BRANCH
-        })
-      });
-      return res.ok;
-    }
-
-    function getImageBase64ViaCanvas(url) {
-      return new Promise((resolve) => {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-          try {
-            const canvas = document.createElement("canvas");
-            canvas.width = img.naturalWidth || img.width || 800;
-            canvas.height = img.naturalHeight || img.height || 600;
-            const ctx = canvas.getContext("2d");
-            ctx.drawImage(img, 0, 0);
-            const dataUrl = canvas.toDataURL("image/png");
-            resolve(dataUrl.split(",")[1]);
-          } catch (e) {
-            resolve(null);
-          }
-        };
-        img.onerror = () => resolve(null);
-        img.src = url;
-      });
-    }
-
-    let currentImportHtml = "";
-
-    async function processSmartImport(rawHtmlOrText) {
-      if (!rawHtmlOrText || !rawHtmlOrText.trim()) {
-        showAlert("Please paste some content first.", "error");
-        return;
-      }
-
-      const shouldExtractMeta = importOptMetadata?.checked ?? true;
-      const shouldSelfHostImages = importOptImages?.checked ?? true;
-      const token = getStoredToken();
-
-      if (importProgressBox) importProgressBox.hidden = false;
-      if (importProgressText) importProgressText.textContent = "Parsing article structure...";
-
-      try {
-        const parser = new DOMParser();
-        let doc = parser.parseFromString(rawHtmlOrText, "text/html");
-
-        // Clean out Medium UI widgets & accessibility text
-        doc.querySelectorAll("button, nav, svg, .speechify-ignore, [aria-label*='Zoom'], [data-testid='header']").forEach(el => el.remove());
-
-        // Strip "Press enter or click to view image in full size" text
-        const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
-        const textNodes = [];
-        while (walker.nextNode()) textNodes.push(walker.currentNode);
-        textNodes.forEach(node => {
-          if (node.nodeValue) {
-            node.nodeValue = node.nodeValue
-              .replace(/Press enter or click to view image in full size/gi, "")
-              .replace(/Listen\s+Share/gi, "")
-              .replace(/Follow\s+Published in/gi, "");
-          }
-        });
-
-        // 1. Auto-extract Metadata if enabled
-        if (shouldExtractMeta) {
-          const firstH1 = doc.querySelector("h1, h2, h3, [data-headline]");
-          if (firstH1 && firstH1.textContent && firstH1.textContent.trim().length > 3) {
-            titleInput.value = firstH1.textContent.trim();
-            slugInput.value = generateSlug(titleInput.value);
-            firstH1.remove(); // Don't repeat title in body
-          }
-
-          const firstP = doc.querySelector("p");
-          if (firstP && firstP.textContent && firstP.textContent.trim().length > 10) {
-            descInput.value = firstP.textContent.trim().slice(0, 180);
-          }
-        }
-
-        // 2. Scan and Self-Host Images
-        const images = Array.from(doc.querySelectorAll("img"));
-        let uploadedCount = 0;
-        let firstUploadedUrl = "";
-
-        if (shouldSelfHostImages && images.length > 0 && token) {
-          const timestamp = Date.now();
-          for (let i = 0; i < images.length; i++) {
-            const img = images[i];
-            const originalSrc = img.getAttribute("src") || img.getAttribute("data-src") || "";
-            if (!originalSrc || originalSrc.startsWith("/images/")) continue;
-
-            if (importProgressText) {
-              importProgressText.textContent = `Self-hosting image (${i + 1}/${images.length}) to GitHub...`;
-            }
-
-            const base64Data = await getImageBase64ViaCanvas(originalSrc);
-            if (base64Data) {
-              const cleanName = `${timestamp}_img_${String(i + 1).padStart(2, "0")}.png`;
-              const success = await uploadBase64Image(base64Data, cleanName, token);
-              if (success) {
-                const localPath = `/images/uploads/${cleanName}`;
-                img.setAttribute("src", localPath);
-                if (!firstUploadedUrl) firstUploadedUrl = localPath;
-                uploadedCount++;
-              }
-            }
-          }
-        }
-
-        // Set Cover Image if found
-        if (firstUploadedUrl && (!coverInput.value || coverInput.value.startsWith("http"))) {
-          coverInput.value = firstUploadedUrl;
-        }
-
-        // 3. Convert HTML to Clean Markdown
-        const td = getTurndownService();
-        let markdown = td ? td.turndown(doc.body.innerHTML) : doc.body.innerText;
-
-        // Auto-defang IOCs if enabled
-        if (importOptDefang?.checked) {
-          markdown = defangIOCs(markdown);
-        }
-
-        // Clean redundant empty lines
-        markdown = markdown.replace(/\n{3,}/g, "\n\n").trim();
-
-        editor.value = markdown;
-        updatePreview();
-        importDialog.close();
-
-        if (uploadedCount > 0) {
-          showAlert(`✨ Article converted & ${uploadedCount} screenshots self-hosted to GitHub!`, "success");
-        } else {
-          showAlert(`✨ Article successfully converted and loaded into editor!`, "success");
-        }
-      } catch (err) {
-        console.error(err);
-        showAlert("Error during article conversion. Please check the content.", "error");
-      } finally {
-        if (importProgressBox) importProgressBox.hidden = true;
-      }
-    }
-
-    // Modal Triggers
-    importModalOpen?.addEventListener("click", () => {
-      currentImportHtml = "";
-      if (smartPasteBox) {
-        smartPasteBox.innerHTML = `
-          <div class="paste-placeholder" id="paste-placeholder">
-            <div class="paste-zone-icon">📋</div>
-            <p class="paste-zone-title"><strong>Click here &amp; press Ctrl+V to paste</strong></p>
-            <p class="paste-zone-sub">Your formatted text, headings, code, and screenshots will appear here</p>
-          </div>
-        `;
-      }
-      if (importProgressBox) importProgressBox.hidden = true;
-      importDialog.showModal();
-      setTimeout(() => smartPasteBox?.focus(), 150);
-    });
-
-    importDialogClose?.addEventListener("click", () => importDialog.close());
-    importCancelBtn?.addEventListener("click", () => importDialog.close());
-
-    // Paste in Smart ContentEditable Box
-    smartPasteBox?.addEventListener("paste", (e) => {
-      const html = e.clipboardData?.getData("text/html");
-      const text = e.clipboardData?.getData("text/plain");
-      currentImportHtml = html || text || "";
-      
-      // Let the browser paste visually into the box, then automatically trigger import
-      setTimeout(() => {
-        const content = currentImportHtml || smartPasteBox.innerHTML;
-        processSmartImport(content);
-      }, 120);
-    });
-
-    // Process button click fallback
-    importProcessBtn?.addEventListener("click", () => {
-      const content = currentImportHtml || smartPasteBox?.innerHTML || "";
-      processSmartImport(content);
-    });
-
-    // Direct Paste Interception on Markdown Editor Textarea
-    editor?.addEventListener("paste", (e) => {
-      const html = e.clipboardData?.getData("text/html");
-      if (html && (html.includes("<p>") || html.includes("<h") || html.includes("<img") || html.includes("<figure>"))) {
-        const td = getTurndownService();
-        if (td) {
-          e.preventDefault();
-          const markdown = td.turndown(html).replace(/\n{3,}/g, "\n\n");
-          const start = editor.selectionStart;
-          const end = editor.selectionEnd;
-          editor.setRangeText(markdown, start, end, "end");
-          updatePreview();
-          showAlert("✨ Converted rich clipboard HTML to clean Markdown!", "info");
-        }
-      }
-    });
-
-    // Auth & Token Management
-    function getStoredToken() {
-      return localStorage.getItem(TOKEN_KEY) || "";
-    }
-
-    function checkAuthStatus() {
-      const token = getStoredToken();
-      if (token) {
-        authIndicator.classList.add("is-connected");
-        authIcon.textContent = "verified_user";
-        authText.textContent = "GitHub Token Active";
-      } else {
-        authIndicator.classList.remove("is-connected");
-        authIcon.textContent = "key_off";
-        authText.textContent = "GitHub Token Required";
-      }
-    }
-
-    tokenModalOpen?.addEventListener("click", () => {
-      tokenInput.value = getStoredToken();
-      tokenVerifyMsg.textContent = "";
-      tokenDialog.showModal();
-    });
-
-    tokenDialogClose?.addEventListener("click", () => tokenDialog.close());
-
-    tokenSaveBtn?.addEventListener("click", async () => {
-      const token = tokenInput.value.trim();
-      if (!token) {
-        tokenVerifyMsg.textContent = "Please enter a token.";
-        tokenVerifyMsg.className = "validator-state is-error";
-        return;
-      }
-
-      tokenVerifyMsg.textContent = "Verifying with GitHub...";
-      tokenVerifyMsg.className = "validator-state is-pending";
-
-      try {
-        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`, {
-          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
-        });
-
-        if (res.ok) {
-          localStorage.setItem(TOKEN_KEY, token);
-          tokenVerifyMsg.textContent = "✅ Connected to xElessaway/xElessaway.github.io successfully!";
-          tokenVerifyMsg.className = "validator-state is-solved";
-          checkAuthStatus();
-          setTimeout(() => tokenDialog.close(), 1200);
-        } else {
-          tokenVerifyMsg.textContent = "❌ Failed: Check that the token has repository access.";
-          tokenVerifyMsg.className = "validator-state is-error";
-        }
-      } catch (err) {
-        tokenVerifyMsg.textContent = "❌ Verification error: Network request failed.";
-        tokenVerifyMsg.className = "validator-state is-error";
-      }
-    });
-
-    tokenClearBtn?.addEventListener("click", () => {
-      localStorage.removeItem(TOKEN_KEY);
-      tokenInput.value = "";
-      tokenVerifyMsg.textContent = "Token removed.";
-      tokenVerifyMsg.className = "validator-state";
-      checkAuthStatus();
-    });
-
-    function showAlert(message, type = "info") {
-      if (!alertBox || !alertMsg) return;
-      alertMsg.textContent = message;
-      alertBox.hidden = false;
-      alertBox.className = `studio-alert alert-${type}`;
-
-      if (type === "success") alertIcon.textContent = "check_circle";
-      else if (type === "error") alertIcon.textContent = "error";
-      else alertIcon.textContent = "info";
-    }
-
-    // Save Local Draft
-    saveDraftBtn?.addEventListener("click", () => {
-      const draft = {
-        title: titleInput.value,
-        slug: slugInput.value,
-        desc: descInput.value,
-        section: sectionInput.value,
-        tags: tagsInput.value,
-        cover: coverInput.value,
-        date: dateInput.value,
-        sourceUrl: sourceUrlInput.value,
-        featured: featuredCheck.checked,
-        draft: draftCheck.checked,
-        body: editor.value,
-        originalSlug: currentOriginalSlug
-      };
-      localStorage.setItem("xelessaway_studio_draft", JSON.stringify(draft));
-      showAlert("Draft saved locally in your browser storage!", "success");
-    });
-
-    // Publish to GitHub via REST API
     publishBtn?.addEventListener("click", async () => {
       const token = getStoredToken();
-      if (!token) {
-        tokenModalOpen?.click();
-        showAlert("Please configure your GitHub token first.", "error");
-        return;
+      if (!token) { alert("Configure token first."); return; }
+      
+      let targetPath = "", markdownFile = "", itemTitle = "", itemSlug = "";
+      if (currentStudioMode === "actors") {
+        itemTitle = actorNameInput.value.trim();
+        itemSlug = actorSlugInput.value.trim() || generateSlug(itemTitle);
+        targetPath = `src/content/actors/${itemSlug}.md`;
+        markdownFile = `---
+name: "${itemTitle}"
+status: "${actorStatusInput.value}"
+motivation: "${actorMotivationInput.value}"
+---
+${editor.value}`;
+      } else {
+        itemTitle = titleInput.value.trim();
+        itemSlug = slugInput.value.trim() || generateSlug(itemTitle);
+        targetPath = `src/content/blog/${itemSlug}.md`;
+        markdownFile = `---
+title: "${itemTitle}"
+description: "${descInput.value}"
+---
+${editor.value}`;
       }
 
-      const title = titleInput.value.trim();
-      const slug = slugInput.value.trim() || generateSlug(title);
-      const desc = descInput.value.trim();
-      const body = editor.value.trim();
-
-      if (!title || !desc || !body) {
-        showAlert("Please fill in the Title, Description, and Article Body before publishing.", "error");
-        return;
-      }
-
-      const rawTags = tagsInput.value.split(",").map((t) => `"${t.trim()}"`).filter((t) => t !== '""').join("\n  - ");
-      const targetPath = `src/content/blog/${slug}.md`;
-
-      const markdownFile = `---
-title: "${title.replace(/"/g, '\\"')}"
-description: "${desc.replace(/"/g, '\\"')}"
-publishedAt: ${dateInput.value || new Date().toISOString().split("T")[0]}
-archiveSection: ${sectionInput.value}
-tags:
-  - ${rawTags || '"investigation"'}
-${coverInput.value ? `cover: "${coverInput.value.trim()}"\n` : ""}featured: ${featuredCheck.checked}
-draft: ${draftCheck.checked}
-${sourceUrlInput.value ? `sourceLabel: "Medium"\nsourceUrl: "${sourceUrlInput.value.trim()}"\n` : ""}---
-
-${body}
-`;
-
-      showAlert("Connecting to GitHub & saving file...", "info");
       publishBtn.disabled = true;
-
       try {
-        // 1. Get SHA if updating file
-        let sha = undefined;
-        const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}?ref=${GITHUB_BRANCH}`, {
-          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
-        });
-
-        if (checkRes.ok) {
-          const fileData = await checkRes.json();
-          sha = fileData.sha;
-        }
-
-        // 2. Encode to UTF-8 Base64
         const utf8Bytes = new TextEncoder().encode(markdownFile);
-        let binaryString = "";
-        utf8Bytes.forEach((byte) => { binaryString += String.fromCharCode(byte); });
-        const base64Content = btoa(binaryString);
-
-        // 3. Commit to GitHub
-        const isUpdate = Boolean(sha || currentOriginalSlug);
-        const commitMsg = isUpdate
-          ? `feat(content): update "${title}" via Inked Intel Studio`
-          : `feat(content): publish "${title}" via Inked Intel Studio`;
-
+        const base64Content = btoa(String.fromCharCode(...utf8Bytes));
+        
         const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}`, {
           method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github+json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            message: commitMsg,
-            content: base64Content,
-            branch: GITHUB_BRANCH,
-            ...(sha ? { sha } : {})
-          })
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ message: "Update via Studio", content: base64Content, branch: GITHUB_BRANCH })
         });
 
         if (putRes.ok) {
-          showAlert(`🎉 ${isUpdate ? "Updated" : "Published"} successfully! Live build is running on GitHub Actions (~30s).`, "success");
-          
-          // Update local memory list
-          const existingIdx = libraryPosts.findIndex((p) => p.slug === slug);
-          const postData = {
-            slug,
-            title,
-            description: desc,
-            publishedAt: dateInput.value,
-            archiveSection: sectionInput.value,
-            tags: tagsInput.value.split(",").map((t) => t.trim()),
-            cover: coverInput.value,
-            featured: featuredCheck.checked,
-            draft: draftCheck.checked,
-            sourceUrl: sourceUrlInput.value,
-            body
-          };
-
-          if (existingIdx >= 0) {
-            libraryPosts[existingIdx] = postData;
-          } else {
-            libraryPosts.unshift(postData);
-          }
-
-          document.getElementById("library-count").textContent = String(libraryPosts.length);
-          currentOriginalSlug = slug;
-          editingIndicator.textContent = `Editing: ${slug}.md`;
+          alert("Published successfully!");
+          editingIndicator.textContent = `Editing: ${currentStudioMode}/${itemSlug}.md`;
         } else {
-          const errData = await putRes.json();
-          showAlert(`Failed to publish: ${errData.message || "Unknown GitHub API error."}`, "error");
+          alert("Failed to publish.");
         }
       } catch (err) {
-        showAlert("Network error publishing to GitHub.", "error");
+        alert("Network error.");
       } finally {
         publishBtn.disabled = false;
       }
     });
 
-    // =========================================================================
-    // IOC DEFANGER ENGINE
     // =========================================================================
     function defangIOCs(text) {
       if (!text) return "";

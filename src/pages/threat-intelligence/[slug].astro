@@ -27,7 +27,13 @@ const allPosts = await getCollection("blog", ({ data }) => !data.draft);
 const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts.includes(post.slug));
 ---
 
-<BaseLayout title={`${entry.data.name} | Threat Intel`} description={entry.data.motivation}>
+<BaseLayout
+  title={`${entry.data.name} | Threat Intelligence Dossier`}
+  description={entry.data.motivation}
+  type="article"
+  section="Threat Intelligence"
+  tags={entry.data.tags}
+>
   <section class="dossier-hero">
     <div class="container">
       <article class="panel dossier-hero-panel">
