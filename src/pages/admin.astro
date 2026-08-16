@@ -314,24 +314,27 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
       </div>
 
       <p class="studio-dialog-desc">
-        Select all &amp; copy your article from Medium or any website (<strong>Ctrl+A &rarr; Ctrl+C</strong>), then click the paste box below and press <strong>Ctrl+V</strong>. We will automatically extract the Title, Description, format all headings/code/quotes, and self-host all images directly into your GitHub repository!
+        Select and copy your article on Medium (<strong>Ctrl+C</strong>), then click anywhere in the box below and press <strong>Ctrl+V</strong>. Headings, code blocks, quotes, and screenshots will be automatically converted and loaded!
       </p>
 
-      <div id="smart-paste-zone" class="smart-paste-zone" tabindex="0">
-        <div class="paste-zone-icon">📋</div>
-        <p class="paste-zone-title"><strong>Click here &amp; press Ctrl+V to paste</strong></p>
-        <p class="paste-zone-sub">or paste rich HTML/text in the field below</p>
+      <!-- Live Rich Paste Area (contenteditable preserves full HTML DOM and images) -->
+      <div
+        id="smart-paste-box"
+        class="smart-paste-box"
+        contenteditable="true"
+        spellcheck="false"
+      >
+        <div class="paste-placeholder" id="paste-placeholder">
+          <div class="paste-zone-icon">📋</div>
+          <p class="paste-zone-title"><strong>Click here &amp; press Ctrl+V to paste</strong></p>
+          <p class="paste-zone-sub">Your formatted text, headings, code, and screenshots will appear here</p>
+        </div>
       </div>
-
-      <label class="studio-field studio-field-wide" style="margin-top: 1rem;">
-        <span class="studio-label">Raw HTML or Article Content (Optional)</span>
-        <textarea id="import-raw-input" class="studio-input mono" rows="4" placeholder="Paste HTML or rich text here..."></textarea>
-      </label>
 
       <div class="import-options-row" style="display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 1rem 0;">
         <label class="studio-checkbox-label">
           <input type="checkbox" id="import-opt-metadata" checked />
-          <span>Auto-extract Title, Description, &amp; Tags</span>
+          <span>Auto-detect Title, Description, &amp; Tags</span>
         </label>
         <label class="studio-checkbox-label">
           <input type="checkbox" id="import-opt-images" checked />
@@ -342,7 +345,7 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
       <div class="button-row" style="justify-content: flex-end;">
         <button type="button" class="button button-ghost" id="import-cancel-btn">Cancel</button>
         <button type="button" class="button button-primary" id="import-process-btn">
-          <Icon name="magic" size={16} /> Convert &amp; Load Article
+          <Icon name="magic" size={16} /> Load into Editor
         </button>
       </div>
 
@@ -423,8 +426,8 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
     const importDialogClose = document.getElementById("import-dialog-close");
     const importCancelBtn = document.getElementById("import-cancel-btn");
     const importProcessBtn = document.getElementById("import-process-btn");
-    const smartPasteZone = document.getElementById("smart-paste-zone");
-    const importRawInput = document.getElementById("import-raw-input");
+    const smartPasteBox = document.getElementById("smart-paste-box");
+    const pastePlaceholder = document.getElementById("paste-placeholder");
     const importOptMetadata = document.getElementById("import-opt-metadata");
     const importOptImages = document.getElementById("import-opt-images");
     const importProgressBox = document.getElementById("import-progress-box");
@@ -722,24 +725,45 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
         emDelimiter: "*"
       });
 
-      // Keep figure and figcaption intact or nicely formatted
+      // Format figures with images and captions
       td.addRule("figure", {
         filter: "figure",
         replacement: function (content, node) {
           const img = node.querySelector("img");
           const caption = node.querySelector("figcaption");
           if (img) {
-            const src = img.getAttribute("src") || "";
-            const alt = img.getAttribute("alt") || caption?.textContent?.trim() || "";
-            const capText = caption?.textContent?.trim() || alt;
+            const src = img.getAttribute("src") || img.getAttribute("data-src") || "";
+            const alt = img.getAttribute("alt") || caption?.textContent?.trim() || "Article Exhibit";
+            const capText = caption?.textContent?.trim() || "";
             return `\n\n<figure><img src="${src}" alt="${alt}" />${capText ? `<figcaption>${capText}</figcaption>` : ""}</figure>\n\n`;
           }
           return content;
         }
       });
 
+      // Direct images
+      td.addRule("img", {
+        filter: function (node) {
+          return node.nodeName === "IMG" && node.parentNode.nodeName !== "FIGURE";
+        },
+        replacement: function (content, node) {
+          const src = node.getAttribute("src") || node.getAttribute("data-src") || "";
+          const alt = node.getAttribute("alt") || "Article Exhibit";
+          return `\n\n<figure><img src="${src}" alt="${alt}" /><figcaption>${alt}</figcaption></figure>\n\n`;
+        }
+      });
+
+      // Medium code blocks
+      td.addRule("pre", {
+        filter: "pre",
+        replacement: function (content, node) {
+          const text = node.textContent || "";
+          return `\n\n\`\`\`bash\n${text.trim()}\n\`\`\`\n\n`;
+        }
+      });
+
       // Clean Medium noise tags
-      td.remove(["script", "style", "nav", "button", "footer", "iframe"]);
+      td.remove(["script", "style", "nav", "button", "footer", "iframe", "svg"]);
 
       return td;
     }
@@ -762,23 +786,29 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
       return res.ok;
     }
 
-    async function downloadImageAsBase64(url) {
-      try {
-        const response = await fetch(url);
-        if (!response.ok) return null;
-        const blob = await response.blob();
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const base64 = reader.result.split(",")[1];
-            resolve(base64);
-          };
-          reader.readAsDataURL(blob);
-        });
-      } catch (e) {
-        return null;
-      }
+    function getImageBase64ViaCanvas(url) {
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          try {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.naturalWidth || img.width || 800;
+            canvas.height = img.naturalHeight || img.height || 600;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0);
+            const dataUrl = canvas.toDataURL("image/png");
+            resolve(dataUrl.split(",")[1]);
+          } catch (e) {
+            resolve(null);
+          }
+        };
+        img.onerror = () => resolve(null);
+        img.src = url;
+      });
     }
+
+    let currentImportHtml = "";
 
     async function processSmartImport(rawHtmlOrText) {
       if (!rawHtmlOrText || !rawHtmlOrText.trim()) {
@@ -797,30 +827,38 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
         const parser = new DOMParser();
         let doc = parser.parseFromString(rawHtmlOrText, "text/html");
 
-        // If user pasted pure plain text instead of HTML, wrap in paragraph
-        if (!doc.body.innerHTML.includes("<p>") && !doc.body.innerHTML.includes("<h") && !doc.body.innerHTML.includes("<img")) {
-          doc.body.innerHTML = rawHtmlOrText.split("\n\n").map(p => `<p>${p.trim()}</p>`).join("");
-        }
+        // Clean out Medium UI widgets & accessibility text
+        doc.querySelectorAll("button, nav, svg, .speechify-ignore, [aria-label*='Zoom'], [data-testid='header']").forEach(el => el.remove());
 
-        // Clean out Medium UI widgets (clap buttons, author follow cards)
-        doc.querySelectorAll("button, nav, svg, .speechify-ignore, [data-testid='header']").forEach(el => el.remove());
+        // Strip "Press enter or click to view image in full size" text
+        const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+        textNodes.forEach(node => {
+          if (node.nodeValue) {
+            node.nodeValue = node.nodeValue
+              .replace(/Press enter or click to view image in full size/gi, "")
+              .replace(/Listen\s+Share/gi, "")
+              .replace(/Follow\s+Published in/gi, "");
+          }
+        });
 
-        // 1. Auto-extract Metadata
+        // 1. Auto-extract Metadata if enabled
         if (shouldExtractMeta) {
           const firstH1 = doc.querySelector("h1, h2, h3, [data-headline]");
-          if (firstH1 && firstH1.textContent) {
+          if (firstH1 && firstH1.textContent && firstH1.textContent.trim().length > 3) {
             titleInput.value = firstH1.textContent.trim();
             slugInput.value = generateSlug(titleInput.value);
-            firstH1.remove(); // Remove main title from body so it doesn't duplicate
+            firstH1.remove(); // Don't repeat title in body
           }
 
           const firstP = doc.querySelector("p");
-          if (firstP && firstP.textContent) {
+          if (firstP && firstP.textContent && firstP.textContent.trim().length > 10) {
             descInput.value = firstP.textContent.trim().slice(0, 180);
           }
         }
 
-        // 2. Scan and Self-Host Images to GitHub
+        // 2. Scan and Self-Host Images
         const images = Array.from(doc.querySelectorAll("img"));
         let uploadedCount = 0;
         let firstUploadedUrl = "";
@@ -829,14 +867,14 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
           const timestamp = Date.now();
           for (let i = 0; i < images.length; i++) {
             const img = images[i];
-            const originalSrc = img.getAttribute("src") || "";
+            const originalSrc = img.getAttribute("src") || img.getAttribute("data-src") || "";
             if (!originalSrc || originalSrc.startsWith("/images/")) continue;
 
             if (importProgressText) {
               importProgressText.textContent = `Self-hosting image (${i + 1}/${images.length}) to GitHub...`;
             }
 
-            const base64Data = await downloadImageAsBase64(originalSrc);
+            const base64Data = await getImageBase64ViaCanvas(originalSrc);
             if (base64Data) {
               const cleanName = `${timestamp}_img_${String(i + 1).padStart(2, "0")}.png`;
               const success = await uploadBase64Image(base64Data, cleanName, token);
@@ -867,7 +905,7 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
         importDialog.close();
 
         if (uploadedCount > 0) {
-          showAlert(`✨ Article converted & ${uploadedCount} images self-hosted to GitHub!`, "success");
+          showAlert(`✨ Article converted & ${uploadedCount} screenshots self-hosted to GitHub!`, "success");
         } else {
           showAlert(`✨ Article successfully converted and loaded into editor!`, "success");
         }
@@ -881,32 +919,44 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
 
     // Modal Triggers
     importModalOpen?.addEventListener("click", () => {
-      if (importRawInput) importRawInput.value = "";
+      currentImportHtml = "";
+      if (smartPasteBox) {
+        smartPasteBox.innerHTML = `
+          <div class="paste-placeholder" id="paste-placeholder">
+            <div class="paste-zone-icon">📋</div>
+            <p class="paste-zone-title"><strong>Click here &amp; press Ctrl+V to paste</strong></p>
+            <p class="paste-zone-sub">Your formatted text, headings, code, and screenshots will appear here</p>
+          </div>
+        `;
+      }
       if (importProgressBox) importProgressBox.hidden = true;
       importDialog.showModal();
-      smartPasteZone?.focus();
+      setTimeout(() => smartPasteBox?.focus(), 150);
     });
 
     importDialogClose?.addEventListener("click", () => importDialog.close());
     importCancelBtn?.addEventListener("click", () => importDialog.close());
 
-    // Paste in Smart Zone
-    smartPasteZone?.addEventListener("paste", (e) => {
-      e.preventDefault();
-      const html = e.clipboardData.getData("text/html");
-      const text = e.clipboardData.getData("text/plain");
-      const content = html || text;
-      if (importRawInput) importRawInput.value = content;
-      processSmartImport(content);
+    // Paste in Smart ContentEditable Box
+    smartPasteBox?.addEventListener("paste", (e) => {
+      const html = e.clipboardData?.getData("text/html");
+      const text = e.clipboardData?.getData("text/plain");
+      currentImportHtml = html || text || "";
+      
+      // Let the browser paste visually into the box, then automatically trigger import
+      setTimeout(() => {
+        const content = currentImportHtml || smartPasteBox.innerHTML;
+        processSmartImport(content);
+      }, 120);
     });
 
-    // Process button click
+    // Process button click fallback
     importProcessBtn?.addEventListener("click", () => {
-      const content = importRawInput?.value || "";
+      const content = currentImportHtml || smartPasteBox?.innerHTML || "";
       processSmartImport(content);
     });
 
-    // Direct Paste Interception on Markdown Editor
+    // Direct Paste Interception on Markdown Editor Textarea
     editor?.addEventListener("paste", (e) => {
       const html = e.clipboardData?.getData("text/html");
       if (html && (html.includes("<p>") || html.includes("<h") || html.includes("<img") || html.includes("<figure>"))) {
@@ -1604,23 +1654,39 @@ ${body}
       margin-bottom: 0.4rem;
     }
 
-    /* Smart Paste Zone */
-    .smart-paste-zone {
-      padding: 2.25rem 1.5rem;
+    /* Smart Paste Box */
+    .smart-paste-box {
+      min-height: 200px;
+      max-height: 340px;
+      overflow-y: auto;
+      padding: 1.5rem;
       border: 2.5px dashed var(--secondary);
       border-radius: 10px;
       background: var(--surface-low);
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      color: var(--text);
+      cursor: text;
       outline: none;
+      transition: all 0.2s ease;
     }
 
-    .smart-paste-zone:focus,
-    .smart-paste-zone:hover {
+    .smart-paste-box:focus {
       border-color: var(--primary);
       background: var(--surface);
       box-shadow: 4px 4px 0 var(--secondary);
+    }
+
+    .paste-placeholder {
+      text-align: center;
+      pointer-events: none;
+      padding: 1rem 0;
+    }
+
+    .smart-paste-box img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      margin: 0.5rem 0;
+      border: 1.5px solid var(--primary);
     }
 
     .paste-zone-icon {
