@@ -1,10 +1,42 @@
 ---
+import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const blogPosts = (await getCollection("blog")).map((p) => ({
+  slug: p.slug,
+  title: p.data.title,
+  description: p.data.description,
+  publishedAt: p.data.publishedAt.toISOString().split("T")[0],
+  archiveSection: p.data.archiveSection,
+  tags: p.data.tags,
+  cover: p.data.cover || "",
+  featured: p.data.featured,
+  draft: p.data.draft,
+  sourceLabel: p.data.sourceLabel || "",
+  sourceUrl: p.data.sourceUrl || "",
+  body: p.body
+})).sort((a, b) => new Date(b.publishedAt).valueOf() - new Date(a.publishedAt).valueOf());
+
+const ctfChallenges = (await getCollection("ctfChallenges")).map((c) => ({
+  slug: c.slug,
+  collection: c.data.collection,
+  title: c.data.title,
+  difficulty: c.data.difficulty,
+  prompt: c.data.prompt,
+  passwordFormat: c.data.passwordFormat,
+  hint: c.data.hint || "",
+  order: c.data.order,
+  answerHashes: c.data.answerHashes,
+  body: c.body
+}));
+
+const existingPostsJson = JSON.stringify(blogPosts).replace(/</g, "\\u003c");
+const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u003c");
 ---
 
 <BaseLayout
   title="Inked Intel Studio | Ahmed Elessaway"
-  description="Private in-browser publishing studio for research articles, CTF challenges, and threat dossiers."
+  description="In-browser publishing and management studio for research articles, CTF challenges, and threat dossiers."
   robots="noindex,nofollow"
 >
   <div class="studio-wrapper">
@@ -20,15 +52,22 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         </h1>
       </div>
 
-      <!-- GitHub Token Auth Pill -->
-      <div class="studio-auth-box">
-        <div class="studio-auth-status" id="auth-status-indicator">
-          <span class="material-symbols-outlined" id="auth-status-icon">key_off</span>
-          <span id="auth-status-text">GitHub Token Required</span>
-        </div>
-        <button type="button" class="button button-ghost studio-token-btn" id="token-modal-open">
-          Configure Token
+      <!-- Actions & Auth -->
+      <div class="studio-top-controls">
+        <button type="button" class="button button-ghost" id="library-modal-open">
+          <span class="material-symbols-outlined">folder_open</span>
+          Manage Library (<span id="library-count">{blogPosts.length}</span>)
         </button>
+
+        <div class="studio-auth-box">
+          <div class="studio-auth-status" id="auth-status-indicator">
+            <span class="material-symbols-outlined" id="auth-status-icon">key_off</span>
+            <span id="auth-status-text">GitHub Token Required</span>
+          </div>
+          <button type="button" class="button button-ghost studio-token-btn" id="token-modal-open">
+            Configure Token
+          </button>
+        </div>
       </div>
     </header>
 
@@ -37,24 +76,20 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <div class="studio-content-tabs">
         <button type="button" class="studio-tab is-active" data-type="blog">
           <span class="material-symbols-outlined">article</span>
-          Research & Writeups
+          Research Article
         </button>
         <button type="button" class="studio-tab" data-type="ctf">
           <span class="material-symbols-outlined">flag</span>
           CTF Challenge
         </button>
-        <button type="button" class="studio-tab" data-type="actor">
-          <span class="material-symbols-outlined">policy</span>
-          Threat Dossier
-        </button>
       </div>
 
       <div class="studio-actions-top">
-        <button type="button" class="button button-ghost" id="studio-load-draft">
-          <span class="material-symbols-outlined">history</span> Load Draft
+        <button type="button" class="button button-ghost" id="studio-new-btn">
+          <span class="material-symbols-outlined">add</span> New Post
         </button>
         <button type="button" class="button button-ghost" id="studio-save-draft">
-          <span class="material-symbols-outlined">save</span> Save Local
+          <span class="material-symbols-outlined">save</span> Save Local Draft
         </button>
         <button type="button" class="button button-primary studio-publish-btn" id="studio-publish-btn">
           <span class="material-symbols-outlined">rocket_launch</span> Publish to GitHub
@@ -81,7 +116,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             </label>
 
             <label class="studio-field">
-              <span class="studio-label">File Slug (URL)</span>
+              <span class="studio-label">File Slug (URL) *</span>
               <input type="text" id="post-slug" class="studio-input mono" placeholder="auto-generated-slug" />
             </label>
 
@@ -113,6 +148,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
               <input type="date" id="post-date" class="studio-input" />
             </label>
 
+            <label class="studio-field">
+              <span class="studio-label">Original Medium / External URL</span>
+              <input type="url" id="post-source-url" class="studio-input" placeholder="https://xelessaway.medium.com/..." />
+            </label>
+
             <div class="studio-field-checkboxes">
               <label class="studio-checkbox-label">
                 <input type="checkbox" id="post-featured" />
@@ -126,7 +166,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           </div>
         </div>
 
-        <!-- Markdown Toolbar -->
+        <!-- Markdown Toolbar & Image Upload -->
         <div class="studio-toolbar">
           <button type="button" class="toolbar-btn" data-tool="h2" title="Heading 2">H2</button>
           <button type="button" class="toolbar-btn" data-tool="h3" title="Heading 3">H3</button>
@@ -135,9 +175,16 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           <button type="button" class="toolbar-btn" data-tool="quote" title="Callout Quote">Quote</button>
           <button type="button" class="toolbar-btn" data-tool="code" title="Code Block">Code</button>
           <button type="button" class="toolbar-btn" data-tool="link" title="Link">Link</button>
-          <button type="button" class="toolbar-btn" data-tool="image" title="Image">Image</button>
+          <button type="button" class="toolbar-btn" data-tool="image" title="Image Figure">Figure</button>
           <button type="button" class="toolbar-btn" data-tool="table" title="Table">Table</button>
           <button type="button" class="toolbar-btn" data-tool="bullet" title="Bullet List">&bull; List</button>
+          
+          <!-- Image Upload Trigger -->
+          <label class="toolbar-btn toolbar-upload-btn" title="Upload Image to GitHub">
+            <span class="material-symbols-outlined" style="font-size: 16px;">upload_file</span>
+            Upload Image
+            <input type="file" id="image-file-input" accept="image/*" style="display: none;" />
+          </label>
         </div>
 
         <!-- Markdown Textarea -->
@@ -150,7 +197,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <div class="studio-preview-pane">
         <div class="studio-preview-header">
           <span class="eyebrow">Live Paper Preview</span>
-          <span class="studio-preview-tag">Inked Intel Engine</span>
+          <span class="studio-preview-tag" id="editing-indicator">New Post Mode</span>
         </div>
 
         <div class="studio-paper-container">
@@ -175,6 +222,49 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </div>
   </div>
 
+  <!-- Library Modal Dialog: Edit / Delete Existing Posts -->
+  <dialog id="library-dialog" class="studio-dialog studio-dialog-large">
+    <div class="studio-dialog-content">
+      <div class="studio-dialog-head">
+        <div>
+          <h3>Content Library</h3>
+          <p class="studio-dialog-desc">Select any published post to edit or remove it directly from GitHub.</p>
+        </div>
+        <button type="button" class="button button-ghost" id="library-dialog-close">✕</button>
+      </div>
+
+      <div class="library-search-wrap">
+        <input type="search" id="library-search" class="studio-input" placeholder="Search by title, tag, slug..." />
+      </div>
+
+      <div class="library-items-list" id="library-list">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Delete Confirmation Modal -->
+  <dialog id="delete-dialog" class="studio-dialog">
+    <div class="studio-dialog-content">
+      <div class="studio-dialog-head">
+        <h3 style="color: var(--alert);">Confirm Deletion</h3>
+        <button type="button" class="button button-ghost" id="delete-dialog-close">✕</button>
+      </div>
+      <p class="studio-dialog-desc">
+        Are you sure you want to permanently delete <strong id="delete-target-title">this post</strong> from your GitHub repository?
+      </p>
+      <p class="validator-state is-error" style="margin: 0.5rem 0 1.25rem;">
+        This will trigger GitHub Actions to remove the post from your live website.
+      </p>
+      <div class="button-row" style="justify-content: flex-end;">
+        <button type="button" class="button button-ghost" id="delete-cancel-btn">Cancel</button>
+        <button type="button" class="button button-primary" id="delete-confirm-btn" style="background: var(--alert); border-color: var(--alert);">
+          Yes, Delete from GitHub
+        </button>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Token Modal Dialog -->
   <dialog id="token-dialog" class="studio-dialog">
     <div class="studio-dialog-content">
@@ -184,14 +274,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       </div>
 
       <p class="studio-dialog-desc">
-        To publish directly to GitHub without servers, generate a free <strong>GitHub Personal Access Token (Fine-grained or Classic)</strong> with <code>repo</code> contents write permission.
+        To publish, edit, and delete files directly on GitHub, enter a free <strong>GitHub Personal Access Token</strong> with <code>repo</code> write permissions.
       </p>
 
       <ol class="studio-token-steps">
         <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noreferrer" class="text-link">GitHub Token Settings &nearr;</a></li>
         <li>Generate a token for repository: <strong><code>xElessaway/xElessaway.github.io</code></strong></li>
         <li>Grant <strong>Contents (Read & Write)</strong> permissions.</li>
-        <li>Paste your token below (it is stored only in your browser's private storage):</li>
+        <li>Paste your token below (saved only in your browser's private localStorage):</li>
       </ol>
 
       <label class="studio-field studio-field-wide" style="margin: 1.25rem 0;">
@@ -208,6 +298,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     </div>
   </dialog>
 
+  <!-- Seeded JSON Data -->
+  <script is:inline type="application/json" id="studio-seed-posts" set:html={existingPostsJson}></script>
+  <script is:inline type="application/json" id="studio-seed-challenges" set:html={existingChallengesJson}></script>
+
   <!-- Marked Parser Script for Live Preview -->
   <script is:inline src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
@@ -217,6 +311,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     const GITHUB_BRANCH = "main";
     const TOKEN_KEY = "xelessaway_gh_token";
 
+    let libraryPosts = JSON.parse(document.getElementById("studio-seed-posts")?.textContent || "[]");
+    let currentOriginalSlug = ""; // If editing an existing post
+    let currentOriginalSha = "";  // GitHub file SHA if fetched
+
+    // Form elements
     const titleInput = document.getElementById("post-title");
     const slugInput = document.getElementById("post-slug");
     const descInput = document.getElementById("post-desc");
@@ -224,16 +323,21 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     const tagsInput = document.getElementById("post-tags");
     const coverInput = document.getElementById("post-cover");
     const dateInput = document.getElementById("post-date");
+    const sourceUrlInput = document.getElementById("post-source-url");
     const featuredCheck = document.getElementById("post-featured");
     const draftCheck = document.getElementById("post-draft");
     const editor = document.getElementById("markdown-editor");
+    const editingIndicator = document.getElementById("editing-indicator");
+    const imageFileInput = document.getElementById("image-file-input");
 
+    // Preview elements
     const previewTitle = document.getElementById("preview-title");
     const previewDesc = document.getElementById("preview-desc");
     const previewBadge = document.getElementById("preview-section-badge");
     const previewTags = document.getElementById("preview-tags-wrap");
     const previewBody = document.getElementById("preview-body");
 
+    // Dialogs
     const tokenDialog = document.getElementById("token-dialog");
     const tokenModalOpen = document.getElementById("token-modal-open");
     const tokenDialogClose = document.getElementById("token-dialog-close");
@@ -245,19 +349,31 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     const authText = document.getElementById("auth-status-text");
     const authIcon = document.getElementById("auth-status-icon");
 
+    const libraryDialog = document.getElementById("library-dialog");
+    const libraryModalOpen = document.getElementById("library-modal-open");
+    const libraryDialogClose = document.getElementById("library-dialog-close");
+    const librarySearch = document.getElementById("library-search");
+    const libraryList = document.getElementById("library-list");
+
+    const deleteDialog = document.getElementById("delete-dialog");
+    const deleteDialogClose = document.getElementById("delete-dialog-close");
+    const deleteCancelBtn = document.getElementById("delete-cancel-btn");
+    const deleteConfirmBtn = document.getElementById("delete-confirm-btn");
+    const deleteTargetTitle = document.getElementById("delete-target-title");
+    let pendingDeleteSlug = "";
+
+    // Action buttons
     const publishBtn = document.getElementById("studio-publish-btn");
+    const newBtn = document.getElementById("studio-new-btn");
     const saveDraftBtn = document.getElementById("studio-save-draft");
-    const loadDraftBtn = document.getElementById("studio-load-draft");
     const alertBox = document.getElementById("studio-alert");
     const alertMsg = document.getElementById("studio-alert-msg");
     const alertIcon = document.getElementById("studio-alert-icon");
 
-    // Set today's date
     if (dateInput) {
       dateInput.value = new Date().toISOString().split("T")[0];
     }
 
-    // Slug generation
     function generateSlug(text) {
       return text
         .toLowerCase()
@@ -266,7 +382,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     }
 
     titleInput?.addEventListener("input", () => {
-      if (!slugInput.dataset.manual) {
+      if (!slugInput.dataset.manual && !currentOriginalSlug) {
         slugInput.value = generateSlug(titleInput.value);
       }
       updatePreview();
@@ -276,10 +392,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       slugInput.dataset.manual = "true";
     });
 
-    // Update Live Preview
     function updatePreview() {
       if (previewTitle) previewTitle.textContent = titleInput.value.trim() || "Untitled Investigation";
-      if (previewDesc) previewDesc.textContent = descInput.value.trim() || "Summary description will appear here...";
+      if (previewDesc) previewDesc.textContent = descInput.value.trim() || "Description summary will appear here...";
       if (previewBadge) previewBadge.textContent = sectionInput.value === "reports" ? "Investigation Report" : "CTF Writeup";
 
       if (previewTags) {
@@ -297,32 +412,232 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       el?.addEventListener("input", updatePreview);
     });
 
-    // Toolbar Insertion Helpers
-    document.querySelectorAll("[data-tool]").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const tool = btn.getAttribute("data-tool");
-        const start = editor.selectionStart;
-        const end = editor.selectionEnd;
-        const selected = editor.value.substring(start, end);
-        let insert = "";
+    // Reset / New Post
+    function resetToNewPost() {
+      currentOriginalSlug = "";
+      currentOriginalSha = "";
+      titleInput.value = "";
+      slugInput.value = "";
+      delete slugInput.dataset.manual;
+      descInput.value = "";
+      sectionInput.value = "reports";
+      tagsInput.value = "dfir, investigation";
+      coverInput.value = "";
+      dateInput.value = new Date().toISOString().split("T")[0];
+      sourceUrlInput.value = "";
+      featuredCheck.checked = false;
+      draftCheck.checked = false;
+      editor.value = "";
+      editingIndicator.textContent = "New Post Mode";
+      editingIndicator.style.color = "var(--secondary)";
+      publishBtn.innerHTML = `<span class="material-symbols-outlined">rocket_launch</span> Publish to GitHub`;
+      updatePreview();
+      showAlert("Ready to create a new post.", "info");
+    }
 
-        switch (tool) {
-          case "h2": insert = `\n\n## ${selected || "Section Title"}\n\n`; break;
-          case "h3": insert = `\n\n### ${selected || "Subsection Title"}\n\n`; break;
-          case "bold": insert = `**${selected || "bold text"}**`; break;
-          case "italic": insert = `*${selected || "italic text"}*`; break;
-          case "quote": insert = `\n\n> ${selected || "Key finding or analytical observation."}\n\n`; break;
-          case "code": insert = `\n\n\`\`\`bash\n${selected || "# Enter command or script here"}\n\`\`\`\n\n`; break;
-          case "link": insert = `[${selected || "Link Text"}](https://example.com)`; break;
-          case "image": insert = `\n\n<figure><img src="${selected || "https://..."}" alt="Evidence Exhibit" /><figcaption>Exhibit: Case Analysis</figcaption></figure>\n\n`; break;
-          case "table": insert = `\n\n| Indicator | Type | Context |\n|---|---|---|\n| 192.168.1.1 | IPv4 | C2 Telemetry |\n\n`; break;
-          case "bullet": insert = `\n- Item 1\n- Item 2\n- Item 3\n`; break;
+    newBtn?.addEventListener("click", resetToNewPost);
+
+    // Load Post into Editor
+    function loadPostIntoEditor(post) {
+      currentOriginalSlug = post.slug;
+      currentOriginalSha = "";
+      titleInput.value = post.title || "";
+      slugInput.value = post.slug || "";
+      slugInput.dataset.manual = "true";
+      descInput.value = post.description || "";
+      sectionInput.value = post.archiveSection || "reports";
+      tagsInput.value = (post.tags || []).join(", ");
+      coverInput.value = post.cover || "";
+      dateInput.value = post.publishedAt || "";
+      sourceUrlInput.value = post.sourceUrl || "";
+      featuredCheck.checked = Boolean(post.featured);
+      draftCheck.checked = Boolean(post.draft);
+      editor.value = post.body || "";
+
+      editingIndicator.textContent = `Editing: ${post.slug}.md`;
+      editingIndicator.style.color = "var(--primary)";
+      publishBtn.innerHTML = `<span class="material-symbols-outlined">sync</span> Update Post on GitHub`;
+      updatePreview();
+      libraryDialog.close();
+      showAlert(`Loaded "${post.title}" into editor for updating.`, "success");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // Render Library List
+    function renderLibrary(filterText = "") {
+      if (!libraryList) return;
+      const query = filterText.trim().toLowerCase();
+      const filtered = libraryPosts.filter((p) => {
+        const text = `${p.title} ${p.slug} ${(p.tags || []).join(" ")}`.toLowerCase();
+        return !query || text.includes(query);
+      });
+
+      if (filtered.length === 0) {
+        libraryList.innerHTML = `<p class="validator-state">No matching articles found.</p>`;
+        return;
+      }
+
+      libraryList.innerHTML = filtered.map((post) => `
+        <div class="library-item-card">
+          <div class="library-item-info">
+            <span class="library-item-meta">${post.publishedAt} // ${post.archiveSection.toUpperCase()}</span>
+            <h4 class="library-item-title">${post.title}</h4>
+            <span class="library-item-slug mono">src/content/blog/${post.slug}.md</span>
+          </div>
+          <div class="library-item-actions">
+            <button type="button" class="button button-ghost btn-sm" onclick="window._loadPost('${post.slug}')">
+              <span class="material-symbols-outlined">edit</span> Edit
+            </button>
+            <a href="/blog/${post.slug}/" target="_blank" class="button button-ghost btn-sm">
+              <span class="material-symbols-outlined">visibility</span> View
+            </a>
+            <button type="button" class="button button-ghost btn-sm btn-delete" onclick="window._promptDelete('${post.slug}', '${post.title.replace(/'/g, "\\'")}')">
+              <span class="material-symbols-outlined">delete</span> Delete
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    window._loadPost = (slug) => {
+      const post = libraryPosts.find((p) => p.slug === slug);
+      if (post) loadPostIntoEditor(post);
+    };
+
+    window._promptDelete = (slug, title) => {
+      pendingDeleteSlug = slug;
+      deleteTargetTitle.textContent = title;
+      deleteDialog.showModal();
+    };
+
+    libraryModalOpen?.addEventListener("click", () => {
+      renderLibrary(librarySearch.value);
+      libraryDialog.showModal();
+    });
+
+    libraryDialogClose?.addEventListener("click", () => libraryDialog.close());
+    librarySearch?.addEventListener("input", (e) => renderLibrary(e.target.value));
+
+    // Delete post execution
+    deleteDialogClose?.addEventListener("click", () => deleteDialog.close());
+    deleteCancelBtn?.addEventListener("click", () => deleteDialog.close());
+
+    deleteConfirmBtn?.addEventListener("click", async () => {
+      const token = getStoredToken();
+      if (!token) {
+        deleteDialog.close();
+        tokenModalOpen?.click();
+        showAlert("Please configure your GitHub token to delete files.", "error");
+        return;
+      }
+
+      const slug = pendingDeleteSlug;
+      const targetPath = `src/content/blog/${slug}.md`;
+      deleteConfirmBtn.disabled = true;
+      deleteConfirmBtn.textContent = "Deleting from GitHub...";
+
+      try {
+        // 1. Get SHA of file to delete
+        const getRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}?ref=${GITHUB_BRANCH}`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
+        });
+
+        if (!getRes.ok) {
+          showAlert(`Failed to locate ${targetPath} on GitHub.`, "error");
+          deleteDialog.close();
+          return;
         }
 
-        editor.setRangeText(insert, start, end, "end");
-        editor.focus();
-        updatePreview();
-      });
+        const fileData = await getRes.json();
+
+        // 2. Delete file via GitHub API
+        const delRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `feat(content): remove "${slug}.md" via Inked Intel Studio`,
+            sha: fileData.sha,
+            branch: GITHUB_BRANCH
+          })
+        });
+
+        if (delRes.ok) {
+          // Remove from local library list
+          libraryPosts = libraryPosts.filter((p) => p.slug !== slug);
+          document.getElementById("library-count").textContent = String(libraryPosts.length);
+          renderLibrary(librarySearch.value);
+          deleteDialog.close();
+          showAlert(`🗑️ Successfully deleted "${slug}.md" from GitHub. Site is updating!`, "success");
+          if (currentOriginalSlug === slug) resetToNewPost();
+        } else {
+          const err = await delRes.json();
+          showAlert(`Deletion failed: ${err.message || "Unknown error"}`, "error");
+        }
+      } catch (e) {
+        showAlert("Network error while deleting post.", "error");
+      } finally {
+        deleteConfirmBtn.disabled = false;
+        deleteConfirmBtn.textContent = "Yes, Delete from GitHub";
+      }
+    });
+
+    // Image Upload directly to GitHub
+    imageFileInput?.addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const token = getStoredToken();
+      if (!token) {
+        tokenModalOpen?.click();
+        showAlert("Configure your GitHub token to upload images directly.", "error");
+        return;
+      }
+
+      showAlert(`Uploading "${file.name}" to GitHub media repository...`, "info");
+
+      try {
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const base64Data = reader.result.split(",")[1];
+          const cleanFileName = `${Date.now()}_${file.name.toLowerCase().replace(/[^a-z0-9._-]+/g, "-")}`;
+          const uploadPath = `public/images/uploads/${cleanFileName}`;
+
+          const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${uploadPath}`, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/vnd.github+json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              message: `feat(media): upload image "${cleanFileName}" via Inked Intel Studio`,
+              content: base64Data,
+              branch: GITHUB_BRANCH
+            })
+          });
+
+          if (res.ok) {
+            const rawUrl = `/images/uploads/${cleanFileName}`;
+            const figureSnippet = `\n\n<figure><img src="${rawUrl}" alt="${file.name.replace(/\.[^/.]+$/, "")}" /><figcaption>Exhibit: ${file.name.replace(/\.[^/.]+$/, "")}</figcaption></figure>\n\n`;
+            
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            editor.setRangeText(figureSnippet, start, end, "end");
+            editor.focus();
+            updatePreview();
+            showAlert(`✅ Image uploaded and inserted into article!`, "success");
+          } else {
+            showAlert("Failed to upload image to GitHub repository.", "error");
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        showAlert("Error reading or uploading image.", "error");
+      }
     });
 
     // Auth & Token Management
@@ -349,9 +664,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       tokenDialog.showModal();
     });
 
-    tokenDialogClose?.addEventListener("click", () => {
-      tokenDialog.close();
-    });
+    tokenDialogClose?.addEventListener("click", () => tokenDialog.close());
 
     tokenSaveBtn?.addEventListener("click", async () => {
       const token = tokenInput.value.trim();
@@ -366,10 +679,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
       try {
         const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/vnd.github+json"
-          }
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
         });
 
         if (res.ok) {
@@ -396,7 +706,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       checkAuthStatus();
     });
 
-    // Alert Display Helper
     function showAlert(message, type = "info") {
       if (!alertBox || !alertMsg) return;
       alertMsg.textContent = message;
@@ -408,7 +717,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       else alertIcon.textContent = "info";
     }
 
-    // Local Draft Storage
+    // Save Local Draft
     saveDraftBtn?.addEventListener("click", () => {
       const draft = {
         title: titleInput.value,
@@ -418,37 +727,14 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         tags: tagsInput.value,
         cover: coverInput.value,
         date: dateInput.value,
+        sourceUrl: sourceUrlInput.value,
         featured: featuredCheck.checked,
         draft: draftCheck.checked,
-        body: editor.value
+        body: editor.value,
+        originalSlug: currentOriginalSlug
       };
       localStorage.setItem("xelessaway_studio_draft", JSON.stringify(draft));
-      showAlert("Draft saved in your browser storage!", "success");
-    });
-
-    loadDraftBtn?.addEventListener("click", () => {
-      const raw = localStorage.getItem("xelessaway_studio_draft");
-      if (!raw) {
-        showAlert("No saved draft found.", "error");
-        return;
-      }
-      try {
-        const d = JSON.parse(raw);
-        titleInput.value = d.title || "";
-        slugInput.value = d.slug || "";
-        descInput.value = d.desc || "";
-        sectionInput.value = d.section || "reports";
-        tagsInput.value = d.tags || "";
-        coverInput.value = d.cover || "";
-        dateInput.value = d.date || "";
-        featuredCheck.checked = Boolean(d.featured);
-        draftCheck.checked = Boolean(d.draft);
-        editor.value = d.body || "";
-        updatePreview();
-        showAlert("Draft restored successfully!", "success");
-      } catch (e) {
-        showAlert("Failed to parse saved draft.", "error");
-      }
+      showAlert("Draft saved locally in your browser storage!", "success");
     });
 
     // Publish to GitHub via REST API
@@ -482,16 +768,16 @@ tags:
   - ${rawTags || '"investigation"'}
 ${coverInput.value ? `cover: "${coverInput.value.trim()}"\n` : ""}featured: ${featuredCheck.checked}
 draft: ${draftCheck.checked}
----
+${sourceUrlInput.value ? `sourceLabel: "Medium"\nsourceUrl: "${sourceUrlInput.value.trim()}"\n` : ""}---
 
 ${body}
 `;
 
-      showAlert("Connecting to GitHub & checking existing files...", "info");
+      showAlert("Connecting to GitHub & saving file...", "info");
       publishBtn.disabled = true;
 
       try {
-        // 1. Check if file already exists (get sha if updating)
+        // 1. Get SHA if updating file
         let sha = undefined;
         const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}?ref=${GITHUB_BRANCH}`, {
           headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
@@ -509,7 +795,10 @@ ${body}
         const base64Content = btoa(binaryString);
 
         // 3. Commit to GitHub
-        showAlert("Committing directly to GitHub main branch...", "info");
+        const isUpdate = Boolean(sha || currentOriginalSlug);
+        const commitMsg = isUpdate
+          ? `feat(content): update "${title}" via Inked Intel Studio`
+          : `feat(content): publish "${title}" via Inked Intel Studio`;
 
         const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}`, {
           method: "PUT",
@@ -519,7 +808,7 @@ ${body}
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            message: `feat(content): publish "${title}" via Inked Intel Studio`,
+            message: commitMsg,
             content: base64Content,
             branch: GITHUB_BRANCH,
             ...(sha ? { sha } : {})
@@ -527,7 +816,33 @@ ${body}
         });
 
         if (putRes.ok) {
-          showAlert(`🎉 Published successfully! GitHub Actions is building the site. It will be live at /blog/${slug}/ in ~30 seconds!`, "success");
+          showAlert(`🎉 ${isUpdate ? "Updated" : "Published"} successfully! Live build is running on GitHub Actions (~30s).`, "success");
+          
+          // Update local memory list
+          const existingIdx = libraryPosts.findIndex((p) => p.slug === slug);
+          const postData = {
+            slug,
+            title,
+            description: desc,
+            publishedAt: dateInput.value,
+            archiveSection: sectionInput.value,
+            tags: tagsInput.value.split(",").map((t) => t.trim()),
+            cover: coverInput.value,
+            featured: featuredCheck.checked,
+            draft: draftCheck.checked,
+            sourceUrl: sourceUrlInput.value,
+            body
+          };
+
+          if (existingIdx >= 0) {
+            libraryPosts[existingIdx] = postData;
+          } else {
+            libraryPosts.unshift(postData);
+          }
+
+          document.getElementById("library-count").textContent = String(libraryPosts.length);
+          currentOriginalSlug = slug;
+          editingIndicator.textContent = `Editing: ${slug}.md`;
         } else {
           const errData = await putRes.json();
           showAlert(`Failed to publish: ${errData.message || "Unknown GitHub API error."}`, "error");
@@ -539,7 +854,34 @@ ${body}
       }
     });
 
-    // Initial check
+    // Formatting Toolbar Helpers
+    document.querySelectorAll("[data-tool]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tool = btn.getAttribute("data-tool");
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        const selected = editor.value.substring(start, end);
+        let insert = "";
+
+        switch (tool) {
+          case "h2": insert = `\n\n## ${selected || "Section Title"}\n\n`; break;
+          case "h3": insert = `\n\n### ${selected || "Subsection Title"}\n\n`; break;
+          case "bold": insert = `**${selected || "bold text"}**`; break;
+          case "italic": insert = `*${selected || "italic text"}*`; break;
+          case "quote": insert = `\n\n> ${selected || "Analytical finding or case observation."}\n\n`; break;
+          case "code": insert = `\n\n\`\`\`bash\n${selected || "# Enter command or script"}\n\`\`\`\n\n`; break;
+          case "link": insert = `[${selected || "Link Text"}](https://example.com)`; break;
+          case "image": insert = `\n\n<figure><img src="${selected || "https://..."}" alt="Exhibit" /><figcaption>Exhibit: Case Analysis</figcaption></figure>\n\n`; break;
+          case "table": insert = `\n\n| Column 1 | Column 2 | Column 3 |\n|---|---|---|\n| Value A | Value B | Value C |\n\n`; break;
+          case "bullet": insert = `\n- Item 1\n- Item 2\n- Item 3\n`; break;
+        }
+
+        editor.setRangeText(insert, start, end, "end");
+        editor.focus();
+        updatePreview();
+      });
+    });
+
     checkAuthStatus();
     updatePreview();
   </script>
@@ -569,10 +911,17 @@ ${body}
       margin: 0.5rem 0 0;
     }
 
+    .studio-top-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 1rem;
+    }
+
     .studio-auth-box {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: 0.6rem;
     }
 
     .studio-auth-status {
@@ -663,7 +1012,7 @@ ${body}
     /* Studio Canvas Grid */
     .studio-canvas {
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
       gap: 2rem;
       align-items: start;
     }
@@ -749,6 +1098,7 @@ ${body}
     .studio-toolbar {
       display: flex;
       flex-wrap: wrap;
+      align-items: center;
       gap: 0.35rem;
       padding: 0.6rem;
       border: 2px solid var(--primary);
@@ -758,7 +1108,10 @@ ${body}
     }
 
     .toolbar-btn {
-      padding: 0.3rem 0.6rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.35rem 0.65rem;
       border: 1.5px solid var(--primary);
       border-radius: 4px;
       background: var(--surface);
@@ -775,6 +1128,18 @@ ${body}
       color: #ffffff;
     }
 
+    .toolbar-upload-btn {
+      margin-left: auto;
+      background: #d8e3fb;
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .toolbar-upload-btn:hover {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
     .studio-editor-area {
       border: 2px solid var(--primary);
       border-radius: 0 0 6px 6px;
@@ -785,7 +1150,7 @@ ${body}
 
     .studio-editor-textarea {
       width: 100%;
-      min-height: 480px;
+      min-height: 520px;
       padding: 1.25rem;
       border: 0;
       outline: none;
@@ -831,7 +1196,86 @@ ${body}
       padding: 1rem;
     }
 
-    /* Token Dialog */
+    /* Library Modal */
+    .studio-dialog-large {
+      max-width: 860px;
+      width: 95vw;
+    }
+
+    .library-search-wrap {
+      margin: 1rem 0 1.25rem;
+    }
+
+    .library-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .library-item-card {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      background: var(--surface);
+      box-shadow: 3px 3px 0 var(--primary);
+    }
+
+    .library-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      max-width: 540px;
+    }
+
+    .library-item-meta {
+      color: var(--text-soft);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.66rem;
+      font-weight: 700;
+    }
+
+    .library-item-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .library-item-slug {
+      color: var(--text-soft);
+      font-size: 0.68rem;
+    }
+
+    .library-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .btn-sm {
+      min-height: 32px;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.7rem;
+    }
+
+    .btn-delete {
+      color: var(--alert);
+      border-color: var(--alert);
+    }
+
+    .btn-delete:hover {
+      background: var(--alert);
+      color: #ffffff;
+    }
+
+    /* Dialogs */
     .studio-dialog {
       padding: 0;
       border: 3px solid var(--primary);
