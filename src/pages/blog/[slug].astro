@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import SocialIcon from "../../components/SocialIcon.astro";
 import { siteMeta } from "../../data/site";
 
 export async function getStaticPaths() {
@@ -109,7 +110,8 @@ const readingTime = `${Math.max(3, Math.round(wordCount / 180))} min read`;
             <div class="article-author-links">
               {siteMeta.socials.map((s) => (
                 <a href={s.href} target="_blank" rel="noreferrer" class="author-social-pill">
-                  {s.label}
+                  <SocialIcon name={s.label.toLowerCase()} size={15} />
+                  <span>{s.label}</span>
                 </a>
               ))}
             </div>

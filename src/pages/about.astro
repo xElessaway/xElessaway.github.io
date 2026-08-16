@@ -1,65 +1,218 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SocialIcon from "../components/SocialIcon.astro";
 import { siteMeta } from "../data/site";
 
-const focusAreas = ["Threat Hunting", "Detection Scenarios", "Memory Forensics", "Disk Forensics", "OSINT Workflows", "Blue-team Labs"];
+const focusAreas = [
+  "Threat Hunting",
+  "Detection Engineering",
+  "Memory Forensics",
+  "Disk Forensics",
+  "OSINT Workflows",
+  "Mobile Forensics",
+  "Blue-Team Labs",
+  "Malware Triage"
+];
+
 const achievementHighlights = [
-  "2nd place in CyCTF'25 Finals and Arab Cyberwar Games Championship.",
-  "4th place in EG-CERT CTF Finals and CSC-1 Finals.",
-  "Hands-on instruction delivered to more than 200 attendees across multiple topics.",
-  "Public practice content focused on DFIR, OSINT, and analyst workflows."
+  {
+    title: "2nd Place — CyCTF'25 Finals",
+    description: "National finals qualification and advanced forensics championship."
+  },
+  {
+    title: "2nd Place — Arab Cyberwar Games",
+    description: "Regional championship covering multi-stage threat hunting and incident response."
+  },
+  {
+    title: "4th Place — EG-CERT CTF Finals & CSC-1",
+    description: "National CERT cybersecurity competition across DFIR and investigative tracks."
+  },
+  {
+    title: "200+ Attendees Trained",
+    description: "Delivered hands-on practical instruction in OSINT methodologies and digital forensics."
+  }
+];
+
+const socialProfiles = [
+  {
+    name: "github",
+    label: "GitHub",
+    handle: "@xElessaway",
+    desc: "Open-source research, CTF tools, and writeup repositories.",
+    href: "https://github.com/xElessaway"
+  },
+  {
+    name: "linkedin",
+    label: "LinkedIn",
+    handle: "in/ahmedelessaway",
+    desc: "Professional career updates, certifications, and industry notes.",
+    href: "https://www.linkedin.com/in/ahmedelessaway/"
+  },
+  {
+    name: "x",
+    label: "X (Twitter)",
+    handle: "@ahmed_elessaway",
+    desc: "Real-time threat telemetry, CTI alerts, and quick analysis drops.",
+    href: "https://x.com/ahmed_elessaway"
+  },
+  {
+    name: "medium",
+    label: "Medium",
+    handle: "xelessaway.medium.com",
+    desc: "Deep-dive investigation case studies and long-form publications.",
+    href: "https://xelessaway.medium.com/"
+  }
 ];
 ---
 
-<BaseLayout title="Profile | Ahmed Elessaway (xElessaway)" description="Threat Intel and DFIR-focused cybersecurity engineer.">
-  <section class="profile-hero">
-    <div class="container">
-      <article class="profile-dossier">
-        <div class="profile-stamp">case file / active</div>
-        <img src="/logo-me.png" alt="Ahmed Elessaway (xElessaway)" class="profile-avatar-img" />
-        <div>
-          <p class="eyebrow">Researcher profile</p>
-          <h1>Ahmed <em>Elessaway</em></h1>
-          <p class="lede">DFIR, OSINT, and threat-intelligence practitioner focused on turning evidence into clear, useful research.</p>
-          <div class="button-row"><a class="button button-primary" href="#contact">Connect</a><a class="button button-ghost" href="/blog/">Read research</a></div>
+<BaseLayout title="Profile | Ahmed Elessaway (xElessaway)" description="DFIR, OSINT, and Threat Intelligence cybersecurity researcher.">
+  <div class="profile-page-wrapper">
+    <!-- Hero Dossier Section -->
+    <section class="profile-hero-section">
+      <div class="container">
+        <div class="profile-dossier-card">
+          <!-- Left: Information & Identity -->
+          <div class="profile-dossier-left">
+            <div class="status-stamp">
+              <span></span>
+              Operational Status // Active
+            </div>
+            <p class="eyebrow">Researcher Dossier // xElessaway</p>
+            <h1 class="profile-name">
+              Ahmed <em>Elessaway</em>
+              <svg class="archive-squiggle" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0 5 Q 50 10 100 0" fill="transparent" stroke="currentColor" stroke-width="4"></path>
+              </svg>
+            </h1>
+            <p class="profile-bio">
+              Cybersecurity researcher specializing in <strong>Digital Forensics & Incident Response (DFIR)</strong>, <strong>OSINT investigations</strong>, and <strong>Threat Intelligence</strong>. Dedicated to transforming raw telemetry and scattered artifacts into actionable defensive intelligence.
+            </p>
+            <div class="button-row" style="margin-top: 1.5rem;">
+              <a class="button button-primary" href="#contact">
+                <span class="material-symbols-outlined" style="font-size: 16px;">contact_page</span>
+                Connect With Me
+              </a>
+              <a class="button button-ghost" href="/blog/">
+                <span class="material-symbols-outlined" style="font-size: 16px;">menu_book</span>
+                Read Research Archive
+              </a>
+            </div>
+          </div>
+
+          <!-- Right: Circular Inked Avatar Badge -->
+          <div class="profile-dossier-right">
+            <div class="profile-avatar-badge-wrap">
+              <span class="profile-badge-tape" aria-hidden="true">CASE EXHIBIT 01</span>
+              <div class="profile-avatar-circle">
+                <img src="/logo-me.png" alt="Ahmed Elessaway" class="profile-circle-img" />
+              </div>
+              <div class="profile-badge-label">
+                <strong>xElessaway</strong>
+                <small>DFIR / OSINT / CTI</small>
+              </div>
+            </div>
+          </div>
         </div>
-      </article>
-    </div>
-  </section>
+      </div>
+    </section>
 
-  <section class="content-section">
-    <div class="container profile-grid">
-      <article class="profile-paper prose">
-        <p class="eyebrow">Operating profile</p>
-        <h2>Investigation-led work, built for analysts.</h2>
-        <p>The core of the profile is investigation-driven work: evidence handling, technical analysis, threat-intel context, OSINT workflows, and hands-on practice material that stays useful for analysts.</p>
-        <p>Reports, dossiers, and practice content stay public, while personal and workplace details remain out of scope for the public surface.</p>
-      </article>
-      <aside class="profile-toolkit">
-        <p class="eyebrow">Toolkit</p>
-        <div class="tag-list">{focusAreas.map((item) => <span class="tag">{item}</span>)}</div>
-        <p class="profile-focus"><strong>Current focus</strong> Practical research, detection-minded analysis, and analyst education.</p>
-      </aside>
-    </div>
-  </section>
+    <!-- Operating Profile & Toolkit Grid -->
+    <section class="content-section">
+      <div class="container">
+        <div class="profile-content-grid">
+          <!-- Operating Profile Panel -->
+          <article class="profile-paper-card prose">
+            <div class="section-heading" style="margin-bottom: 1.25rem;">
+              <p class="eyebrow">Methodology & Focus</p>
+              <h2>Investigation-led work, built for analysts.</h2>
+            </div>
+            <p>
+              The core of my work is grounded in evidence-driven analysis: memory and disk artifact extraction, adversary infrastructure tracking, passive OSINT pivots, and realistic threat intelligence reporting.
+            </p>
+            <p>
+              All writeups, case studies, and practice CTF challenges are shared publicly to support the defensive security community and elevate practitioner tradecraft.
+            </p>
+          </article>
 
-  <section class="content-section">
-    <div class="container profile-grid profile-grid-reverse">
-      <article class="profile-paper prose">
-        <p class="eyebrow">Competition and community</p>
-        <h2>Proof in the work.</h2>
-        <ul>{achievementHighlights.map((item) => <li>{item}</li>)}</ul>
-      </article>
-      <aside id="contact" class="profile-contact">
-        <p class="eyebrow">Connect</p>
-        <h2>Find my work.</h2>
-        <p>Follow current research, public writing, and professional updates through the channels below.</p>
-        <div class="stack">
-          {siteMeta.socials.map((item) => (
-            <a href={item.href} target="_blank" rel="noreferrer"><strong>{item.label}</strong><span>{item.href.replace("https://", "")}</span></a>
+          <!-- Toolkit Panel -->
+          <aside class="profile-toolkit-card">
+            <div class="section-heading" style="margin-bottom: 1.25rem;">
+              <p class="eyebrow">Core Toolkit</p>
+              <h3>Investigation Stack</h3>
+            </div>
+            <div class="profile-tags-cloud">
+              {focusAreas.map((skill) => (
+                <span class="profile-tag-pill">
+                  <span class="tag-dot"></span>
+                  {skill}
+                </span>
+              ))}
+            </div>
+            <div class="toolkit-footer-note">
+              <strong>Active Research:</strong> Memory artifact carving, fast-flux DNS attribution, and mobile bootloader forensic workflows.
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- Competition & Community Section -->
+    <section class="content-section">
+      <div class="container">
+        <div class="ink-section-heading">
+          <div>
+            <p class="eyebrow">Track Record & Community</p>
+            <h2>Proof in the Work.</h2>
+          </div>
+        </div>
+
+        <div class="achievements-grid">
+          {achievementHighlights.map((item) => (
+            <article class="achievement-card">
+              <div class="achievement-icon">
+                <span class="material-symbols-outlined">verified</span>
+              </div>
+              <div class="achievement-info">
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+            </article>
           ))}
         </div>
-      </aside>
-    </div>
-  </section>
+      </div>
+    </section>
+
+    <!-- Connect & Social Channels Section -->
+    <section id="contact" class="content-section" style="padding-bottom: 4rem;">
+      <div class="container">
+        <div class="ink-section-heading">
+          <div>
+            <p class="eyebrow">Get In Touch</p>
+            <h2>Connect & Follow Research</h2>
+          </div>
+          <p class="muted-copy" style="max-width: 480px;">
+            Follow my latest investigation releases, public tooling, and cybersecurity writeups across verified platforms.
+          </p>
+        </div>
+
+        <div class="social-channels-grid">
+          {socialProfiles.map((social) => (
+            <a href={social.href} target="_blank" rel="noreferrer" class="social-card">
+              <div class="social-card-head">
+                <div class="social-icon-badge">
+                  <SocialIcon name={social.name} size={24} />
+                </div>
+                <div class="social-meta">
+                  <span class="social-platform-name">{social.label}</span>
+                  <span class="social-handle mono">{social.handle}</span>
+                </div>
+                <span class="material-symbols-outlined social-arrow">north_east</span>
+              </div>
+              <p class="social-card-desc">{social.desc}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
 </BaseLayout>
