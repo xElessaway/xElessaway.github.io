@@ -8,11 +8,33 @@ import "../styles/global.css";
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  type?: "website" | "article";
+  publishedTime?: Date | string;
+  section?: string;
+  tags?: string[];
   robots?: string;
 }
 
-const { title = siteMeta.title, description = siteMeta.description, robots } = Astro.props;
+const {
+  title = siteMeta.title,
+  description = siteMeta.description,
+  image,
+  type = "website",
+  publishedTime,
+  section,
+  tags = [],
+  robots
+} = Astro.props;
+
 const enableAnalytics = !robots?.includes("noindex");
+const siteUrl = Astro.site?.href ? Astro.site.href.replace(/\/$/, "") : "https://xelessaway.me";
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href;
+
+// Ensure absolute image URL for WhatsApp / Telegram / Discord / X link preview cards
+const ogImage = image
+  ? (image.startsWith("http") ? image : `${siteUrl}${image.startsWith("/") ? "" : "/"}${image}`)
+  : `${siteUrl}/logo-me.png`;
 ---
 
 <!doctype html>
@@ -23,10 +45,31 @@ const enableAnalytics = !robots?.includes("noindex");
     <meta name="description" content={description} />
     {robots && <meta name="robots" content={robots} />}
     <meta name="generator" content={Astro.generator} />
+    
+    <link rel="canonical" href={canonicalUrl} />
+    
+    <!-- Open Graph / WhatsApp / Telegram / Discord / LinkedIn -->
+    <meta property="og:site_name" content="Ahmed Elessaway (xElessaway)" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:secure_url" content={ogImage} />
+    <meta property="og:image:alt" content={title} />
+
+    {publishedTime && <meta property="article:published_time" content={new Date(publishedTime).toISOString()} />}
+    {section && <meta property="article:section" content={section} />}
+    {tags.map((tag) => <meta property="article:tag" content={tag} />)}
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@ahmed_elessaway" />
+    <meta name="twitter:creator" content="@ahmed_elessaway" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={title} />
     <link rel="icon" type="image/png" href={withBase("/logo-me.png")} />
     <link rel="apple-touch-icon" href={withBase("/logo-me.png")} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

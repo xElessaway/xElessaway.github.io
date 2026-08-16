@@ -25,6 +25,11 @@ const readingTime = `${Math.max(3, Math.round(wordCount / 180))} min read`;
 <BaseLayout
   title={`${entry.data.title} | Ahmed Elessaway (xElessaway)`}
   description={entry.data.description}
+  image={entry.data.cover}
+  type="article"
+  publishedTime={entry.data.publishedAt}
+  section={entry.data.archiveSection}
+  tags={entry.data.tags}
 >
   <div class="article-dossier-container">
     <!-- Top Back Navigation Bar -->
