@@ -354,22 +354,23 @@ pre,
   justify-content: center;
   min-height: 40px;
   padding: 0.5rem 1.4rem;
-  background: var(--primary);
+  background: var(--secondary);
   border: 2px solid var(--primary);
   border-radius: 4px;
-  box-shadow: 4px 4px 0 var(--secondary);
+  box-shadow: 3px 3px 0 var(--primary);
   color: #ffffff;
   font-family: "JetBrains Mono", monospace;
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
 .header-contact:hover {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--secondary);
+  box-shadow: 1px 1px 0 var(--primary);
+  background: #e21e49;
 }
 
 .menu-toggle {
@@ -536,23 +537,29 @@ p {
 }
 
 .button-primary {
-  background: var(--primary);
+  background: var(--secondary);
   color: #ffffff;
-  box-shadow: 4px 4px 0 var(--secondary);
+  border-color: var(--primary);
+  box-shadow: 4px 4px 0 var(--primary);
 }
 
 .button-primary:hover {
-  background: #152238;
-  box-shadow: 2px 2px 0 var(--secondary);
+  background: #e21e49;
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--primary);
 }
 
 .button-ghost {
   background: var(--surface);
   color: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 4px 4px 0 var(--primary);
 }
 
 .button-ghost:hover {
   background: var(--surface-highest);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--primary);
 }
 
 .button-row {
