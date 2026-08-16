@@ -1,100 +1,70 @@
 ---
 import { getCollection } from "astro:content";
-import { readdir } from "node:fs/promises";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import SectionHeader from "../components/SectionHeader.astro";
 import { siteMeta } from "../data/site";
-
-const actorDirEntries = await readdir(new URL("../content/actors", import.meta.url), { withFileTypes: true }).catch(() => []);
-const hasActorEntries = actorDirEntries.some(
-  (entry) => entry.isFile() && entry.name.endsWith(".md") && !entry.name.startsWith("_")
-);
 
 const blogPosts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
 );
 const recentPosts = blogPosts.slice(0, 3);
 
-const actorCount = hasActorEntries ? (await getCollection("actors")).length : 0;
 const collections = await getCollection("ctfCollections");
 const featuredCollection = collections.find((entry) => entry.data.featured) ?? collections[0];
-
-const entryPoints = [
-  {
-    eyebrow: "Reports/Writeups",
-    title: "Investigations, reports, and technical writeups",
-    description: "The main archive for investigations, walkthroughs, and practical security notes.",
-    href: "/blog/",
-    action: "Open Reports/Writeups",
-    meta: `${blogPosts.length} published`
-  },
-  {
-    eyebrow: "Threat Intel",
-    title: actorCount > 0 ? "Published dossiers and actor tracking" : "Threat intel framework ready",
-    description:
-      actorCount > 0
-        ? "Structured actor pages with timelines, TTP mapping, tooling, and references."
-        : "The structure is ready for real dossiers without filling the homepage with placeholder intel.",
-    href: "/threat-intelligence/",
-    action: "Open Threat Intel",
-    meta: `${actorCount} public dossiers`
-  },
-  {
-    eyebrow: "CTFs/Practice",
-    title: "CTFs and analyst labs",
-    description: "Challenge pages stay simple, with one clear validation flow and repeatable practice structure.",
-    href: featuredCollection ? `/ctf/${featuredCollection.slug}/` : "/ctf/",
-    action: "Open CTFs/Practice",
-    meta: featuredCollection?.data.title ?? "Practice archive"
-  }
-];
 ---
 
 <BaseLayout title={`${siteMeta.title} | DFIR, OSINT, Threat Intel`} description={siteMeta.description}>
-  <section class="home-hero">
-    <div class="container stack">
-      <article class="panel home-hero-minimal">
-        <h1>Ahmed Elessaway</h1>
-        <p class="lede">DFIR, OSINT, threat intel, and hands-on practice.</p>
-
+  <section class="ink-hero">
+    <div class="container ink-hero-grid">
+      <div class="ink-hero-copy">
+        <p class="status-stamp"><span></span>Field research portfolio</p>
+        <p class="eyebrow">Ahmed Elessaway / xElessaway</p>
+        <h1>Investigating the <em>digital underground.</em></h1>
+        <p class="lede">DFIR, OSINT, and threat intelligence research - turning scattered evidence into practical analysis.</p>
         <div class="button-row">
-          <a class="button button-primary" href="/blog/">Open Reports/Writeups</a>
-          <a class="button button-ghost" href="/ctf/">Open CTFs/Practice</a>
-          <a class="button button-ghost" href="/about/">View Profile</a>
+          <a class="button button-primary" href={`/blog/${recentPosts[0]?.slug ?? ""}/`}>Read flagship research</a>
+          <a class="button button-ghost" href="/blog/">Browse research</a>
         </div>
-      </article>
+      </div>
+      <aside class="identity-card" aria-label="Ahmed Elessaway research profile">
+        <span class="identity-tape">case file</span>
+        <span class="identity-initials">xE</span>
+        <span class="identity-label">DFIR / OSINT / TI</span>
+      </aside>
     </div>
   </section>
 
   <section class="content-section">
     <div class="container">
-      <SectionHeader
-        eyebrow="Recent Reports/Writeups"
-        title="Latest published work"
-        description="The most recent public reports and technical writeups."
-        actionHref="/blog/"
-        actionLabel="View Reports/Writeups"
-      />
+      <div class="ink-section-heading">
+        <div>
+          <p class="eyebrow">Core competencies</p>
+          <h2>Research, not noise.</h2>
+        </div>
+      </div>
+      <div class="competency-grid">
+        <article class="competency-card"><h3>DFIR</h3><p>Evidence-led digital forensics and incident response across complex environments.</p><span>forensic_analysis.exe</span></article>
+        <article class="competency-card competency-card-dotted"><h3>OSINT</h3><p>Open-source investigation, infrastructure pivots, and identity research.</p><span>sources to context</span></article>
+        <article class="competency-card competency-card-dark"><h3>Threat Intel</h3><p>Actionable reporting on campaigns, adversary tradecraft, and defensive signals.</p><span>research in progress</span></article>
+      </div>
+    </div>
+  </section>
 
-      <div class="card-grid">
+  <section class="content-section">
+    <div class="container research-sheet">
+      <div class="ink-section-heading">
+        <div>
+          <p class="eyebrow">Field notes</p>
+          <h2>Latest research</h2>
+        </div>
+        <a class="text-link" href="/blog/">View all research -&gt;</a>
+      </div>
+      <div class="research-list">
         {
           recentPosts.map((post) => (
-            <a class="story-card story-card-report" href={`/blog/${post.slug}/`}>
-              {post.data.cover && (
-                <div class="card-media">
-                  <img src={post.data.cover} alt={post.data.title} loading="lazy" />
-                </div>
-              )}
-              <div class="card-topline">
-                <span class="meta-chip">{post.data.archiveSection}</span>
-                {post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)}
-              </div>
-              <h3>{post.data.title}</h3>
-              <p>{post.data.description}</p>
-              <div class="meta-line">
-                <span>{post.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
-                <span>{post.data.featured ? "priority_brief" : "indexed"}</span>
-              </div>
+            <a class="research-list-item" href={`/blog/${post.slug}/`}>
+              <time>{post.data.publishedAt.toLocaleDateString("en-CA")}</time>
+              <div><h3>{post.data.title}</h3><p>{post.data.description}</p></div>
+              <span>{post.data.archiveSection}</span>
             </a>
           ))
         }
@@ -103,28 +73,11 @@ const entryPoints = [
   </section>
 
   <section class="content-section">
-    <div class="container">
-      <SectionHeader
-        eyebrow="Explore"
-        title="Three clear entry points"
-        description="Everything important stays behind the reports archive, the threat intel section, and the CTFs/practice area."
-      />
-
-      <div class="home-surface-grid">
-        {
-          entryPoints.map((entry) => (
-            <a class="intel-link home-surface-card" href={entry.href}>
-              <p class="eyebrow">{entry.eyebrow}</p>
-              <h3>{entry.title}</h3>
-              <p>{entry.description}</p>
-              <div class="meta-line">
-                <span>{entry.meta}</span>
-                <span>{entry.action}</span>
-              </div>
-            </a>
-          ))
-        }
-      </div>
+    <div class="container home-callout">
+      <p class="eyebrow">Practice lab</p>
+      <h2>Build analyst instincts through hands-on challenges.</h2>
+      <p>Explore structured OSINT and DFIR practice collections, with repeatable scenarios and clear solving paths.</p>
+      <a class="button button-primary" href={featuredCollection ? `/ctf/${featuredCollection.slug}/` : "/ctf/"}>Open practice lab</a>
     </div>
   </section>
 </BaseLayout>

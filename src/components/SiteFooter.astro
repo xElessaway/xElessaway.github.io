@@ -4,7 +4,11 @@ import { withBase } from "../utils/paths";
 ---
 
 <footer class="site-footer">
-  <div class="container footer-grid footer-grid-compact">
+  <div class="container footer-grid">
+    <div>
+      <a class="footer-brand" href={withBase("/")}>xElessaway</a>
+      <p class="footer-copy">Field notes, investigations, and practical security research.</p>
+    </div>
     <div class="footer-links footer-links-inline">
       {
         siteMeta.nav.map((item) => (

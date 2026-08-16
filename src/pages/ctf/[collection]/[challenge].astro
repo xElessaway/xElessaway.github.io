@@ -24,57 +24,68 @@ const flagArchive = entry.data.assets.find(
 );
 ---
 
-<BaseLayout title={`${entry.data.title} | ${collection?.data.title ?? "CTFs/Practice"}`} description={entry.data.prompt}>
-  <section class="ctf-hero">
-    <div class="container">
-      <article class="panel ctf-hero-panel">
-        <div class="ops-meta-strip">
-          <a class="meta-chip" href="/ctf/">ctfs/practice</a>
-          {collection && <a class="meta-chip" href={`/ctf/${collection.slug}/`}>{collection.data.title}</a>}
-          <span class:list={["difficulty-pill", entry.data.difficulty]}>{entry.data.difficulty}</span>
-        </div>
-        <p class="eyebrow">Practice Brief</p>
-        <h1>{entry.data.title}</h1>
-        <p class="lede">{entry.data.prompt}</p>
-        {
-          challengeImage && (
-            <figure class="challenge-brief-figure">
-              <img src={challengeImage} alt={entry.data.title} class="challenge-image" data-zoomable-image />
-            </figure>
-          )
-        }
-      </article>
-    </div>
-  </section>
+<BaseLayout
+  title={`${entry.data.title} | ${collection?.data.title ?? "Practice Lab"}`}
+  description={entry.data.prompt}
+>
+  <div class="article-dossier-container">
+    <!-- Top Back Navigation Bar -->
+    <nav class="article-breadcrumb-bar">
+      <a href={collection ? `/ctf/${collection.slug}/` : "/ctf/"} class="article-back-link">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+        <span>Back to {collection?.data.title ?? "Practice Set"}</span>
+      </a>
+      <span class="article-doc-id">CHALLENGE_ID: {entry.slug.toUpperCase()}</span>
+    </nav>
 
-  <section class="content-section">
-    <div class="container stack">
-      <article class="content-panel challenge-summary-strip">
-        <div class="challenge-summary-meta">
-          <div>
-            <span class="challenge-summary-label">Practice Set</span>
-            <strong>{collection?.data.title ?? entry.data.collection}</strong>
-          </div>
-          <div>
-            <span class="challenge-summary-label">Difficulty</span>
-            <strong class="challenge-summary-value">{entry.data.difficulty}</strong>
-          </div>
-          <div>
-            <span class="challenge-summary-label">Archive</span>
-            {
-              flagArchive ? (
-                <a class="challenge-archive-link" href={flagArchive.url}>
-                  {flagArchive.label}
-                </a>
-              ) : (
-                <strong class="challenge-summary-value">No archive</strong>
-              )
-            }
-          </div>
-        </div>
-      </article>
+    <!-- Mission Brief Header -->
+    <header class="article-dossier-header">
+      <div class="article-tape-sticker" aria-hidden="true"></div>
+      <div class="article-meta-ribbon">
+        <span class="article-type-pill">Challenge Brief</span>
+        <span class:list={["difficulty-chip", entry.data.difficulty]}>{entry.data.difficulty.toUpperCase()}</span>
+      </div>
 
-      <div class="challenge-validator-inline">
+      <h1 class="article-title">{entry.data.title}</h1>
+      <p class="article-lede">{entry.data.prompt}</p>
+
+      {
+        challengeImage && (
+          <figure class="challenge-brief-figure">
+            <img src={challengeImage} alt={entry.data.title} class="challenge-image" data-zoomable-image />
+            <figcaption class="challenge-image-caption">Mission Artifact Exhibit: Click image to expand</figcaption>
+          </figure>
+        )
+      }
+    </header>
+
+    <!-- Mission Operational Strip & Validator -->
+    <main class="challenge-mission-panel">
+      <div class="challenge-metadata-grid">
+        <div class="challenge-meta-card">
+          <span class="meta-card-label">PRACTICE SET</span>
+          <strong class="meta-card-value">{collection?.data.title ?? entry.data.collection}</strong>
+        </div>
+        <div class="challenge-meta-card">
+          <span class="meta-card-label">EXPECTED FORMAT</span>
+          <code class="meta-card-code">{entry.data.passwordFormat}</code>
+        </div>
+        <div class="challenge-meta-card">
+          <span class="meta-card-label">EVIDENCE ASSET</span>
+          {
+            flagArchive ? (
+              <a class="challenge-download-link" href={flagArchive.url} target="_blank" rel="noopener noreferrer">
+                <span class="material-symbols-outlined" aria-hidden="true">download</span>
+                {flagArchive.label}
+              </a>
+            ) : (
+              <span class="meta-card-text">Included in prompt</span>
+            )
+          }
+        </div>
+      </div>
+
+      <div class="challenge-validator-box">
         <CTFAnswerValidator
           collection={entry.data.collection}
           challenge={entry.slug}
@@ -83,6 +94,6 @@ const flagArchive = entry.data.assets.find(
           hint={entry.data.hint}
         />
       </div>
-    </div>
-  </section>
+    </main>
+  </div>
 </BaseLayout>

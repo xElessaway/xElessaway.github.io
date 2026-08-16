@@ -15,184 +15,103 @@ const trackingActors = actors.filter((entry) => entry.data.status === "tracking"
 ---
 
 <BaseLayout
-  title="Threat Intel | Ahmed Elessaway (xElessaway)"
-  description="Structured threat actor dossiers with filtering by name, alias, tag, and status."
+  title="Threat Intel Dossiers | Ahmed Elessaway (xElessaway)"
+  description="Structured adversary dossiers, tracking threat actors, campaign TTPs, and infrastructure telemetry."
 >
-  <section class="page-intro">
-    <div class="container">
-      <article class="panel page-intro-panel">
-        <div class="ops-meta-strip">
-          <span class="meta-chip">threat_intel // actor_index</span>
-          <span class="meta-chip">{actors.length} dossiers</span>
-          {actors.length > 0 ? (
-            <>
-              <span class="meta-chip">{activeActors} active</span>
-              <span class="meta-chip">{trackingActors} tracking</span>
-            </>
-          ) : (
-            <span class="meta-chip">publishing_queue</span>
-          )}
-        </div>
-        <p class="eyebrow">Threat Intel</p>
-        <h1>Structured actor dossiers for repeatable tracking.</h1>
-        <p class="lede">
-          The section is reserved for real published actor research. Sample entries have been removed, and the
-          framework stays ready for future dossiers without changing the archive structure.
+  <div class="archive-container">
+    <!-- Main Archive Header -->
+    <header class="archive-header-block">
+      <div class="archive-title-wrap">
+        <div class="status-stamp"><span></span>Threat Intelligence Feed</div>
+        <h1 class="archive-headline">
+          ADVERSARY DOSSIERS
+          <svg class="archive-squiggle" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 5 Q 50 10 100 0" fill="transparent" stroke="currentColor" stroke-width="4"></path>
+          </svg>
+        </h1>
+        <p class="archive-subhead">
+          Structured intelligence profiles mapping threat actor infrastructure, attribution trails, and campaign tradecraft.
         </p>
-      </article>
-    </div>
-  </section>
+      </div>
 
-  <section class="content-section">
-    <div class="container stack">
-      {
-        actors.length > 0 ? (
-          <>
-            <div class="panel filter-panel">
-              <div class="filter-shell">
-                <input
-                  id="dossier-search"
-                  class="filter-input"
-                  type="search"
-                  placeholder="SEARCH_ACTOR_ALIAS_OR_TAG"
-                  autocomplete="off"
-                />
+      {actors.length > 0 && (
+        <div class="archive-search-box">
+          <span class="material-symbols-outlined archive-search-icon" aria-hidden="true">search</span>
+          <input
+            type="search"
+            id="dossier-search"
+            class="archive-search-input"
+            placeholder="Search actor, alias, tag..."
+            autocomplete="off"
+          />
+        </div>
+      )}
+    </header>
 
-                <div class="filter-row">
-                  {
-                    statuses.map((status) => (
-                      <button class:list={["filter-button", status === "all" && "is-active"]} type="button" data-status-filter={status}>
-                        {status}
-                      </button>
-                    ))
-                  }
-                </div>
+    {
+      actors.length > 0 ? (
+        <div class="archive-cards-grid">
+          {
+            actors.map((actor) => (
+              <article
+                class="archive-folder-card"
+                data-dossier-card
+                data-status={actor.data.status}
+                data-tags={actor.data.tags.join("|")}
+                data-search={[actor.data.name, ...actor.data.aliases, ...actor.data.tags].join(" ").toLowerCase()}
+              >
+                <div class="archive-folder-tab" aria-hidden="true"></div>
+                <a href={`/threat-intelligence/${actor.slug}/`} class="archive-folder-content">
+                  <div class="archive-folder-top">
+                    <span class="material-symbols-outlined archive-card-icon" aria-hidden="true">policy</span>
+                    <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
+                  </div>
 
-                <div class="filter-row">
-                  <button class="filter-button is-active" type="button" data-tag-filter="all">all_tags</button>
-                  {
-                    allTags.map((tag) => (
-                      <button class="filter-button" type="button" data-tag-filter={tag}>
-                        {tag}
-                      </button>
-                    ))
-                  }
-                </div>
-              </div>
-            </div>
+                  <h3 class="archive-folder-title">{actor.data.name}</h3>
+                  <p class="archive-folder-excerpt">{actor.data.motivation}</p>
 
-            <div class="card-grid" data-dossier-grid>
-              {
-                actors.map((actor) => (
-                  <a
-                    class="dossier-card"
-                    href={`/threat-intelligence/${actor.slug}/`}
-                    data-dossier-card
-                    data-status={actor.data.status}
-                    data-tags={actor.data.tags.join("|")}
-                    data-search={[actor.data.name, ...actor.data.aliases, ...actor.data.tags].join(" ").toLowerCase()}
-                  >
-                    <div class="status-row">
-                      <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
-                      <span class="meta-chip">{actor.data.origin}</span>
-                    </div>
-                    <p class="eyebrow">identity_profile</p>
-                    <h3>{actor.data.name}</h3>
-                    <p>{actor.data.motivation}</p>
-                    <div class="meta-line">
-                      <span>{actor.data.aliases.join(" / ")}</span>
-                    </div>
-                    <div class="tag-list">
-                      {actor.data.tags.map((tag) => <span class="tag">{tag}</span>)}
-                    </div>
+                  <div class="archive-tag-cloud" style="margin-top: auto; padding-top: 0.5rem;">
+                    {actor.data.tags.slice(0, 3).map((tag) => (
+                      <span class="archive-tag-chip">#{tag}</span>
+                    ))}
+                  </div>
+                </a>
+
+                <div class="archive-folder-footer">
+                  <span class="archive-read-time">{actor.data.origin || "Global"}</span>
+                  <a href={`/threat-intelligence/${actor.slug}/`} class="archive-folder-arrow" aria-label={`View ${actor.data.name}`}>
+                    <span>VIEW DOSSIER</span>
+                    <span class="material-symbols-outlined" aria-hidden="true">east</span>
                   </a>
-                ))
-              }
-            </div>
-
-            <p class="filter-empty" data-filter-empty>No dossiers match the current filters.</p>
-          </>
-        ) : (
-          <article class="content-panel">
-            <div class="ops-meta-strip">
-              <span class="meta-chip">publication_state // waiting_for_real_intel</span>
-              <span class="meta-chip">framework_ready</span>
-            </div>
-            <h2>No public actor dossiers yet.</h2>
-            <p>
-              This section stays online as the publishing surface for original threat actor tracking. It is
-              intentionally empty until real entries are added, so the site does not ship demo intelligence as
-              if it were authored research.
-            </p>
-            <div class="tag-list">
-              <span class="tag">Executive Summary</span>
-              <span class="tag">Aliases</span>
-              <span class="tag">Targets</span>
-              <span class="tag">Timeline</span>
-              <span class="tag">Tooling</span>
-              <span class="tag">TTPs</span>
-              <span class="tag">References</span>
-            </div>
-          </article>
-        )
-      }
-    </div>
-  </section>
-
-  {
-    actors.length > 0 && (
-      <script>
-        const searchInput = document.querySelector("#dossier-search");
-        const statusButtons = [...document.querySelectorAll("[data-status-filter]")];
-        const tagButtons = [...document.querySelectorAll("[data-tag-filter]")];
-        const cards = [...document.querySelectorAll("[data-dossier-card]")];
-        const emptyState = document.querySelector("[data-filter-empty]");
-
-        let activeStatus = "all";
-        let activeTag = "all";
-
-        const applyFilters = () => {
-          const query = searchInput instanceof HTMLInputElement ? searchInput.value.trim().toLowerCase() : "";
-          let visibleCount = 0;
-
-          cards.forEach((card) => {
-            const searchText = card.getAttribute("data-search") ?? "";
-            const status = card.getAttribute("data-status") ?? "";
-            const tags = (card.getAttribute("data-tags") ?? "").split("|").filter(Boolean);
-            const matchesQuery = !query || searchText.includes(query);
-            const matchesStatus = activeStatus === "all" || status === activeStatus;
-            const matchesTag = activeTag === "all" || tags.includes(activeTag);
-            const visible = matchesQuery && matchesStatus && matchesTag;
-
-            card.toggleAttribute("hidden", !visible);
-            if (visible) {
-              visibleCount += 1;
-            }
-          });
-
-          if (emptyState instanceof HTMLElement) {
-            emptyState.classList.toggle("is-visible", visibleCount === 0);
+                </div>
+              </article>
+            ))
           }
-        };
-
-        searchInput?.addEventListener("input", applyFilters);
-
-        statusButtons.forEach((button) => {
-          button.addEventListener("click", () => {
-            activeStatus = button.getAttribute("data-status-filter") ?? "all";
-            statusButtons.forEach((item) => item.classList.toggle("is-active", item === button));
-            applyFilters();
-          });
-        });
-
-        tagButtons.forEach((button) => {
-          button.addEventListener("click", () => {
-            activeTag = button.getAttribute("data-tag-filter") ?? "all";
-            tagButtons.forEach((item) => item.classList.toggle("is-active", item === button));
-            applyFilters();
-          });
-        });
-      </script>
-    )
-  }
+        </div>
+      ) : (
+        <div class="archive-featured-card" style="padding: 2.5rem; background: var(--surface-low);">
+          <div class="status-stamp" style="margin-bottom: 1rem;">
+            <span></span>Publication Pipeline Active
+          </div>
+          <h2 class="archive-featured-title" style="font-size: 1.8rem; margin-bottom: 0.8rem;">
+            Threat Actor Dossiers in Staging
+          </h2>
+          <p class="archive-featured-desc" style="max-width: 65ch; margin-bottom: 1.5rem;">
+            Original threat actor research is currently being indexed and verified. Standard dossiers include executive summaries, observed aliases, targeted sectors, infrastructure timelines, tooling telemetry, and MITRE ATT&amp;CK matrices.
+          </p>
+          <div class="archive-tag-cloud" style="margin-bottom: 1.5rem;">
+            <span class="archive-tag-chip">#Executive Summary</span>
+            <span class="archive-tag-chip">#Campaign Timelines</span>
+            <span class="archive-tag-chip">#YARA Signatures</span>
+            <span class="archive-tag-chip">#C2 Telemetry</span>
+            <span class="archive-tag-chip">#Adversary Infrastructure</span>
+          </div>
+          <div class="button-row">
+            <a href="/blog/" class="button button-primary">Browse Published Research</a>
+            <a href="/ctf/" class="button button-ghost">Practice Lab</a>
+          </div>
+        </div>
+      )
+    }
+  </div>
 </BaseLayout>

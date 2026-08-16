@@ -2,15 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { siteMeta } from "../data/site";
 
-const focusAreas = [
-  "Threat Hunting",
-  "Detection Scenarios",
-  "Memory Forensics",
-  "Disk Forensics",
-  "OSINT Workflows",
-  "Blue-team Labs"
-];
-
+const focusAreas = ["Threat Hunting", "Detection Scenarios", "Memory Forensics", "Disk Forensics", "OSINT Workflows", "Blue-team Labs"];
 const achievementHighlights = [
   "2nd place in CyCTF'25 Finals and Arab Cyberwar Games Championship.",
   "4th place in EG-CERT CTF Finals and CSC-1 Finals.",
@@ -20,92 +12,52 @@ const achievementHighlights = [
 ---
 
 <BaseLayout title="Profile | Ahmed Elessaway (xElessaway)" description="Threat Intel and DFIR-focused cybersecurity engineer.">
-  <section class="about-hero">
+  <section class="profile-hero">
     <div class="container">
-      <article class="panel about-hero-panel">
-        <div class="ops-meta-strip">
-          <span class="meta-chip">public_profile</span>
-          <span class="meta-chip">dfir</span>
-          <span class="meta-chip">osint</span>
-          <span class="meta-chip">threat_intel</span>
+      <article class="profile-dossier">
+        <div class="profile-stamp">case file / active</div>
+        <div class="profile-monogram" aria-hidden="true">xE</div>
+        <div>
+          <p class="eyebrow">Researcher profile</p>
+          <h1>Ahmed <em>Elessaway</em></h1>
+          <p class="lede">DFIR, OSINT, and threat-intelligence practitioner focused on turning evidence into clear, useful research.</p>
+          <div class="button-row"><a class="button button-primary" href="#contact">Connect</a><a class="button button-ghost" href="/blog/">Read research</a></div>
         </div>
-        <p class="eyebrow">Profile</p>
-        <h1>Threat Intel and DFIR-focused cybersecurity engineer.</h1>
-        <p class="lede">
-          Public profile centered on investigations, hands-on practice, technical analysis, and archive-ready
-          security writing.
-        </p>
       </article>
     </div>
   </section>
 
   <section class="content-section">
-    <div class="container split-grid">
-      <article class="stack">
-        <div class="content-panel prose">
-          <p class="eyebrow">Summary</p>
-          <p>
-            The core of the profile is investigation-driven work: evidence handling, technical analysis,
-            threat-intel context, OSINT workflows, and hands-on practice material that stays useful for
-            analysts.
-          </p>
-          <p>
-            The site is built to reflect that operating profile directly. Reports, dossiers, and practice
-            content stay public, while personal and workplace details remain out of scope for the public
-            surface.
-          </p>
-        </div>
-
-        <div class="content-panel">
-          <p class="eyebrow">Current Focus</p>
-          <div class="tag-list">
-            {focusAreas.map((item) => <span class="tag">{item}</span>)}
-          </div>
-        </div>
-
-        <div class="content-panel prose">
-          <p class="eyebrow">Competition and Community Signal</p>
-          <ul>
-            {achievementHighlights.map((item) => <li>{item}</li>)}
-          </ul>
-        </div>
+    <div class="container profile-grid">
+      <article class="profile-paper prose">
+        <p class="eyebrow">Operating profile</p>
+        <h2>Investigation-led work, built for analysts.</h2>
+        <p>The core of the profile is investigation-driven work: evidence handling, technical analysis, threat-intel context, OSINT workflows, and hands-on practice material that stays useful for analysts.</p>
+        <p>Reports, dossiers, and practice content stay public, while personal and workplace details remain out of scope for the public surface.</p>
       </article>
+      <aside class="profile-toolkit">
+        <p class="eyebrow">Toolkit</p>
+        <div class="tag-list">{focusAreas.map((item) => <span class="tag">{item}</span>)}</div>
+        <p class="profile-focus"><strong>Current focus</strong> Practical research, detection-minded analysis, and analyst education.</p>
+      </aside>
+    </div>
+  </section>
 
-      <aside class="stack">
-        <div class="meta-card">
-          <p class="eyebrow">Profile Snapshot</p>
-          <dl>
-            <div>
-              <dt>Name</dt>
-              <dd>Ahmed Elessaway</dd>
-            </div>
-            <div>
-              <dt>Handle</dt>
-              <dd>xElessaway</dd>
-            </div>
-            <div>
-              <dt>Primary Domains</dt>
-              <dd>DFIR, Threat Intel, OSINT, Threat Hunting</dd>
-            </div>
-            <div>
-              <dt>Public Focus</dt>
-              <dd>Investigations, hands-on practice, archive-quality research, and practical analyst workflows.</dd>
-            </div>
-          </dl>
-        </div>
-
-        <div class="meta-card">
-          <p class="eyebrow">Media / Presence</p>
-          <div class="stack">
-            {
-              siteMeta.socials.map((item) => (
-                <a href={item.href} target="_blank" rel="noreferrer">
-                  <strong>{item.label}</strong>
-                  <p class="muted-copy">{item.href.replace("https://", "")}</p>
-                </a>
-              ))
-            }
-          </div>
+  <section class="content-section">
+    <div class="container profile-grid profile-grid-reverse">
+      <article class="profile-paper prose">
+        <p class="eyebrow">Competition and community</p>
+        <h2>Proof in the work.</h2>
+        <ul>{achievementHighlights.map((item) => <li>{item}</li>)}</ul>
+      </article>
+      <aside id="contact" class="profile-contact">
+        <p class="eyebrow">Connect</p>
+        <h2>Find my work.</h2>
+        <p>Follow current research, public writing, and professional updates through the channels below.</p>
+        <div class="stack">
+          {siteMeta.socials.map((item) => (
+            <a href={item.href} target="_blank" rel="noreferrer"><strong>{item.label}</strong><span>{item.href.replace("https://", "")}</span></a>
+          ))}
         </div>
       </aside>
     </div>

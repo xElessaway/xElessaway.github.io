@@ -1,6 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { siteMeta } from "../../data/site";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => !data.draft);
@@ -13,50 +14,119 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
-const archiveLabel = entry.data.archiveSection === "reports" ? "Report" : "Writeup";
+const archiveLabel = entry.data.archiveSection === "reports" ? "Intelligence Report" : "Technical Writeup";
+
+const wordCount = entry.body ? entry.body.trim().split(/\s+/).length : 600;
+const readingTime = `${Math.max(3, Math.round(wordCount / 180))} min read`;
 ---
 
-<BaseLayout title={`${entry.data.title} | Ahmed Elessaway`} description={entry.data.description}>
-  <section class="story-hero">
-    <div class="container">
-      <article class="panel story-hero-panel story-hero-panel-simple">
-        <div class="ops-meta-strip">
-          <span class="meta-chip">{entry.data.archiveSection}</span>
-          <span class="meta-chip">{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "medium" })}</span>
-        </div>
-        <p class="eyebrow">{archiveLabel}</p>
-        <h1>{entry.data.title}</h1>
-        <p class="lede">{entry.data.description}</p>
-        <div class="meta-line">
-          {entry.data.tags.map((tag) => <span>{tag}</span>)}
-        </div>
-      </article>
-    </div>
-  </section>
+<BaseLayout
+  title={`${entry.data.title} | Ahmed Elessaway (xElessaway)`}
+  description={entry.data.description}
+>
+  <div class="article-dossier-container">
+    <!-- Top Back Navigation Bar -->
+    <nav class="article-breadcrumb-bar">
+      <a href="/blog/" class="article-back-link">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+        <span>Back to Research Archive</span>
+      </a>
+      <span class="article-doc-id">DOC_ID: {entry.slug.toUpperCase().slice(0, 16)}</span>
+    </nav>
 
-  <section class="content-section">
-    <div class="container">
-      <article class="content-panel prose story-panel story-panel-simple">
+    <!-- Article Header Card -->
+    <header class="article-dossier-header">
+      <div class="article-tape-sticker" aria-hidden="true"></div>
+      <div class="article-meta-ribbon">
+        <span class="article-type-pill">{archiveLabel}</span>
+        <span class="article-status-pill">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          VERIFIED ANALYSIS
+        </span>
+      </div>
+
+      <h1 class="article-title">{entry.data.title}</h1>
+
+      <p class="article-lede">{entry.data.description}</p>
+
+      <div class="article-info-strip">
+        <div class="article-info-item">
+          <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
+          <time datetime={entry.data.publishedAt.toISOString()}>
+            {entry.data.publishedAt.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric"
+            })}
+          </time>
+        </div>
+
+        <div class="article-info-item">
+          <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+          <span>{readingTime}</span>
+        </div>
+
+        {entry.data.sourceUrl && (
+          <div class="article-info-item">
+            <span class="material-symbols-outlined" aria-hidden="true">link</span>
+            <a href={entry.data.sourceUrl} target="_blank" rel="noopener noreferrer" class="article-source-link">
+              Originally on {entry.data.sourceLabel ?? "Medium"} &nearr;
+            </a>
+          </div>
+        )}
+      </div>
+
+      <div class="article-tags-wrap">
+        {entry.data.tags.map((tag) => (
+          <a href={`/blog/#${tag}`} class="article-tag-chip">#{tag}</a>
+        ))}
+      </div>
+    </header>
+
+    <!-- Article Body / Manuscript -->
+    <main class="article-manuscript-panel">
+      {entry.data.cover && (
+        <figure class="article-cover-frame">
+          <img src={entry.data.cover} alt={entry.data.title} class="article-cover-img" />
+          <figcaption class="article-cover-caption">Primary Case Exhibit: {entry.data.title}</figcaption>
+        </figure>
+      )}
+
+      <div class="article-prose prose">
         <Content />
+      </div>
 
-        <footer class="story-endnotes">
-          <p class="eyebrow">Entry Details</p>
-          <dl class="story-meta-grid">
-            <div>
-              <dt>Published</dt>
-              <dd>{entry.data.publishedAt.toLocaleDateString("en-US", { dateStyle: "long" })}</dd>
+      <!-- Dossier Footer & Author Monogram -->
+      <footer class="article-dossier-footer">
+        <div class="article-author-card">
+          <div class="article-author-monogram" aria-hidden="true">xE</div>
+          <div class="article-author-info">
+            <p class="eyebrow">Investigator / Author</p>
+            <h3 class="article-author-name">Ahmed Elessaway (xElessaway)</h3>
+            <p class="article-author-bio">
+              Cybersecurity researcher specializing in DFIR, threat intelligence, and OSINT investigation methodologies.
+            </p>
+            <div class="article-author-links">
+              {siteMeta.socials.map((s) => (
+                <a href={s.href} target="_blank" rel="noreferrer" class="author-social-pill">
+                  {s.label}
+                </a>
+              ))}
             </div>
-            <div>
-              <dt>Type</dt>
-              <dd>{archiveLabel}</dd>
-            </div>
-            <div>
-              <dt>Tags</dt>
-              <dd>{entry.data.tags.join(", ")}</dd>
-            </div>
-          </dl>
-        </footer>
-      </article>
-    </div>
-  </section>
+          </div>
+        </div>
+
+        <div class="article-nav-actions">
+          <a href="/blog/" class="button button-primary">
+            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+            Browse All Research
+          </a>
+          <a href="/ctf/" class="button button-ghost">
+            Explore Practice Lab
+            <span class="material-symbols-outlined" aria-hidden="true">east</span>
+          </a>
+        </div>
+      </footer>
+    </main>
+  </div>
 </BaseLayout>

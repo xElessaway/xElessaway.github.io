@@ -5,9 +5,9 @@ import { withBase } from "../utils/paths";
 const pathname = Astro.url.pathname;
 const moduleLabels: Record<string, string> = {
   "/": "Home",
-  "/blog/": "Reports/Writeups",
+  "/blog/": "Research",
   "/threat-intelligence/": "Threat Intel",
-  "/ctf/": "CTFs/Practice",
+  "/ctf/": "Practice",
   "/about/": "Profile"
 };
 ---
@@ -20,11 +20,10 @@ const moduleLabels: Record<string, string> = {
         <span></span>
       </button>
 
-      <a class="brand-mark" href={withBase("/")}>
-        <span class="brand-signal" aria-hidden="true"></span>
+      <a class="brand-mark" href={withBase("/")} aria-label="Ahmed Elessaway home">
         <span class="brand-copy">
-          <strong>Ahmed Elessaway</strong>
-          <small>xElessaway</small>
+          <strong>xElessaway</strong>
+          <small>research portfolio</small>
         </span>
       </a>
     </div>
@@ -43,6 +42,7 @@ const moduleLabels: Record<string, string> = {
         })
       }
     </nav>
+    <a class="header-contact" href={withBase("/about/#contact")}>Connect</a>
   </div>
 </header>
 

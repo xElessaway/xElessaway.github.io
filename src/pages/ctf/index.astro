@@ -21,50 +21,64 @@ const stats = collections.map((entry) => {
 });
 ---
 
-<BaseLayout title="CTFs/Practice | Ahmed Elessaway (xElessaway)" description="CTF collections and practice routes with simplified validation.">
-  <section class="ctf-hero">
-    <div class="container">
-      <article class="panel ctf-hero-panel">
-        <div class="ops-meta-strip">
-          <span class="meta-chip">ctfs_practice // collections</span>
-          <span class="meta-chip">{collections.length} collections</span>
-          <span class="meta-chip">{challenges.length} challenge nodes</span>
-        </div>
-        <p class="eyebrow">CTFs/Practice</p>
-        <h1>Hands-on practice collections for DFIR and OSINT workflows.</h1>
-        <p class="lede">
-          Collection discovery happens at the archive level. Every collection has its own route, every
-          challenge gets a dedicated mission page, and answer checks remain lightweight enough for GitHub
-          Pages.
+<BaseLayout
+  title="Practice Lab & CTFs | Ahmed Elessaway (xElessaway)"
+  description="Hands-on digital forensics, memory analysis, and OSINT challenge collections with built-in validation."
+>
+  <div class="archive-container">
+    <!-- Header Block -->
+    <header class="archive-header-block">
+      <div class="archive-title-wrap">
+        <div class="status-stamp"><span></span>Practice Environment Active</div>
+        <h1 class="archive-headline">
+          PRACTICE LAB
+          <svg class="archive-squiggle" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 5 Q 50 10 100 0" fill="transparent" stroke="currentColor" stroke-width="4"></path>
+          </svg>
+        </h1>
+        <p class="archive-subhead">
+          Scenario-driven investigations, DFIR disk & memory challenges, and OSINT puzzles designed to sharpen real analyst tradecraft.
         </p>
-      </article>
-    </div>
-  </section>
+      </div>
+    </header>
 
-  <section class="content-section">
-    <div class="container card-grid">
+    <!-- Collections Grid -->
+    <div class="ctf-collections-grid">
       {
         stats.map(({ entry, total, easy, medium, hard }) => (
-          <a class="challenge-card" href={`/ctf/${entry.slug}/`}>
-            <div class="status-row">
-              <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
-              <span class="meta-chip">{entry.data.year}</span>
+          <article class="archive-folder-card ctf-collection-folder">
+            <div class="archive-folder-tab" aria-hidden="true"></div>
+            <div class="ctf-folder-tape" aria-hidden="true"></div>
+
+            <a href={`/ctf/${entry.slug}/`} class="archive-folder-content">
+              <div class="archive-folder-top">
+                <span class="material-symbols-outlined archive-card-icon" aria-hidden="true">terminal</span>
+                <span class="archive-card-tag">{entry.data.year ?? "LAB"}</span>
+              </div>
+
+              <h2 class="archive-folder-title">{entry.data.title}</h2>
+              <p class="archive-folder-excerpt">{entry.data.summary}</p>
+
+              <div class="ctf-difficulty-chips">
+                {easy > 0 && <span class="difficulty-chip easy">{easy} Easy</span>}
+                {medium > 0 && <span class="difficulty-chip medium">{medium} Medium</span>}
+                {hard > 0 && <span class="difficulty-chip hard">{hard} Hard</span>}
+              </div>
+            </a>
+
+            <div class="archive-folder-footer">
+              <span class="archive-read-time">
+                <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
+                {total} Challenge Nodes
+              </span>
+              <a href={`/ctf/${entry.slug}/`} class="archive-folder-arrow" aria-label={`Open ${entry.data.title}`}>
+                <span>ENTER LAB</span>
+                <span class="material-symbols-outlined" aria-hidden="true">east</span>
+              </a>
             </div>
-            <p class="eyebrow">practice_set</p>
-            <h3>{entry.data.title}</h3>
-            <p>{entry.data.summary}</p>
-            <div class="tag-list">
-              <span class="difficulty-pill easy">{easy} easy</span>
-              <span class="difficulty-pill medium">{medium} medium</span>
-              <span class="difficulty-pill hard">{hard} hard</span>
-            </div>
-            <div class="meta-line">
-              <span>{total} challenge(s)</span>
-              <span>github_backed_assets</span>
-            </div>
-          </a>
+          </article>
         ))
       }
     </div>
-  </section>
+  </div>
 </BaseLayout>

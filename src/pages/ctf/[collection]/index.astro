@@ -26,53 +26,68 @@ const grouped = {
 };
 ---
 
-<BaseLayout title={`${entry.data.title} | CTFs/Practice`} description={entry.data.summary}>
-  <section class="ctf-hero">
-    <div class="container">
-      <article class="panel ctf-hero-panel">
-        <div class="ops-meta-strip">
-          <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
-          <span class="meta-chip">{entry.data.year}</span>
-          <span class="meta-chip">{challenges.length} challenge nodes</span>
-        </div>
-        <p class="eyebrow">Practice Briefing</p>
-        <h1>{entry.data.title}</h1>
-        <p class="lede">{entry.data.summary}</p>
-        <div class="button-row">
-          <a class="button button-primary" href="/ctf/">Back to CTFs/Practice</a>
-        </div>
-      </article>
-    </div>
-  </section>
+<BaseLayout
+  title={`${entry.data.title} | Practice Lab`}
+  description={entry.data.summary}
+>
+  <div class="archive-container">
+    <!-- Top Back Navigation Bar -->
+    <nav class="article-breadcrumb-bar">
+      <a href="/ctf/" class="article-back-link">
+        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+        <span>Back to All Practice Sets</span>
+      </a>
+      <span class="article-doc-id">SET_ID: {entry.slug.toUpperCase()}</span>
+    </nav>
 
-  <section class="content-section">
-    <div class="container stack">
+    <!-- Collection Header Dossier -->
+    <header class="article-dossier-header">
+      <div class="article-tape-sticker" aria-hidden="true"></div>
+      <div class="article-meta-ribbon">
+        <span class="article-type-pill">Practice Set</span>
+        <span class="article-status-pill">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          {challenges.length} MISSIONS ONLINE
+        </span>
+      </div>
+
+      <h1 class="article-title">{entry.data.title}</h1>
+      <p class="article-lede">{entry.data.summary}</p>
+    </header>
+
+    <!-- Grouped Challenge Grids -->
+    <div class="ctf-mission-sections">
       {
         Object.entries(grouped).map(([difficulty, items]) =>
           items.length > 0 && (
-            <section class="difficulty-section">
-              <div class="section-header">
-                <div class="section-heading">
-                  <p class="eyebrow">{difficulty}</p>
-                  <h2>{difficulty[0].toUpperCase() + difficulty.slice(1)} challenges</h2>
-                </div>
+            <section class="ctf-difficulty-block">
+              <div class="ctf-difficulty-header">
+                <span class:list={["difficulty-chip", difficulty]}>{difficulty.toUpperCase()}</span>
+                <h2 class="ctf-difficulty-title">{difficulty[0].toUpperCase() + difficulty.slice(1)} Missions ({items.length})</h2>
               </div>
 
-              <div class="card-grid">
+              <div class="archive-cards-grid">
                 {items.map((challenge) => (
-                  <a class="challenge-card" href={`/ctf/${entry.slug}/${challenge.slug}/`}>
-                    <div class="status-row">
-                      <span class:list={["difficulty-pill", difficulty]}>{difficulty}</span>
-                      <span class="meta-chip">#{challenge.data.order}</span>
+                  <article class="archive-folder-card ctf-mission-folder">
+                    <div class="archive-folder-tab" aria-hidden="true"></div>
+                    <a href={`/ctf/${entry.slug}/${challenge.slug}/`} class="archive-folder-content">
+                      <div class="archive-folder-top">
+                        <span class="material-symbols-outlined archive-card-icon" aria-hidden="true">flag</span>
+                        <span class="archive-card-tag">#{challenge.data.order}</span>
+                      </div>
+
+                      <h3 class="archive-folder-title">{challenge.data.title}</h3>
+                      <p class="archive-folder-excerpt">{challenge.data.prompt}</p>
+                    </a>
+
+                    <div class="archive-folder-footer">
+                      <span class="archive-read-time mono">Format: {challenge.data.passwordFormat}</span>
+                      <a href={`/ctf/${entry.slug}/${challenge.slug}/`} class="archive-folder-arrow" aria-label={`Start ${challenge.data.title}`}>
+                        <span>SOLVE</span>
+                        <span class="material-symbols-outlined" aria-hidden="true">east</span>
+                      </a>
                     </div>
-                    <p class="eyebrow">challenge</p>
-                    <h3>{challenge.data.title}</h3>
-                    <p class="challenge-card-excerpt">{challenge.data.prompt}</p>
-                    <div class="meta-line">
-                      <span>{challenge.data.passwordFormat}</span>
-                      <span>open_challenge</span>
-                    </div>
-                  </a>
+                  </article>
                 ))}
               </div>
             </section>
@@ -80,5 +95,5 @@ const grouped = {
         )
       }
     </div>
-  </section>
+  </div>
 </BaseLayout>

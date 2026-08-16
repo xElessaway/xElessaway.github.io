@@ -25,9 +25,9 @@ export const siteMeta = {
   ],
   nav: [
     { label: "Home", href: "/" },
-    { label: "Reports/Writeups", href: "/blog/" },
+    { label: "Research", href: "/blog/" },
     { label: "Threat Intel", href: "/threat-intelligence/" },
-    { label: "CTFs/Practice", href: "/ctf/" },
+    { label: "Practice", href: "/ctf/" },
     { label: "Profile", href: "/about/" }
   ]
 };
