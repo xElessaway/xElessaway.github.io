@@ -1271,7 +1271,7 @@ ${editor.value}`;
 
         let fileSha = undefined;
         try {
-          const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}`, {
+          const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}?ref=${GITHUB_BRANCH}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           if (checkRes.ok) {
@@ -1287,18 +1287,22 @@ ${editor.value}`;
         }
         const base64Content = btoa(binary);
 
+        const putBody = {
+          message: `Publish ${targetPath} via Inked Intel Studio`,
+          content: base64Content,
+          branch: GITHUB_BRANCH
+        };
+        if (fileSha) {
+          putBody.sha = fileSha;
+        }
+
         const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}`, {
           method: "PUT",
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json"
           },
-          body: JSON.stringify({
-            message: `Publish ${targetPath} via Studio`,
-            content: base64Content,
-            branch: GITHUB_BRANCH,
-            sha: fileSha
-          })
+          body: JSON.stringify(putBody)
         });
 
         if (putRes.ok) {
@@ -1307,7 +1311,11 @@ ${editor.value}`;
           if (editingIndicator) editingIndicator.textContent = `Live: ${targetPath}`;
         } else {
           const err = await putRes.json().catch(() => ({}));
-          showAlert(`❌ Publish failed: ${err.message || "GitHub API Error"}`, "alert");
+          if (putRes.status === 404) {
+            showAlert("❌ 404 Not Found: Ensure your GitHub Token has 'repo' / 'Contents: Read & Write' permission on xElessaway/xElessaway.github.io.", "alert");
+          } else {
+            showAlert(`❌ Publish failed: ${err.message || "GitHub API Error"}`, "alert");
+          }
         }
       } catch (err) {
         showAlert(`❌ Error publishing: ${err.message}`, "alert");
