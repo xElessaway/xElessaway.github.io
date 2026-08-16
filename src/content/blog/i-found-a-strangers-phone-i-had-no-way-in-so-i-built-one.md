@@ -14,8 +14,6 @@ tags:
 cover: "https://cdn-images-1.medium.com/max/600/1*UcHIymc3Zy-J1bmGb1n5jQ.png"
 featured: true
 draft: false
-sourceLabel: "Medium"
-sourceUrl: "https://medium.com/@xelessaway/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one-92b2ff2e5e10"
 ---
 
 <p><em>A real story about mobile forensics, FRP bypass, chipset research, and passive OSINT, all in service of getting a phone back to its owner.</em></p>
