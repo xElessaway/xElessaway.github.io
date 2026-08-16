@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Icon from "../../components/Icon.astro";
 
 const collections = await getCollection("ctfCollections");
 const challenges = await getCollection("ctfChallenges");
@@ -52,7 +53,7 @@ const stats = collections.map((entry) => {
 
             <a href={`/ctf/${entry.slug}/`} class="archive-folder-content">
               <div class="archive-folder-top">
-                <span class="material-symbols-outlined archive-card-icon" aria-hidden="true">terminal</span>
+                <Icon name="terminal" size={24} class="archive-card-icon" />
                 <span class="archive-card-tag">{entry.data.year ?? "LAB"}</span>
               </div>
 
@@ -68,12 +69,12 @@ const stats = collections.map((entry) => {
 
             <div class="archive-folder-footer">
               <span class="archive-read-time">
-                <span class="material-symbols-outlined" aria-hidden="true">fact_check</span>
-                {total} Challenge Nodes
+                <Icon name="fact_check" size={16} />
+                <span>{total} Challenge Nodes</span>
               </span>
               <a href={`/ctf/${entry.slug}/`} class="archive-folder-arrow" aria-label={`Open ${entry.data.title}`}>
                 <span>ENTER LAB</span>
-                <span class="material-symbols-outlined" aria-hidden="true">east</span>
+                <Icon name="east" size={16} />
               </a>
             </div>
           </article>

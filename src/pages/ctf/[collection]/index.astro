@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Icon from "../../../components/Icon.astro";
 
 export async function getStaticPaths() {
   const collections = await getCollection("ctfCollections");
@@ -34,7 +35,7 @@ const grouped = {
     <!-- Top Back Navigation Bar -->
     <nav class="article-breadcrumb-bar">
       <a href="/ctf/" class="article-back-link">
-        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+        <Icon name="arrow_back" size={16} />
         <span>Back to All Practice Sets</span>
       </a>
       <span class="article-doc-id">SET_ID: {entry.slug.toUpperCase()}</span>
@@ -72,7 +73,7 @@ const grouped = {
                     <div class="archive-folder-tab" aria-hidden="true"></div>
                     <a href={`/ctf/${entry.slug}/${challenge.slug}/`} class="archive-folder-content">
                       <div class="archive-folder-top">
-                        <span class="material-symbols-outlined archive-card-icon" aria-hidden="true">flag</span>
+                        <Icon name="flag" size={24} class="archive-card-icon" />
                         <span class="archive-card-tag">#{challenge.data.order}</span>
                       </div>
 
@@ -84,7 +85,7 @@ const grouped = {
                       <span class="archive-read-time mono">Format: {challenge.data.passwordFormat}</span>
                       <a href={`/ctf/${entry.slug}/${challenge.slug}/`} class="archive-folder-arrow" aria-label={`Start ${challenge.data.title}`}>
                         <span>SOLVE</span>
-                        <span class="material-symbols-outlined" aria-hidden="true">east</span>
+                        <Icon name="east" size={16} />
                       </a>
                     </div>
                   </article>

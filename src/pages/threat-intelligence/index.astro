@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import { readdir } from "node:fs/promises";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Icon from "../../components/Icon.astro";
 
 const actorDirEntries = await readdir(new URL("../../content/actors", import.meta.url), { withFileTypes: true }).catch(() => []);
 const hasActorEntries = actorDirEntries.some(
@@ -36,7 +37,7 @@ const trackingActors = actors.filter((entry) => entry.data.status === "tracking"
 
       {actors.length > 0 && (
         <div class="archive-search-box">
-          <span class="material-symbols-outlined archive-search-icon" aria-hidden="true">search</span>
+          <Icon name="search" size={20} class="archive-search-icon" />
           <input
             type="search"
             id="dossier-search"
@@ -63,7 +64,7 @@ const trackingActors = actors.filter((entry) => entry.data.status === "tracking"
                 <div class="archive-folder-tab" aria-hidden="true"></div>
                 <a href={`/threat-intelligence/${actor.slug}/`} class="archive-folder-content">
                   <div class="archive-folder-top">
-                    <span class="material-symbols-outlined archive-card-icon" aria-hidden="true">policy</span>
+                    <Icon name="policy" size={24} class="archive-card-icon" />
                     <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
                   </div>
 
@@ -81,7 +82,7 @@ const trackingActors = actors.filter((entry) => entry.data.status === "tracking"
                   <span class="archive-read-time">{actor.data.origin || "Global"}</span>
                   <a href={`/threat-intelligence/${actor.slug}/`} class="archive-folder-arrow" aria-label={`View ${actor.data.name}`}>
                     <span>VIEW DOSSIER</span>
-                    <span class="material-symbols-outlined" aria-hidden="true">east</span>
+                    <Icon name="east" size={16} />
                   </a>
                 </div>
               </article>

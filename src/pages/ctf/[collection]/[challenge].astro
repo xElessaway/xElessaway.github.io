@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import CTFAnswerValidator from "../../../components/CTFAnswerValidator.astro";
 import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Icon from "../../../components/Icon.astro";
 
 export async function getStaticPaths() {
   const challenges = await getCollection("ctfChallenges");
@@ -32,7 +33,7 @@ const flagArchive = entry.data.assets.find(
     <!-- Top Back Navigation Bar -->
     <nav class="article-breadcrumb-bar">
       <a href={collection ? `/ctf/${collection.slug}/` : "/ctf/"} class="article-back-link">
-        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+        <Icon name="arrow_back" size={16} />
         <span>Back to {collection?.data.title ?? "Practice Set"}</span>
       </a>
       <span class="article-doc-id">CHALLENGE_ID: {entry.slug.toUpperCase()}</span>
@@ -75,8 +76,8 @@ const flagArchive = entry.data.assets.find(
           {
             flagArchive ? (
               <a class="challenge-download-link" href={flagArchive.url} target="_blank" rel="noopener noreferrer">
-                <span class="material-symbols-outlined" aria-hidden="true">download</span>
-                {flagArchive.label}
+                <Icon name="download" size={16} />
+                <span>{flagArchive.label}</span>
               </a>
             ) : (
               <span class="meta-card-text">Included in prompt</span>

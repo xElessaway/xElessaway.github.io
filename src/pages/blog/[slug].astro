@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import SocialIcon from "../../components/SocialIcon.astro";
+import Icon from "../../components/Icon.astro";
 import { siteMeta } from "../../data/site";
 
 export async function getStaticPaths() {
@@ -29,7 +30,7 @@ const readingTime = `${Math.max(3, Math.round(wordCount / 180))} min read`;
     <!-- Top Back Navigation Bar -->
     <nav class="article-breadcrumb-bar">
       <a href="/blog/" class="article-back-link">
-        <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+        <Icon name="arrow_back" size={16} />
         <span>Back to Research Archive</span>
       </a>
       <span class="article-doc-id">DOC_ID: {entry.slug.toUpperCase().slice(0, 16)}</span>
@@ -52,7 +53,7 @@ const readingTime = `${Math.max(3, Math.round(wordCount / 180))} min read`;
 
       <div class="article-info-strip">
         <div class="article-info-item">
-          <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
+          <Icon name="calendar_today" size={16} />
           <time datetime={entry.data.publishedAt.toISOString()}>
             {entry.data.publishedAt.toLocaleDateString("en-US", {
               month: "long",
@@ -63,13 +64,13 @@ const readingTime = `${Math.max(3, Math.round(wordCount / 180))} min read`;
         </div>
 
         <div class="article-info-item">
-          <span class="material-symbols-outlined" aria-hidden="true">schedule</span>
+          <Icon name="schedule" size={16} />
           <span>{readingTime}</span>
         </div>
 
         {entry.data.sourceUrl && (
           <div class="article-info-item">
-            <span class="material-symbols-outlined" aria-hidden="true">link</span>
+            <Icon name="link" size={16} />
             <a href={entry.data.sourceUrl} target="_blank" rel="noopener noreferrer" class="article-source-link">
               Originally on {entry.data.sourceLabel ?? "Medium"} &nearr;
             </a>
@@ -120,12 +121,12 @@ const readingTime = `${Math.max(3, Math.round(wordCount / 180))} min read`;
 
         <div class="article-nav-actions">
           <a href="/blog/" class="button button-primary">
-            <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
+            <Icon name="arrow_back" size={16} />
             Browse All Research
           </a>
           <a href="/ctf/" class="button button-ghost">
             Explore Practice Lab
-            <span class="material-symbols-outlined" aria-hidden="true">east</span>
+            <Icon name="east" size={16} />
           </a>
         </div>
       </footer>

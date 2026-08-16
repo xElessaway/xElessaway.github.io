@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Icon from "../../components/Icon.astro";
 
 const posts = (await getCollection("blog", ({ data }) => !data.draft)).sort(
   (a, b) => b.data.publishedAt.valueOf() - a.data.publishedAt.valueOf()
@@ -28,9 +29,9 @@ const getTagIcon = (tags: string[]) => {
   if (t.some((x) => x.includes("malware") || x.includes("infostealer") || x.includes("hack"))) return "bug_report";
   if (t.some((x) => x.includes("forensic") || x.includes("memory") || x.includes("dfir"))) return "memory";
   if (t.some((x) => x.includes("osint") || x.includes("investigation") || x.includes("fraud"))) return "public";
-  if (t.some((x) => x.includes("network") || x.includes("wireshark") || x.includes("voip") || x.includes("pcap"))) return "lan";
+  if (t.some((x) => x.includes("network") || x.includes("wireshark") || x.includes("voip") || x.includes("pcap"))) return "terminal";
   if (t.some((x) => x.includes("ctf") || x.includes("writeup"))) return "terminal";
-  return "description";
+  return "article";
 };
 
 const getEstimatedReadingTime = (body?: string) => {
@@ -60,7 +61,7 @@ const getEstimatedReadingTime = (body?: string) => {
       </div>
 
       <div class="archive-search-box">
-        <span class="material-symbols-outlined archive-search-icon" aria-hidden="true">search</span>
+        <Icon name="search" size={20} class="archive-search-icon" />
         <input
           type="search"
           id="archive-search-input"
@@ -89,7 +90,7 @@ const getEstimatedReadingTime = (body?: string) => {
               class="archive-nav-btn is-active"
               data-archive-filter="all"
             >
-              <span class="material-symbols-outlined" aria-hidden="true">folder_open</span>
+              <Icon name="folder_open" size={18} />
               <span>All Writeups</span>
               <span class="archive-pill-count">{posts.length}</span>
             </button>
@@ -98,7 +99,7 @@ const getEstimatedReadingTime = (body?: string) => {
               class="archive-nav-btn"
               data-archive-filter="reports"
             >
-              <span class="material-symbols-outlined" aria-hidden="true">article</span>
+              <Icon name="article" size={18} />
               <span>Reports</span>
               <span class="archive-pill-count">{posts.filter((p) => p.data.archiveSection === "reports").length}</span>
             </button>
@@ -107,7 +108,7 @@ const getEstimatedReadingTime = (body?: string) => {
               class="archive-nav-btn"
               data-archive-filter="writeups"
             >
-              <span class="material-symbols-outlined" aria-hidden="true">terminal</span>
+              <Icon name="terminal" size={18} />
               <span>CTF Writeups</span>
               <span class="archive-pill-count">{posts.filter((p) => p.data.archiveSection === "writeups").length}</span>
             </button>
@@ -116,7 +117,7 @@ const getEstimatedReadingTime = (body?: string) => {
               class="archive-nav-btn"
               data-archive-tag="dfir"
             >
-              <span class="material-symbols-outlined" aria-hidden="true">memory</span>
+              <Icon name="memory" size={18} />
               <span>DFIR & Forensics</span>
             </button>
             <button
@@ -124,7 +125,7 @@ const getEstimatedReadingTime = (body?: string) => {
               class="archive-nav-btn"
               data-archive-tag="osint"
             >
-              <span class="material-symbols-outlined" aria-hidden="true">public</span>
+              <Icon name="public" size={18} />
               <span>OSINT Cases</span>
             </button>
             <button
@@ -132,22 +133,22 @@ const getEstimatedReadingTime = (body?: string) => {
               class="archive-nav-btn"
               data-archive-tag="malware"
             >
-              <span class="material-symbols-outlined" aria-hidden="true">bug_report</span>
+              <Icon name="bug_report" size={18} />
               <span>Malware & TTPs</span>
             </button>
           </nav>
         </div>
 
-        <!-- Quick Filter Tag Cloud -->
+        <!-- Quick Filter Tags -->
         <div class="archive-card archive-sidebar-tags">
-          <h4 class="archive-sidebar-heading">Quick Tags</h4>
+          <h3 class="archive-sidebar-heading" style="margin-bottom: 0.8rem;">Quick Tags</h3>
           <div class="archive-tag-cloud">
             {
               topTags.map((tag) => (
                 <button
                   type="button"
                   class="archive-tag-chip"
-                  data-archive-tag={tag}
+                  data-archive-tag={tag.toLowerCase()}
                 >
                   #{tag}
                 </button>
@@ -157,13 +158,12 @@ const getEstimatedReadingTime = (body?: string) => {
         </div>
       </aside>
 
-      <!-- Main Archive Canvas -->
+      <!-- Main Content Canvas -->
       <section class="archive-main-canvas">
-        <!-- Featured Investigation Bento Grid -->
         {
           featuredPost && (
-            <div class="archive-featured-bento">
-              <!-- Main Featured Card -->
+            <div class="archive-featured-bento" id="archive-featured-wrap">
+              <!-- Primary Flagship Card -->
               <article class="archive-featured-card">
                 <div class="archive-tape-sticker" aria-hidden="true"></div>
                 <div class="archive-featured-media">
@@ -176,7 +176,7 @@ const getEstimatedReadingTime = (body?: string) => {
                     />
                   ) : (
                     <div class="archive-featured-placeholder">
-                      <span class="material-symbols-outlined archive-hero-symbol" aria-hidden="true">security</span>
+                      <Icon name="security" size={54} class="archive-hero-symbol" />
                     </div>
                   )}
                   <div class="archive-featured-badge">
@@ -190,7 +190,7 @@ const getEstimatedReadingTime = (body?: string) => {
                   <p class="archive-featured-desc">{featuredPost.data.description}</p>
                   <div class="archive-featured-footer">
                     <div class="archive-date-line">
-                      <span class="material-symbols-outlined" aria-hidden="true">calendar_today</span>
+                      <Icon name="calendar_today" size={16} />
                       <time datetime={featuredPost.data.publishedAt.toISOString()}>
                         {featuredPost.data.publishedAt.toLocaleDateString("en-US", {
                           month: "short",
@@ -200,7 +200,8 @@ const getEstimatedReadingTime = (body?: string) => {
                       </time>
                     </div>
                     <a class="archive-read-btn" href={`/blog/${featuredPost.slug}/`}>
-                      READ REPORT <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                      <span>READ REPORT</span>
+                      <Icon name="east" size={16} />
                     </a>
                   </div>
                 </div>
@@ -211,8 +212,8 @@ const getEstimatedReadingTime = (body?: string) => {
                 <div class="archive-paperclip" aria-hidden="true"></div>
                 <div class="archive-side-head">
                   <h3 class="archive-side-title">
-                    <span class="material-symbols-outlined alert-symbol" aria-hidden="true">warning</span>
-                    Threat Note
+                    <Icon name="warning" size={18} class="alert-symbol" />
+                    <span>Threat Note</span>
                   </h3>
                 </div>
                 <div class="archive-side-body">
@@ -263,7 +264,7 @@ const getEstimatedReadingTime = (body?: string) => {
                   <div class="archive-folder-tab" aria-hidden="true"></div>
                   <a href={`/blog/${post.slug}/`} class="archive-folder-content">
                     <div class="archive-folder-top">
-                      <span class="material-symbols-outlined archive-card-icon" aria-hidden="true">{icon}</span>
+                      <Icon name={icon} size={24} class="archive-card-icon" />
                       <span class="archive-card-tag">{mainTag}</span>
                     </div>
 
@@ -273,11 +274,11 @@ const getEstimatedReadingTime = (body?: string) => {
 
                   <div class="archive-folder-footer">
                     <span class="archive-read-time">
-                      <span class="material-symbols-outlined time-icon" aria-hidden="true">schedule</span>
-                      Read time: {readTime}
+                      <Icon name="schedule" size={14} class="time-icon" />
+                      <span>Read time: {readTime}</span>
                     </span>
                     <a href={`/blog/${post.slug}/`} class="archive-folder-arrow" aria-label={`Read ${post.data.title}`}>
-                      <span class="material-symbols-outlined" aria-hidden="true">east</span>
+                      <Icon name="east" size={16} />
                     </a>
                   </div>
                 </article>
@@ -287,7 +288,7 @@ const getEstimatedReadingTime = (body?: string) => {
         </div>
 
         <div id="archive-empty-state" class="archive-empty-panel" hidden>
-          <span class="material-symbols-outlined archive-empty-icon" aria-hidden="true">search_off</span>
+          <Icon name="search_off" size={48} class="archive-empty-icon" />
           <h3>No matching records found</h3>
           <p>No writeups match your current search query or filter criteria. Try clearing the search or picking another tag.</p>
           <button type="button" class="button button-primary" id="archive-reset-btn">Reset Filters</button>
@@ -298,83 +299,108 @@ const getEstimatedReadingTime = (body?: string) => {
 
   <script>
     const searchInput = document.getElementById("archive-search-input") as HTMLInputElement | null;
-    const filterButtons = document.querySelectorAll<HTMLButtonElement>("[data-archive-filter], [data-archive-tag]");
-    const items = document.querySelectorAll<HTMLElement>("[data-archive-item]");
-    const emptyState = document.getElementById("archive-empty-state");
+    const filterButtons = document.querySelectorAll("[data-archive-filter]");
+    const tagButtons = document.querySelectorAll("[data-archive-tag]");
+    const cards = document.querySelectorAll("[data-archive-item]");
+    const featuredWrap = document.getElementById("archive-featured-wrap");
     const countIndicator = document.getElementById("archive-count-indicator");
+    const emptyState = document.getElementById("archive-empty-state");
     const resetBtn = document.getElementById("archive-reset-btn");
 
     let currentSection = "all";
-    let currentTag = "all";
+    let currentTag: string | null = null;
     let currentQuery = "";
 
-    function filterEntries() {
+    function updateArchiveView() {
       let visibleCount = 0;
 
-      items.forEach((item) => {
-        const itemSection = item.getAttribute("data-section") || "";
-        const itemTags = (item.getAttribute("data-tags") || "").split(",");
-        const itemSearch = item.getAttribute("data-search") || "";
+      cards.forEach((card) => {
+        const item = card as HTMLElement;
+        const section = item.dataset.section ?? "";
+        const tags = (item.dataset.tags ?? "").split(",");
+        const search = item.dataset.search ?? "";
 
-        const matchesSection = currentSection === "all" || itemSection === currentSection;
-        const matchesTag = currentTag === "all" || itemTags.some((t) => t.includes(currentTag.toLowerCase()));
-        const matchesQuery = !currentQuery || itemSearch.includes(currentQuery.toLowerCase());
+        const matchesSection = currentSection === "all" || section === currentSection;
+        const matchesTag = !currentTag || tags.some((t) => t.trim().includes(currentTag!));
+        const matchesQuery = !currentQuery || search.includes(currentQuery);
 
-        const isVisible = matchesSection && matchesTag && matchesQuery;
-        item.style.display = isVisible ? "flex" : "none";
-
-        if (isVisible) visibleCount++;
+        if (matchesSection && matchesTag && matchesQuery) {
+          item.style.display = "flex";
+          visibleCount++;
+        } else {
+          item.style.display = "none";
+        }
       });
+
+      // Hide or show featured hero when filtering
+      if (featuredWrap) {
+        if (currentSection !== "all" || currentTag || currentQuery) {
+          featuredWrap.style.display = "none";
+        } else {
+          featuredWrap.style.display = "grid";
+        }
+      }
+
+      // Update count & empty state
+      if (countIndicator) {
+        countIndicator.textContent = `Showing ${visibleCount} ${visibleCount === 1 ? "entry" : "entries"}`;
+      }
 
       if (emptyState) {
         emptyState.hidden = visibleCount > 0;
       }
-
-      if (countIndicator) {
-        countIndicator.textContent = `Showing ${visibleCount} ${visibleCount === 1 ? 'entry' : 'entries'}`;
-      }
     }
 
+    // Search event
     searchInput?.addEventListener("input", (e) => {
-      currentQuery = (e.target as HTMLInputElement).value.trim();
-      filterEntries();
+      currentQuery = (e.target as HTMLInputElement).value.trim().toLowerCase();
+      updateArchiveView();
     });
 
+    // Section Category filter
     filterButtons.forEach((btn) => {
       btn.addEventListener("click", () => {
         filterButtons.forEach((b) => b.classList.remove("is-active"));
+        tagButtons.forEach((b) => b.classList.remove("is-active"));
         btn.classList.add("is-active");
 
-        const section = btn.getAttribute("data-archive-filter");
-        const tag = btn.getAttribute("data-archive-tag");
-
-        if (section) {
-          currentSection = section;
-          currentTag = "all";
-        } else if (tag) {
-          currentSection = "all";
-          currentTag = tag;
-        }
-
-        filterEntries();
+        currentSection = (btn as HTMLElement).dataset.archiveFilter ?? "all";
+        currentTag = null;
+        updateArchiveView();
       });
     });
 
+    // Tag filter
+    tagButtons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tag = (btn as HTMLElement).dataset.archiveTag ?? "";
+        if (currentTag === tag) {
+          // Toggle off
+          currentTag = null;
+          btn.classList.remove("is-active");
+          document.querySelector('[data-archive-filter="all"]')?.classList.add("is-active");
+          currentSection = "all";
+        } else {
+          tagButtons.forEach((b) => b.classList.remove("is-active"));
+          filterButtons.forEach((b) => b.classList.remove("is-active"));
+          btn.classList.add("is-active");
+          currentTag = tag;
+          currentSection = "all";
+        }
+        updateArchiveView();
+      });
+    });
+
+    // Reset button
     resetBtn?.addEventListener("click", () => {
       if (searchInput) searchInput.value = "";
       currentQuery = "";
+      currentTag = null;
       currentSection = "all";
-      currentTag = "all";
-
-      filterButtons.forEach((b) => {
-        if (b.getAttribute("data-archive-filter") === "all") {
-          b.classList.add("is-active");
-        } else {
-          b.classList.remove("is-active");
-        }
-      });
-
-      filterEntries();
+      filterButtons.forEach((b) => b.classList.remove("is-active"));
+      tagButtons.forEach((b) => b.classList.remove("is-active"));
+      document.querySelector('[data-archive-filter="all"]')?.classList.add("is-active");
+      updateArchiveView();
     });
   </script>
 </BaseLayout>

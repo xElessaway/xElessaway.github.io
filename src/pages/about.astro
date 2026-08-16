@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import SocialIcon from "../components/SocialIcon.astro";
+import Icon from "../components/Icon.astro";
 import { siteMeta } from "../data/site";
 
 const focusAreas = [
@@ -89,11 +90,11 @@ const socialProfiles = [
             </p>
             <div class="button-row" style="margin-top: 1.5rem;">
               <a class="button button-primary" href="#contact">
-                <span class="material-symbols-outlined" style="font-size: 16px;">contact_page</span>
+                <Icon name="contact_page" size={16} />
                 Connect With Me
               </a>
               <a class="button button-ghost" href="/blog/">
-                <span class="material-symbols-outlined" style="font-size: 16px;">menu_book</span>
+                <Icon name="menu_book" size={16} />
                 Read Research Archive
               </a>
             </div>
@@ -170,7 +171,7 @@ const socialProfiles = [
           {achievementHighlights.map((item) => (
             <article class="achievement-card">
               <div class="achievement-icon">
-                <span class="material-symbols-outlined">verified</span>
+                <Icon name="verified" size={20} />
               </div>
               <div class="achievement-info">
                 <h3>{item.title}</h3>
@@ -206,7 +207,7 @@ const socialProfiles = [
                   <span class="social-platform-name">{social.label}</span>
                   <span class="social-handle mono">{social.handle}</span>
                 </div>
-                <span class="material-symbols-outlined social-arrow">north_east</span>
+                <Icon name="north_east" size={18} class="social-arrow" />
               </div>
               <p class="social-card-desc">{social.desc}</p>
             </a>
