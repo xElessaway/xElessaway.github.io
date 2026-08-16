@@ -21,6 +21,7 @@ const moduleLabels: Record<string, string> = {
       </button>
 
       <a class="brand-mark" href={withBase("/")} aria-label="Ahmed Elessaway home">
+        <img src={withBase("/logo-me.png")} alt="Ahmed Elessaway" class="brand-avatar" />
         <span class="brand-copy">
           <strong>xElessaway</strong>
           <small>research portfolio</small>
@@ -42,7 +43,15 @@ const moduleLabels: Record<string, string> = {
         })
       }
     </nav>
-    <a class="header-contact" href={withBase("/about/#contact")}>Connect</a>
+
+    <div class="shell-right-actions">
+      <button class="theme-toggle-btn" type="button" id="theme-toggle" aria-label="Toggle light and dark theme" title="Toggle Theme">
+        <span class="material-symbols-outlined theme-icon-dark">dark_mode</span>
+        <span class="material-symbols-outlined theme-icon-light">light_mode</span>
+      </button>
+
+      <a class="header-contact" href={withBase("/about/#contact")}>Connect</a>
+    </div>
   </div>
 </header>
 
@@ -51,6 +60,7 @@ const moduleLabels: Record<string, string> = {
   const nav = document.querySelector("#site-nav");
   const desktopMedia = window.matchMedia("(min-width: 1100px)");
 
+  // Mobile menu toggle
   if (menuToggle instanceof HTMLButtonElement && nav instanceof HTMLElement) {
     const closeMobileNav = () => {
       nav.classList.remove("is-open");
@@ -94,4 +104,13 @@ const moduleLabels: Record<string, string> = {
 
     syncViewportState();
   }
+
+  // Theme switcher toggle
+  const themeToggle = document.getElementById("theme-toggle");
+  themeToggle?.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") || "light";
+    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("theme", next);
+  });
 </script>

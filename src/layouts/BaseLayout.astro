@@ -45,6 +45,13 @@ const enableAnalytics = !robots?.includes("noindex");
         ></script>
       )
     }
+    <script is:inline>
+      (() => {
+        const savedTheme = localStorage.getItem("theme");
+        const theme = savedTheme === "dark" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script>
     <title>{title}</title>
   </head>
   <body class="ops-root">
