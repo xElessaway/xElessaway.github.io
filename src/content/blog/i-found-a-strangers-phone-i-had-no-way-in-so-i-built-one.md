@@ -12,7 +12,7 @@ tags:
   - "androidforensics"
   - "cybersecurity"
 cover: "/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-01.png"
-featured: true
+featured: false
 draft: false
 ---
 
