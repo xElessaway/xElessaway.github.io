@@ -7,7 +7,6 @@ tags: ["threat-intelligence","malware-analysis","byovd","mythic-c2","github-c2",
 cover: "/images/posts/exposed-quickdav-malware-distribution-repository-and-remcos-rat-infrastructure/img-01.png"
 featured: false
 draft: false
-sourceUrl: ""
 ---
 
 ### Executive Summary
