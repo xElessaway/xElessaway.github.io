@@ -1,0 +1,879 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Inked Intel Studio | Ahmed Elessaway"
+  description="Private in-browser publishing studio for research articles, CTF challenges, and threat dossiers."
+  robots="noindex,nofollow"
+>
+  <div class="studio-wrapper">
+    <!-- Studio Top Banner -->
+    <header class="studio-header">
+      <div class="studio-header-title">
+        <div class="status-stamp"><span></span>Studio Mode Active</div>
+        <h1 class="studio-heading">
+          INKED INTEL STUDIO
+          <svg class="archive-squiggle" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0 5 Q 50 10 100 0" fill="transparent" stroke="currentColor" stroke-width="4"></path>
+          </svg>
+        </h1>
+      </div>
+
+      <!-- GitHub Token Auth Pill -->
+      <div class="studio-auth-box">
+        <div class="studio-auth-status" id="auth-status-indicator">
+          <span class="material-symbols-outlined" id="auth-status-icon">key_off</span>
+          <span id="auth-status-text">GitHub Token Required</span>
+        </div>
+        <button type="button" class="button button-ghost studio-token-btn" id="token-modal-open">
+          Configure Token
+        </button>
+      </div>
+    </header>
+
+    <!-- Studio Nav & Content Selector -->
+    <div class="studio-nav-bar">
+      <div class="studio-content-tabs">
+        <button type="button" class="studio-tab is-active" data-type="blog">
+          <span class="material-symbols-outlined">article</span>
+          Research & Writeups
+        </button>
+        <button type="button" class="studio-tab" data-type="ctf">
+          <span class="material-symbols-outlined">flag</span>
+          CTF Challenge
+        </button>
+        <button type="button" class="studio-tab" data-type="actor">
+          <span class="material-symbols-outlined">policy</span>
+          Threat Dossier
+        </button>
+      </div>
+
+      <div class="studio-actions-top">
+        <button type="button" class="button button-ghost" id="studio-load-draft">
+          <span class="material-symbols-outlined">history</span> Load Draft
+        </button>
+        <button type="button" class="button button-ghost" id="studio-save-draft">
+          <span class="material-symbols-outlined">save</span> Save Local
+        </button>
+        <button type="button" class="button button-primary studio-publish-btn" id="studio-publish-btn">
+          <span class="material-symbols-outlined">rocket_launch</span> Publish to GitHub
+        </button>
+      </div>
+    </div>
+
+    <!-- Status Toast / Alert -->
+    <div id="studio-alert" class="studio-alert" hidden>
+      <span class="material-symbols-outlined" id="studio-alert-icon">info</span>
+      <span id="studio-alert-msg">Ready.</span>
+    </div>
+
+    <!-- Main Studio Split Canvas -->
+    <div class="studio-canvas">
+      <!-- Left: Metadata & Markdown Form -->
+      <div class="studio-form-pane">
+        <!-- Metadata Form for Blog -->
+        <div id="form-blog" class="studio-meta-group">
+          <div class="studio-input-grid">
+            <label class="studio-field studio-field-wide">
+              <span class="studio-label">Article Title *</span>
+              <input type="text" id="post-title" class="studio-input" placeholder="e.g. Memory Forensics Analysis of..." />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">File Slug (URL)</span>
+              <input type="text" id="post-slug" class="studio-input mono" placeholder="auto-generated-slug" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Section Lane</span>
+              <select id="post-section" class="studio-input">
+                <option value="reports">Investigation Report</option>
+                <option value="writeups">CTF Writeup</option>
+              </select>
+            </label>
+
+            <label class="studio-field studio-field-wide">
+              <span class="studio-label">Short Description / Lede *</span>
+              <textarea id="post-desc" class="studio-input" rows="2" placeholder="Brief 1-2 sentence summary for archive cards and search previews..."></textarea>
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Tags (comma separated)</span>
+              <input type="text" id="post-tags" class="studio-input" placeholder="dfir, memory, osint, malware" value="dfir, investigation" />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Cover Image URL (optional)</span>
+              <input type="url" id="post-cover" class="studio-input" placeholder="https://..." />
+            </label>
+
+            <label class="studio-field">
+              <span class="studio-label">Publish Date</span>
+              <input type="date" id="post-date" class="studio-input" />
+            </label>
+
+            <div class="studio-field-checkboxes">
+              <label class="studio-checkbox-label">
+                <input type="checkbox" id="post-featured" />
+                <span>Featured Investigation</span>
+              </label>
+              <label class="studio-checkbox-label">
+                <input type="checkbox" id="post-draft" />
+                <span>Save as Draft</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Markdown Toolbar -->
+        <div class="studio-toolbar">
+          <button type="button" class="toolbar-btn" data-tool="h2" title="Heading 2">H2</button>
+          <button type="button" class="toolbar-btn" data-tool="h3" title="Heading 3">H3</button>
+          <button type="button" class="toolbar-btn" data-tool="bold" title="Bold"><strong>B</strong></button>
+          <button type="button" class="toolbar-btn" data-tool="italic" title="Italic"><em>I</em></button>
+          <button type="button" class="toolbar-btn" data-tool="quote" title="Callout Quote">Quote</button>
+          <button type="button" class="toolbar-btn" data-tool="code" title="Code Block">Code</button>
+          <button type="button" class="toolbar-btn" data-tool="link" title="Link">Link</button>
+          <button type="button" class="toolbar-btn" data-tool="image" title="Image">Image</button>
+          <button type="button" class="toolbar-btn" data-tool="table" title="Table">Table</button>
+          <button type="button" class="toolbar-btn" data-tool="bullet" title="Bullet List">&bull; List</button>
+        </div>
+
+        <!-- Markdown Textarea -->
+        <div class="studio-editor-area">
+          <textarea id="markdown-editor" class="studio-editor-textarea" spellcheck="false" placeholder="Write your investigation notes in Markdown or HTML here..."></textarea>
+        </div>
+      </div>
+
+      <!-- Right: Live Inked Intel Paper Manuscript Preview -->
+      <div class="studio-preview-pane">
+        <div class="studio-preview-header">
+          <span class="eyebrow">Live Paper Preview</span>
+          <span class="studio-preview-tag">Inked Intel Engine</span>
+        </div>
+
+        <div class="studio-paper-container">
+          <header class="article-dossier-header" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+            <div class="article-tape-sticker" aria-hidden="true"></div>
+            <div class="article-meta-ribbon">
+              <span class="article-type-pill" id="preview-section-badge">Investigation Report</span>
+              <span class="article-status-pill"><span class="pulse-dot"></span> LIVE PREVIEW</span>
+            </div>
+            <h1 class="article-title" id="preview-title" style="font-size: 1.85rem;">Untitled Investigation</h1>
+            <p class="article-lede" id="preview-desc" style="font-size: 1rem;">Description summary will appear here...</p>
+            <div class="article-tags-wrap" id="preview-tags-wrap"></div>
+          </header>
+
+          <main class="article-manuscript-panel" style="padding: 1.5rem;">
+            <div class="article-prose prose" id="preview-body">
+              <p><em>Start writing to see the rendered manuscript...</em></p>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Token Modal Dialog -->
+  <dialog id="token-dialog" class="studio-dialog">
+    <div class="studio-dialog-content">
+      <div class="studio-dialog-head">
+        <h3>Configure GitHub Publishing Token</h3>
+        <button type="button" class="button button-ghost" id="token-dialog-close">✕</button>
+      </div>
+
+      <p class="studio-dialog-desc">
+        To publish directly to GitHub without servers, generate a free <strong>GitHub Personal Access Token (Fine-grained or Classic)</strong> with <code>repo</code> contents write permission.
+      </p>
+
+      <ol class="studio-token-steps">
+        <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noreferrer" class="text-link">GitHub Token Settings &nearr;</a></li>
+        <li>Generate a token for repository: <strong><code>xElessaway/xElessaway.github.io</code></strong></li>
+        <li>Grant <strong>Contents (Read & Write)</strong> permissions.</li>
+        <li>Paste your token below (it is stored only in your browser's private storage):</li>
+      </ol>
+
+      <label class="studio-field studio-field-wide" style="margin: 1.25rem 0;">
+        <span class="studio-label">Personal Access Token (ghp_... or github_pat_...)</span>
+        <input type="password" id="github-token-input" class="studio-input mono" placeholder="github_pat_11..." autocomplete="off" />
+      </label>
+
+      <div class="button-row" style="justify-content: flex-end;">
+        <button type="button" class="button button-ghost" id="token-clear-btn">Clear Token</button>
+        <button type="button" class="button button-primary" id="token-save-btn">Verify & Save Token</button>
+      </div>
+
+      <p id="token-verify-msg" class="validator-state" style="margin-top: 1rem;"></p>
+    </div>
+  </dialog>
+
+  <!-- Marked Parser Script for Live Preview -->
+  <script is:inline src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <script is:inline>
+    const GITHUB_OWNER = "xElessaway";
+    const GITHUB_REPO = "xElessaway.github.io";
+    const GITHUB_BRANCH = "main";
+    const TOKEN_KEY = "xelessaway_gh_token";
+
+    const titleInput = document.getElementById("post-title");
+    const slugInput = document.getElementById("post-slug");
+    const descInput = document.getElementById("post-desc");
+    const sectionInput = document.getElementById("post-section");
+    const tagsInput = document.getElementById("post-tags");
+    const coverInput = document.getElementById("post-cover");
+    const dateInput = document.getElementById("post-date");
+    const featuredCheck = document.getElementById("post-featured");
+    const draftCheck = document.getElementById("post-draft");
+    const editor = document.getElementById("markdown-editor");
+
+    const previewTitle = document.getElementById("preview-title");
+    const previewDesc = document.getElementById("preview-desc");
+    const previewBadge = document.getElementById("preview-section-badge");
+    const previewTags = document.getElementById("preview-tags-wrap");
+    const previewBody = document.getElementById("preview-body");
+
+    const tokenDialog = document.getElementById("token-dialog");
+    const tokenModalOpen = document.getElementById("token-modal-open");
+    const tokenDialogClose = document.getElementById("token-dialog-close");
+    const tokenInput = document.getElementById("github-token-input");
+    const tokenSaveBtn = document.getElementById("token-save-btn");
+    const tokenClearBtn = document.getElementById("token-clear-btn");
+    const tokenVerifyMsg = document.getElementById("token-verify-msg");
+    const authIndicator = document.getElementById("auth-status-indicator");
+    const authText = document.getElementById("auth-status-text");
+    const authIcon = document.getElementById("auth-status-icon");
+
+    const publishBtn = document.getElementById("studio-publish-btn");
+    const saveDraftBtn = document.getElementById("studio-save-draft");
+    const loadDraftBtn = document.getElementById("studio-load-draft");
+    const alertBox = document.getElementById("studio-alert");
+    const alertMsg = document.getElementById("studio-alert-msg");
+    const alertIcon = document.getElementById("studio-alert-icon");
+
+    // Set today's date
+    if (dateInput) {
+      dateInput.value = new Date().toISOString().split("T")[0];
+    }
+
+    // Slug generation
+    function generateSlug(text) {
+      return text
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+    }
+
+    titleInput?.addEventListener("input", () => {
+      if (!slugInput.dataset.manual) {
+        slugInput.value = generateSlug(titleInput.value);
+      }
+      updatePreview();
+    });
+
+    slugInput?.addEventListener("input", () => {
+      slugInput.dataset.manual = "true";
+    });
+
+    // Update Live Preview
+    function updatePreview() {
+      if (previewTitle) previewTitle.textContent = titleInput.value.trim() || "Untitled Investigation";
+      if (previewDesc) previewDesc.textContent = descInput.value.trim() || "Summary description will appear here...";
+      if (previewBadge) previewBadge.textContent = sectionInput.value === "reports" ? "Investigation Report" : "CTF Writeup";
+
+      if (previewTags) {
+        const rawTags = tagsInput.value.split(",").map((t) => t.trim()).filter(Boolean);
+        previewTags.innerHTML = rawTags.map((t) => `<span class="article-tag-chip">#${t}</span>`).join("");
+      }
+
+      if (previewBody && typeof marked !== "undefined") {
+        const rawContent = editor.value.trim();
+        previewBody.innerHTML = rawContent ? marked.parse(rawContent) : "<p><em>Start typing to see the rendered manuscript...</em></p>";
+      }
+    }
+
+    [descInput, sectionInput, tagsInput, editor].forEach((el) => {
+      el?.addEventListener("input", updatePreview);
+    });
+
+    // Toolbar Insertion Helpers
+    document.querySelectorAll("[data-tool]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tool = btn.getAttribute("data-tool");
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        const selected = editor.value.substring(start, end);
+        let insert = "";
+
+        switch (tool) {
+          case "h2": insert = `\n\n## ${selected || "Section Title"}\n\n`; break;
+          case "h3": insert = `\n\n### ${selected || "Subsection Title"}\n\n`; break;
+          case "bold": insert = `**${selected || "bold text"}**`; break;
+          case "italic": insert = `*${selected || "italic text"}*`; break;
+          case "quote": insert = `\n\n> ${selected || "Key finding or analytical observation."}\n\n`; break;
+          case "code": insert = `\n\n\`\`\`bash\n${selected || "# Enter command or script here"}\n\`\`\`\n\n`; break;
+          case "link": insert = `[${selected || "Link Text"}](https://example.com)`; break;
+          case "image": insert = `\n\n<figure><img src="${selected || "https://..."}" alt="Evidence Exhibit" /><figcaption>Exhibit: Case Analysis</figcaption></figure>\n\n`; break;
+          case "table": insert = `\n\n| Indicator | Type | Context |\n|---|---|---|\n| 192.168.1.1 | IPv4 | C2 Telemetry |\n\n`; break;
+          case "bullet": insert = `\n- Item 1\n- Item 2\n- Item 3\n`; break;
+        }
+
+        editor.setRangeText(insert, start, end, "end");
+        editor.focus();
+        updatePreview();
+      });
+    });
+
+    // Auth & Token Management
+    function getStoredToken() {
+      return localStorage.getItem(TOKEN_KEY) || "";
+    }
+
+    function checkAuthStatus() {
+      const token = getStoredToken();
+      if (token) {
+        authIndicator.classList.add("is-connected");
+        authIcon.textContent = "verified_user";
+        authText.textContent = "GitHub Token Active";
+      } else {
+        authIndicator.classList.remove("is-connected");
+        authIcon.textContent = "key_off";
+        authText.textContent = "GitHub Token Required";
+      }
+    }
+
+    tokenModalOpen?.addEventListener("click", () => {
+      tokenInput.value = getStoredToken();
+      tokenVerifyMsg.textContent = "";
+      tokenDialog.showModal();
+    });
+
+    tokenDialogClose?.addEventListener("click", () => {
+      tokenDialog.close();
+    });
+
+    tokenSaveBtn?.addEventListener("click", async () => {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        tokenVerifyMsg.textContent = "Please enter a token.";
+        tokenVerifyMsg.className = "validator-state is-error";
+        return;
+      }
+
+      tokenVerifyMsg.textContent = "Verifying with GitHub...";
+      tokenVerifyMsg.className = "validator-state is-pending";
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github+json"
+          }
+        });
+
+        if (res.ok) {
+          localStorage.setItem(TOKEN_KEY, token);
+          tokenVerifyMsg.textContent = "✅ Connected to xElessaway/xElessaway.github.io successfully!";
+          tokenVerifyMsg.className = "validator-state is-solved";
+          checkAuthStatus();
+          setTimeout(() => tokenDialog.close(), 1200);
+        } else {
+          tokenVerifyMsg.textContent = "❌ Failed: Check that the token has repository access.";
+          tokenVerifyMsg.className = "validator-state is-error";
+        }
+      } catch (err) {
+        tokenVerifyMsg.textContent = "❌ Verification error: Network request failed.";
+        tokenVerifyMsg.className = "validator-state is-error";
+      }
+    });
+
+    tokenClearBtn?.addEventListener("click", () => {
+      localStorage.removeItem(TOKEN_KEY);
+      tokenInput.value = "";
+      tokenVerifyMsg.textContent = "Token removed.";
+      tokenVerifyMsg.className = "validator-state";
+      checkAuthStatus();
+    });
+
+    // Alert Display Helper
+    function showAlert(message, type = "info") {
+      if (!alertBox || !alertMsg) return;
+      alertMsg.textContent = message;
+      alertBox.hidden = false;
+      alertBox.className = `studio-alert alert-${type}`;
+
+      if (type === "success") alertIcon.textContent = "check_circle";
+      else if (type === "error") alertIcon.textContent = "error";
+      else alertIcon.textContent = "info";
+    }
+
+    // Local Draft Storage
+    saveDraftBtn?.addEventListener("click", () => {
+      const draft = {
+        title: titleInput.value,
+        slug: slugInput.value,
+        desc: descInput.value,
+        section: sectionInput.value,
+        tags: tagsInput.value,
+        cover: coverInput.value,
+        date: dateInput.value,
+        featured: featuredCheck.checked,
+        draft: draftCheck.checked,
+        body: editor.value
+      };
+      localStorage.setItem("xelessaway_studio_draft", JSON.stringify(draft));
+      showAlert("Draft saved in your browser storage!", "success");
+    });
+
+    loadDraftBtn?.addEventListener("click", () => {
+      const raw = localStorage.getItem("xelessaway_studio_draft");
+      if (!raw) {
+        showAlert("No saved draft found.", "error");
+        return;
+      }
+      try {
+        const d = JSON.parse(raw);
+        titleInput.value = d.title || "";
+        slugInput.value = d.slug || "";
+        descInput.value = d.desc || "";
+        sectionInput.value = d.section || "reports";
+        tagsInput.value = d.tags || "";
+        coverInput.value = d.cover || "";
+        dateInput.value = d.date || "";
+        featuredCheck.checked = Boolean(d.featured);
+        draftCheck.checked = Boolean(d.draft);
+        editor.value = d.body || "";
+        updatePreview();
+        showAlert("Draft restored successfully!", "success");
+      } catch (e) {
+        showAlert("Failed to parse saved draft.", "error");
+      }
+    });
+
+    // Publish to GitHub via REST API
+    publishBtn?.addEventListener("click", async () => {
+      const token = getStoredToken();
+      if (!token) {
+        tokenModalOpen?.click();
+        showAlert("Please configure your GitHub token first.", "error");
+        return;
+      }
+
+      const title = titleInput.value.trim();
+      const slug = slugInput.value.trim() || generateSlug(title);
+      const desc = descInput.value.trim();
+      const body = editor.value.trim();
+
+      if (!title || !desc || !body) {
+        showAlert("Please fill in the Title, Description, and Article Body before publishing.", "error");
+        return;
+      }
+
+      const rawTags = tagsInput.value.split(",").map((t) => `"${t.trim()}"`).filter((t) => t !== '""').join("\n  - ");
+      const targetPath = `src/content/blog/${slug}.md`;
+
+      const markdownFile = `---
+title: "${title.replace(/"/g, '\\"')}"
+description: "${desc.replace(/"/g, '\\"')}"
+publishedAt: ${dateInput.value || new Date().toISOString().split("T")[0]}
+archiveSection: ${sectionInput.value}
+tags:
+  - ${rawTags || '"investigation"'}
+${coverInput.value ? `cover: "${coverInput.value.trim()}"\n` : ""}featured: ${featuredCheck.checked}
+draft: ${draftCheck.checked}
+---
+
+${body}
+`;
+
+      showAlert("Connecting to GitHub & checking existing files...", "info");
+      publishBtn.disabled = true;
+
+      try {
+        // 1. Check if file already exists (get sha if updating)
+        let sha = undefined;
+        const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}?ref=${GITHUB_BRANCH}`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
+        });
+
+        if (checkRes.ok) {
+          const fileData = await checkRes.json();
+          sha = fileData.sha;
+        }
+
+        // 2. Encode to UTF-8 Base64
+        const utf8Bytes = new TextEncoder().encode(markdownFile);
+        let binaryString = "";
+        utf8Bytes.forEach((byte) => { binaryString += String.fromCharCode(byte); });
+        const base64Content = btoa(binaryString);
+
+        // 3. Commit to GitHub
+        showAlert("Committing directly to GitHub main branch...", "info");
+
+        const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `feat(content): publish "${title}" via Inked Intel Studio`,
+            content: base64Content,
+            branch: GITHUB_BRANCH,
+            ...(sha ? { sha } : {})
+          })
+        });
+
+        if (putRes.ok) {
+          showAlert(`🎉 Published successfully! GitHub Actions is building the site. It will be live at /blog/${slug}/ in ~30 seconds!`, "success");
+        } else {
+          const errData = await putRes.json();
+          showAlert(`Failed to publish: ${errData.message || "Unknown GitHub API error."}`, "error");
+        }
+      } catch (err) {
+        showAlert("Network error publishing to GitHub.", "error");
+      } finally {
+        publishBtn.disabled = false;
+      }
+    });
+
+    // Initial check
+    checkAuthStatus();
+    updatePreview();
+  </script>
+
+  <style>
+    .studio-wrapper {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .studio-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .studio-heading {
+      position: relative;
+      font-size: clamp(2rem, 3.5vw, 2.8rem);
+      font-weight: 900;
+      margin: 0.5rem 0 0;
+    }
+
+    .studio-auth-box {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .studio-auth-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.8rem;
+      border: 1.5px solid var(--primary);
+      border-radius: 4px;
+      background: var(--surface-highest);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .studio-auth-status.is-connected {
+      background: #dcfce7;
+      border-color: #15803d;
+      color: #15803d;
+    }
+
+    .studio-nav-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .studio-content-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .studio-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.55rem 1rem;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--primary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 2px 2px 0 var(--primary);
+      transition: all 0.15s ease;
+    }
+
+    .studio-tab.is-active {
+      background: var(--secondary);
+      border-color: var(--primary);
+      color: #ffffff;
+      transform: translate(1px, 1px);
+      box-shadow: 1px 1px 0 var(--primary);
+    }
+
+    .studio-actions-top {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .studio-publish-btn {
+      box-shadow: 4px 4px 0 var(--secondary);
+    }
+
+    .studio-alert {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.85rem 1.25rem;
+      border: 2px solid var(--primary);
+      border-radius: 6px;
+      margin-bottom: 1.5rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .alert-info { background: #d8e2ff; color: #00275b; }
+    .alert-success { background: #dcfce7; border-color: #15803d; color: #15803d; }
+    .alert-error { background: #fee2e2; border-color: #ba1a1a; color: #ba1a1a; }
+
+    /* Studio Canvas Grid */
+    .studio-canvas {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .studio-canvas {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .studio-form-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .studio-meta-group {
+      padding: 1.5rem;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 4px 4px 0 var(--primary);
+    }
+
+    .studio-input-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .studio-field-wide {
+      grid-column: span 2;
+    }
+
+    .studio-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .studio-label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .studio-input {
+      padding: 0.6rem 0.8rem;
+      border: 2px solid var(--primary);
+      border-radius: 4px;
+      background: var(--surface-low);
+      color: var(--primary);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .studio-input:focus {
+      border-color: #3b82f6;
+      border-width: 3px;
+      padding: calc(0.6rem - 1px) calc(0.8rem - 1px);
+    }
+
+    .studio-field-checkboxes {
+      grid-column: span 2;
+      display: flex;
+      gap: 1.5rem;
+      padding-top: 0.5rem;
+    }
+
+    .studio-checkbox-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Toolbar */
+    .studio-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      padding: 0.6rem;
+      border: 2px solid var(--primary);
+      border-radius: 6px 6px 0 0;
+      background: var(--surface-high);
+      border-bottom: 0;
+    }
+
+    .toolbar-btn {
+      padding: 0.3rem 0.6rem;
+      border: 1.5px solid var(--primary);
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--primary);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.1s ease;
+    }
+
+    .toolbar-btn:hover {
+      background: var(--secondary);
+      color: #ffffff;
+    }
+
+    .studio-editor-area {
+      border: 2px solid var(--primary);
+      border-radius: 0 0 6px 6px;
+      background: #ffffff;
+      box-shadow: 4px 4px 0 var(--primary);
+      overflow: hidden;
+    }
+
+    .studio-editor-textarea {
+      width: 100%;
+      min-height: 480px;
+      padding: 1.25rem;
+      border: 0;
+      outline: none;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--primary);
+      background: transparent;
+      resize: vertical;
+    }
+
+    /* Live Preview Pane */
+    .studio-preview-pane {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .studio-preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 0.4rem;
+      border-bottom: 2px solid var(--primary);
+    }
+
+    .studio-preview-tag {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .studio-paper-container {
+      max-height: calc(100vh - var(--header-h) - 6rem);
+      overflow-y: auto;
+      border: 2px solid var(--primary);
+      border-radius: 8px;
+      background: var(--bg);
+      box-shadow: 6px 6px 0 var(--primary);
+      padding: 1rem;
+    }
+
+    /* Token Dialog */
+    .studio-dialog {
+      padding: 0;
+      border: 3px solid var(--primary);
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: 10px 10px 0 var(--secondary);
+      max-width: 600px;
+      width: 90vw;
+    }
+
+    .studio-dialog::backdrop {
+      background: rgba(9, 20, 38, 0.7);
+      backdrop-filter: blur(4px);
+    }
+
+    .studio-dialog-content {
+      padding: 2rem;
+    }
+
+    .studio-dialog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 0.6rem;
+    }
+
+    .studio-dialog-desc {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-bottom: 1rem;
+    }
+
+    .studio-token-steps {
+      margin: 1rem 0 1.25rem 1.25rem;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+    }
+
+    .studio-token-steps li {
+      margin-bottom: 0.4rem;
+    }
+  </style>
+</BaseLayout>

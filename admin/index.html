@@ -1,14 +1,422 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="robots" content="noindex" />
-    <title>xElessaway Content Studio</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  </head>
-  <body>
-    <!-- Decap CMS Script -->
-    <script src="https://unpkg.com/decap-cms@^3.1.2/dist/decap-cms.js"></script>
-  </body>
-</html>
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Private in-browser publishing studio for research articles, CTF challenges, and threat dossiers."><meta name="robots" content="noindex,nofollow"><meta name="generator" content="Astro v5.18.2"><meta property="og:title" content="Inked Intel Studio | Ahmed Elessaway"><meta property="og:description" content="Private in-browser publishing studio for research articles, CTF challenges, and threat dossiers."><meta property="og:type" content="website"><meta property="og:url" content="https://xelessaway.github.io/admin/"><meta property="og:site_name" content="Ahmed Elessaway (xElessaway)"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"><title>Inked Intel Studio | Ahmed Elessaway</title><link rel="stylesheet" href="/_astro/admin.FLh2gu6t.css">
+<link rel="stylesheet" href="/_astro/about.BS3rSVK2.css"></head> <body class="ops-root"> <a class="skip-link" href="#main-content">Skip to content</a> <header class="site-header"> <div class="shell-bar"> <div class="shell-left"> <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav"> <span class="sr-only">Toggle navigation</span> <span></span> </button> <a class="brand-mark" href="/" aria-label="Ahmed Elessaway home"> <span class="brand-copy"> <strong>xElessaway</strong> <small>research portfolio</small> </span> </a> </div> <nav id="site-nav" class="site-nav" aria-label="Primary navigation"> <a class="nav-link" href="/"> Home </a><a class="nav-link" href="/blog/"> Research </a><a class="nav-link" href="/threat-intelligence/"> Threat Intel </a><a class="nav-link" href="/ctf/"> Practice </a><a class="nav-link" href="/about/"> Profile </a> </nav> <a class="header-contact" href="/about/#contact">Connect</a> </div> </header> <script type="module">const n=document.querySelector(".menu-toggle"),e=document.querySelector("#site-nav"),s=window.matchMedia("(min-width: 1100px)");if(n instanceof HTMLButtonElement&&e instanceof HTMLElement){const i=()=>{e.classList.remove("is-open"),n.setAttribute("aria-expanded","false")},c=()=>{s.matches&&i()};n.addEventListener("click",()=>{const t=e.classList.toggle("is-open");n.setAttribute("aria-expanded",String(t))}),e.querySelectorAll("a").forEach(t=>{t.addEventListener("click",()=>{i()})}),document.addEventListener("click",t=>{const a=t.target;!s.matches&&e.classList.contains("is-open")&&a instanceof Node&&!e.contains(a)&&!n.contains(a)&&i()}),"addEventListener"in s&&s.addEventListener("change",c),c()}</script> <main id="main-content" class="page-main">  <div class="studio-wrapper" data-astro-cid-2zp6q64z> <!-- Studio Top Banner --> <header class="studio-header" data-astro-cid-2zp6q64z> <div class="studio-header-title" data-astro-cid-2zp6q64z> <div class="status-stamp" data-astro-cid-2zp6q64z><span data-astro-cid-2zp6q64z></span>Studio Mode Active</div> <h1 class="studio-heading" data-astro-cid-2zp6q64z>
+INKED INTEL STUDIO
+<svg class="archive-squiggle" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" data-astro-cid-2zp6q64z> <path d="M0 5 Q 50 10 100 0" fill="transparent" stroke="currentColor" stroke-width="4" data-astro-cid-2zp6q64z></path> </svg> </h1> </div> <!-- GitHub Token Auth Pill --> <div class="studio-auth-box" data-astro-cid-2zp6q64z> <div class="studio-auth-status" id="auth-status-indicator" data-astro-cid-2zp6q64z> <span class="material-symbols-outlined" id="auth-status-icon" data-astro-cid-2zp6q64z>key_off</span> <span id="auth-status-text" data-astro-cid-2zp6q64z>GitHub Token Required</span> </div> <button type="button" class="button button-ghost studio-token-btn" id="token-modal-open" data-astro-cid-2zp6q64z>
+Configure Token
+</button> </div> </header> <!-- Studio Nav & Content Selector --> <div class="studio-nav-bar" data-astro-cid-2zp6q64z> <div class="studio-content-tabs" data-astro-cid-2zp6q64z> <button type="button" class="studio-tab is-active" data-type="blog" data-astro-cid-2zp6q64z> <span class="material-symbols-outlined" data-astro-cid-2zp6q64z>article</span>
+Research & Writeups
+</button> <button type="button" class="studio-tab" data-type="ctf" data-astro-cid-2zp6q64z> <span class="material-symbols-outlined" data-astro-cid-2zp6q64z>flag</span>
+CTF Challenge
+</button> <button type="button" class="studio-tab" data-type="actor" data-astro-cid-2zp6q64z> <span class="material-symbols-outlined" data-astro-cid-2zp6q64z>policy</span>
+Threat Dossier
+</button> </div> <div class="studio-actions-top" data-astro-cid-2zp6q64z> <button type="button" class="button button-ghost" id="studio-load-draft" data-astro-cid-2zp6q64z> <span class="material-symbols-outlined" data-astro-cid-2zp6q64z>history</span> Load Draft
+</button> <button type="button" class="button button-ghost" id="studio-save-draft" data-astro-cid-2zp6q64z> <span class="material-symbols-outlined" data-astro-cid-2zp6q64z>save</span> Save Local
+</button> <button type="button" class="button button-primary studio-publish-btn" id="studio-publish-btn" data-astro-cid-2zp6q64z> <span class="material-symbols-outlined" data-astro-cid-2zp6q64z>rocket_launch</span> Publish to GitHub
+</button> </div> </div> <!-- Status Toast / Alert --> <div id="studio-alert" class="studio-alert" hidden data-astro-cid-2zp6q64z> <span class="material-symbols-outlined" id="studio-alert-icon" data-astro-cid-2zp6q64z>info</span> <span id="studio-alert-msg" data-astro-cid-2zp6q64z>Ready.</span> </div> <!-- Main Studio Split Canvas --> <div class="studio-canvas" data-astro-cid-2zp6q64z> <!-- Left: Metadata & Markdown Form --> <div class="studio-form-pane" data-astro-cid-2zp6q64z> <!-- Metadata Form for Blog --> <div id="form-blog" class="studio-meta-group" data-astro-cid-2zp6q64z> <div class="studio-input-grid" data-astro-cid-2zp6q64z> <label class="studio-field studio-field-wide" data-astro-cid-2zp6q64z> <span class="studio-label" data-astro-cid-2zp6q64z>Article Title *</span> <input type="text" id="post-title" class="studio-input" placeholder="e.g. Memory Forensics Analysis of..." data-astro-cid-2zp6q64z> </label> <label class="studio-field" data-astro-cid-2zp6q64z> <span class="studio-label" data-astro-cid-2zp6q64z>File Slug (URL)</span> <input type="text" id="post-slug" class="studio-input mono" placeholder="auto-generated-slug" data-astro-cid-2zp6q64z> </label> <label class="studio-field" data-astro-cid-2zp6q64z> <span class="studio-label" data-astro-cid-2zp6q64z>Section Lane</span> <select id="post-section" class="studio-input" data-astro-cid-2zp6q64z> <option value="reports" data-astro-cid-2zp6q64z>Investigation Report</option> <option value="writeups" data-astro-cid-2zp6q64z>CTF Writeup</option> </select> </label> <label class="studio-field studio-field-wide" data-astro-cid-2zp6q64z> <span class="studio-label" data-astro-cid-2zp6q64z>Short Description / Lede *</span> <textarea id="post-desc" class="studio-input" rows="2" placeholder="Brief 1-2 sentence summary for archive cards and search previews..." data-astro-cid-2zp6q64z></textarea> </label> <label class="studio-field" data-astro-cid-2zp6q64z> <span class="studio-label" data-astro-cid-2zp6q64z>Tags (comma separated)</span> <input type="text" id="post-tags" class="studio-input" placeholder="dfir, memory, osint, malware" value="dfir, investigation" data-astro-cid-2zp6q64z> </label> <label class="studio-field" data-astro-cid-2zp6q64z> <span class="studio-label" data-astro-cid-2zp6q64z>Cover Image URL (optional)</span> <input type="url" id="post-cover" class="studio-input" placeholder="https://..." data-astro-cid-2zp6q64z> </label> <label class="studio-field" data-astro-cid-2zp6q64z> <span class="studio-label" data-astro-cid-2zp6q64z>Publish Date</span> <input type="date" id="post-date" class="studio-input" data-astro-cid-2zp6q64z> </label> <div class="studio-field-checkboxes" data-astro-cid-2zp6q64z> <label class="studio-checkbox-label" data-astro-cid-2zp6q64z> <input type="checkbox" id="post-featured" data-astro-cid-2zp6q64z> <span data-astro-cid-2zp6q64z>Featured Investigation</span> </label> <label class="studio-checkbox-label" data-astro-cid-2zp6q64z> <input type="checkbox" id="post-draft" data-astro-cid-2zp6q64z> <span data-astro-cid-2zp6q64z>Save as Draft</span> </label> </div> </div> </div> <!-- Markdown Toolbar --> <div class="studio-toolbar" data-astro-cid-2zp6q64z> <button type="button" class="toolbar-btn" data-tool="h2" title="Heading 2" data-astro-cid-2zp6q64z>H2</button> <button type="button" class="toolbar-btn" data-tool="h3" title="Heading 3" data-astro-cid-2zp6q64z>H3</button> <button type="button" class="toolbar-btn" data-tool="bold" title="Bold" data-astro-cid-2zp6q64z><strong data-astro-cid-2zp6q64z>B</strong></button> <button type="button" class="toolbar-btn" data-tool="italic" title="Italic" data-astro-cid-2zp6q64z><em data-astro-cid-2zp6q64z>I</em></button> <button type="button" class="toolbar-btn" data-tool="quote" title="Callout Quote" data-astro-cid-2zp6q64z>Quote</button> <button type="button" class="toolbar-btn" data-tool="code" title="Code Block" data-astro-cid-2zp6q64z>Code</button> <button type="button" class="toolbar-btn" data-tool="link" title="Link" data-astro-cid-2zp6q64z>Link</button> <button type="button" class="toolbar-btn" data-tool="image" title="Image" data-astro-cid-2zp6q64z>Image</button> <button type="button" class="toolbar-btn" data-tool="table" title="Table" data-astro-cid-2zp6q64z>Table</button> <button type="button" class="toolbar-btn" data-tool="bullet" title="Bullet List" data-astro-cid-2zp6q64z>&bull; List</button> </div> <!-- Markdown Textarea --> <div class="studio-editor-area" data-astro-cid-2zp6q64z> <textarea id="markdown-editor" class="studio-editor-textarea" spellcheck="false" placeholder="Write your investigation notes in Markdown or HTML here..." data-astro-cid-2zp6q64z></textarea> </div> </div> <!-- Right: Live Inked Intel Paper Manuscript Preview --> <div class="studio-preview-pane" data-astro-cid-2zp6q64z> <div class="studio-preview-header" data-astro-cid-2zp6q64z> <span class="eyebrow" data-astro-cid-2zp6q64z>Live Paper Preview</span> <span class="studio-preview-tag" data-astro-cid-2zp6q64z>Inked Intel Engine</span> </div> <div class="studio-paper-container" data-astro-cid-2zp6q64z> <header class="article-dossier-header" style="margin-bottom: 1.5rem; padding: 1.5rem;" data-astro-cid-2zp6q64z> <div class="article-tape-sticker" aria-hidden="true" data-astro-cid-2zp6q64z></div> <div class="article-meta-ribbon" data-astro-cid-2zp6q64z> <span class="article-type-pill" id="preview-section-badge" data-astro-cid-2zp6q64z>Investigation Report</span> <span class="article-status-pill" data-astro-cid-2zp6q64z><span class="pulse-dot" data-astro-cid-2zp6q64z></span> LIVE PREVIEW</span> </div> <h1 class="article-title" id="preview-title" style="font-size: 1.85rem;" data-astro-cid-2zp6q64z>Untitled Investigation</h1> <p class="article-lede" id="preview-desc" style="font-size: 1rem;" data-astro-cid-2zp6q64z>Description summary will appear here...</p> <div class="article-tags-wrap" id="preview-tags-wrap" data-astro-cid-2zp6q64z></div> </header> <main class="article-manuscript-panel" style="padding: 1.5rem;" data-astro-cid-2zp6q64z> <div class="article-prose prose" id="preview-body" data-astro-cid-2zp6q64z> <p data-astro-cid-2zp6q64z><em data-astro-cid-2zp6q64z>Start writing to see the rendered manuscript...</em></p> </div> </main> </div> </div> </div> </div>  <dialog id="token-dialog" class="studio-dialog" data-astro-cid-2zp6q64z> <div class="studio-dialog-content" data-astro-cid-2zp6q64z> <div class="studio-dialog-head" data-astro-cid-2zp6q64z> <h3 data-astro-cid-2zp6q64z>Configure GitHub Publishing Token</h3> <button type="button" class="button button-ghost" id="token-dialog-close" data-astro-cid-2zp6q64z>✕</button> </div> <p class="studio-dialog-desc" data-astro-cid-2zp6q64z>
+To publish directly to GitHub without servers, generate a free <strong data-astro-cid-2zp6q64z>GitHub Personal Access Token (Fine-grained or Classic)</strong> with <code data-astro-cid-2zp6q64z>repo</code> contents write permission.
+</p> <ol class="studio-token-steps" data-astro-cid-2zp6q64z> <li data-astro-cid-2zp6q64z>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noreferrer" class="text-link" data-astro-cid-2zp6q64z>GitHub Token Settings &nearr;</a></li> <li data-astro-cid-2zp6q64z>Generate a token for repository: <strong data-astro-cid-2zp6q64z><code data-astro-cid-2zp6q64z>xElessaway/xElessaway.github.io</code></strong></li> <li data-astro-cid-2zp6q64z>Grant <strong data-astro-cid-2zp6q64z>Contents (Read & Write)</strong> permissions.</li> <li data-astro-cid-2zp6q64z>Paste your token below (it is stored only in your browser's private storage):</li> </ol> <label class="studio-field studio-field-wide" style="margin: 1.25rem 0;" data-astro-cid-2zp6q64z> <span class="studio-label" data-astro-cid-2zp6q64z>Personal Access Token (ghp_... or github_pat_...)</span> <input type="password" id="github-token-input" class="studio-input mono" placeholder="github_pat_11..." autocomplete="off" data-astro-cid-2zp6q64z> </label> <div class="button-row" style="justify-content: flex-end;" data-astro-cid-2zp6q64z> <button type="button" class="button button-ghost" id="token-clear-btn" data-astro-cid-2zp6q64z>Clear Token</button> <button type="button" class="button button-primary" id="token-save-btn" data-astro-cid-2zp6q64z>Verify & Save Token</button> </div> <p id="token-verify-msg" class="validator-state" style="margin-top: 1rem;" data-astro-cid-2zp6q64z></p> </div> </dialog>  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script> <script>
+    const GITHUB_OWNER = "xElessaway";
+    const GITHUB_REPO = "xElessaway.github.io";
+    const GITHUB_BRANCH = "main";
+    const TOKEN_KEY = "xelessaway_gh_token";
+
+    const titleInput = document.getElementById("post-title");
+    const slugInput = document.getElementById("post-slug");
+    const descInput = document.getElementById("post-desc");
+    const sectionInput = document.getElementById("post-section");
+    const tagsInput = document.getElementById("post-tags");
+    const coverInput = document.getElementById("post-cover");
+    const dateInput = document.getElementById("post-date");
+    const featuredCheck = document.getElementById("post-featured");
+    const draftCheck = document.getElementById("post-draft");
+    const editor = document.getElementById("markdown-editor");
+
+    const previewTitle = document.getElementById("preview-title");
+    const previewDesc = document.getElementById("preview-desc");
+    const previewBadge = document.getElementById("preview-section-badge");
+    const previewTags = document.getElementById("preview-tags-wrap");
+    const previewBody = document.getElementById("preview-body");
+
+    const tokenDialog = document.getElementById("token-dialog");
+    const tokenModalOpen = document.getElementById("token-modal-open");
+    const tokenDialogClose = document.getElementById("token-dialog-close");
+    const tokenInput = document.getElementById("github-token-input");
+    const tokenSaveBtn = document.getElementById("token-save-btn");
+    const tokenClearBtn = document.getElementById("token-clear-btn");
+    const tokenVerifyMsg = document.getElementById("token-verify-msg");
+    const authIndicator = document.getElementById("auth-status-indicator");
+    const authText = document.getElementById("auth-status-text");
+    const authIcon = document.getElementById("auth-status-icon");
+
+    const publishBtn = document.getElementById("studio-publish-btn");
+    const saveDraftBtn = document.getElementById("studio-save-draft");
+    const loadDraftBtn = document.getElementById("studio-load-draft");
+    const alertBox = document.getElementById("studio-alert");
+    const alertMsg = document.getElementById("studio-alert-msg");
+    const alertIcon = document.getElementById("studio-alert-icon");
+
+    // Set today's date
+    if (dateInput) {
+      dateInput.value = new Date().toISOString().split("T")[0];
+    }
+
+    // Slug generation
+    function generateSlug(text) {
+      return text
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/(^-|-$)+/g, "");
+    }
+
+    titleInput?.addEventListener("input", () => {
+      if (!slugInput.dataset.manual) {
+        slugInput.value = generateSlug(titleInput.value);
+      }
+      updatePreview();
+    });
+
+    slugInput?.addEventListener("input", () => {
+      slugInput.dataset.manual = "true";
+    });
+
+    // Update Live Preview
+    function updatePreview() {
+      if (previewTitle) previewTitle.textContent = titleInput.value.trim() || "Untitled Investigation";
+      if (previewDesc) previewDesc.textContent = descInput.value.trim() || "Summary description will appear here...";
+      if (previewBadge) previewBadge.textContent = sectionInput.value === "reports" ? "Investigation Report" : "CTF Writeup";
+
+      if (previewTags) {
+        const rawTags = tagsInput.value.split(",").map((t) => t.trim()).filter(Boolean);
+        previewTags.innerHTML = rawTags.map((t) => `<span class="article-tag-chip">#${t}</span>`).join("");
+      }
+
+      if (previewBody && typeof marked !== "undefined") {
+        const rawContent = editor.value.trim();
+        previewBody.innerHTML = rawContent ? marked.parse(rawContent) : "<p><em>Start typing to see the rendered manuscript...</em></p>";
+      }
+    }
+
+    [descInput, sectionInput, tagsInput, editor].forEach((el) => {
+      el?.addEventListener("input", updatePreview);
+    });
+
+    // Toolbar Insertion Helpers
+    document.querySelectorAll("[data-tool]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const tool = btn.getAttribute("data-tool");
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+        const selected = editor.value.substring(start, end);
+        let insert = "";
+
+        switch (tool) {
+          case "h2": insert = `\n\n## ${selected || "Section Title"}\n\n`; break;
+          case "h3": insert = `\n\n### ${selected || "Subsection Title"}\n\n`; break;
+          case "bold": insert = `**${selected || "bold text"}**`; break;
+          case "italic": insert = `*${selected || "italic text"}*`; break;
+          case "quote": insert = `\n\n> ${selected || "Key finding or analytical observation."}\n\n`; break;
+          case "code": insert = `\n\n\`\`\`bash\n${selected || "# Enter command or script here"}\n\`\`\`\n\n`; break;
+          case "link": insert = `[${selected || "Link Text"}](https://example.com)`; break;
+          case "image": insert = `\n\n<figure><img src="${selected || "https://..."}" alt="Evidence Exhibit" /><figcaption>Exhibit: Case Analysis</figcaption></figure>\n\n`; break;
+          case "table": insert = `\n\n| Indicator | Type | Context |\n|---|---|---|\n| 192.168.1.1 | IPv4 | C2 Telemetry |\n\n`; break;
+          case "bullet": insert = `\n- Item 1\n- Item 2\n- Item 3\n`; break;
+        }
+
+        editor.setRangeText(insert, start, end, "end");
+        editor.focus();
+        updatePreview();
+      });
+    });
+
+    // Auth & Token Management
+    function getStoredToken() {
+      return localStorage.getItem(TOKEN_KEY) || "";
+    }
+
+    function checkAuthStatus() {
+      const token = getStoredToken();
+      if (token) {
+        authIndicator.classList.add("is-connected");
+        authIcon.textContent = "verified_user";
+        authText.textContent = "GitHub Token Active";
+      } else {
+        authIndicator.classList.remove("is-connected");
+        authIcon.textContent = "key_off";
+        authText.textContent = "GitHub Token Required";
+      }
+    }
+
+    tokenModalOpen?.addEventListener("click", () => {
+      tokenInput.value = getStoredToken();
+      tokenVerifyMsg.textContent = "";
+      tokenDialog.showModal();
+    });
+
+    tokenDialogClose?.addEventListener("click", () => {
+      tokenDialog.close();
+    });
+
+    tokenSaveBtn?.addEventListener("click", async () => {
+      const token = tokenInput.value.trim();
+      if (!token) {
+        tokenVerifyMsg.textContent = "Please enter a token.";
+        tokenVerifyMsg.className = "validator-state is-error";
+        return;
+      }
+
+      tokenVerifyMsg.textContent = "Verifying with GitHub...";
+      tokenVerifyMsg.className = "validator-state is-pending";
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github+json"
+          }
+        });
+
+        if (res.ok) {
+          localStorage.setItem(TOKEN_KEY, token);
+          tokenVerifyMsg.textContent = "✅ Connected to xElessaway/xElessaway.github.io successfully!";
+          tokenVerifyMsg.className = "validator-state is-solved";
+          checkAuthStatus();
+          setTimeout(() => tokenDialog.close(), 1200);
+        } else {
+          tokenVerifyMsg.textContent = "❌ Failed: Check that the token has repository access.";
+          tokenVerifyMsg.className = "validator-state is-error";
+        }
+      } catch (err) {
+        tokenVerifyMsg.textContent = "❌ Verification error: Network request failed.";
+        tokenVerifyMsg.className = "validator-state is-error";
+      }
+    });
+
+    tokenClearBtn?.addEventListener("click", () => {
+      localStorage.removeItem(TOKEN_KEY);
+      tokenInput.value = "";
+      tokenVerifyMsg.textContent = "Token removed.";
+      tokenVerifyMsg.className = "validator-state";
+      checkAuthStatus();
+    });
+
+    // Alert Display Helper
+    function showAlert(message, type = "info") {
+      if (!alertBox || !alertMsg) return;
+      alertMsg.textContent = message;
+      alertBox.hidden = false;
+      alertBox.className = `studio-alert alert-${type}`;
+
+      if (type === "success") alertIcon.textContent = "check_circle";
+      else if (type === "error") alertIcon.textContent = "error";
+      else alertIcon.textContent = "info";
+    }
+
+    // Local Draft Storage
+    saveDraftBtn?.addEventListener("click", () => {
+      const draft = {
+        title: titleInput.value,
+        slug: slugInput.value,
+        desc: descInput.value,
+        section: sectionInput.value,
+        tags: tagsInput.value,
+        cover: coverInput.value,
+        date: dateInput.value,
+        featured: featuredCheck.checked,
+        draft: draftCheck.checked,
+        body: editor.value
+      };
+      localStorage.setItem("xelessaway_studio_draft", JSON.stringify(draft));
+      showAlert("Draft saved in your browser storage!", "success");
+    });
+
+    loadDraftBtn?.addEventListener("click", () => {
+      const raw = localStorage.getItem("xelessaway_studio_draft");
+      if (!raw) {
+        showAlert("No saved draft found.", "error");
+        return;
+      }
+      try {
+        const d = JSON.parse(raw);
+        titleInput.value = d.title || "";
+        slugInput.value = d.slug || "";
+        descInput.value = d.desc || "";
+        sectionInput.value = d.section || "reports";
+        tagsInput.value = d.tags || "";
+        coverInput.value = d.cover || "";
+        dateInput.value = d.date || "";
+        featuredCheck.checked = Boolean(d.featured);
+        draftCheck.checked = Boolean(d.draft);
+        editor.value = d.body || "";
+        updatePreview();
+        showAlert("Draft restored successfully!", "success");
+      } catch (e) {
+        showAlert("Failed to parse saved draft.", "error");
+      }
+    });
+
+    // Publish to GitHub via REST API
+    publishBtn?.addEventListener("click", async () => {
+      const token = getStoredToken();
+      if (!token) {
+        tokenModalOpen?.click();
+        showAlert("Please configure your GitHub token first.", "error");
+        return;
+      }
+
+      const title = titleInput.value.trim();
+      const slug = slugInput.value.trim() || generateSlug(title);
+      const desc = descInput.value.trim();
+      const body = editor.value.trim();
+
+      if (!title || !desc || !body) {
+        showAlert("Please fill in the Title, Description, and Article Body before publishing.", "error");
+        return;
+      }
+
+      const rawTags = tagsInput.value.split(",").map((t) => `"${t.trim()}"`).filter((t) => t !== '""').join("\n  - ");
+      const targetPath = `src/content/blog/${slug}.md`;
+
+      const markdownFile = `---
+title: "${title.replace(/"/g, '\\"')}"
+description: "${desc.replace(/"/g, '\\"')}"
+publishedAt: ${dateInput.value || new Date().toISOString().split("T")[0]}
+archiveSection: ${sectionInput.value}
+tags:
+  - ${rawTags || '"investigation"'}
+${coverInput.value ? `cover: "${coverInput.value.trim()}"\n` : ""}featured: ${featuredCheck.checked}
+draft: ${draftCheck.checked}
+---
+
+${body}
+`;
+
+      showAlert("Connecting to GitHub & checking existing files...", "info");
+      publishBtn.disabled = true;
+
+      try {
+        // 1. Check if file already exists (get sha if updating)
+        let sha = undefined;
+        const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}?ref=${GITHUB_BRANCH}`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/vnd.github+json" }
+        });
+
+        if (checkRes.ok) {
+          const fileData = await checkRes.json();
+          sha = fileData.sha;
+        }
+
+        // 2. Encode to UTF-8 Base64
+        const utf8Bytes = new TextEncoder().encode(markdownFile);
+        let binaryString = "";
+        utf8Bytes.forEach((byte) => { binaryString += String.fromCharCode(byte); });
+        const base64Content = btoa(binaryString);
+
+        // 3. Commit to GitHub
+        showAlert("Committing directly to GitHub main branch...", "info");
+
+        const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/vnd.github+json",
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            message: `feat(content): publish "${title}" via Inked Intel Studio`,
+            content: base64Content,
+            branch: GITHUB_BRANCH,
+            ...(sha ? { sha } : {})
+          })
+        });
+
+        if (putRes.ok) {
+          showAlert(`🎉 Published successfully! GitHub Actions is building the site. It will be live at /blog/${slug}/ in ~30 seconds!`, "success");
+        } else {
+          const errData = await putRes.json();
+          showAlert(`Failed to publish: ${errData.message || "Unknown GitHub API error."}`, "error");
+        }
+      } catch (err) {
+        showAlert("Network error publishing to GitHub.", "error");
+      } finally {
+        publishBtn.disabled = false;
+      }
+    });
+
+    // Initial check
+    checkAuthStatus();
+    updatePreview();
+  </script>   </main> <footer class="site-footer"> <div class="container footer-grid"> <div> <a class="footer-brand" href="/">xElessaway</a> <p class="footer-copy">Field notes, investigations, and practical security research.</p> </div> <div class="footer-links footer-links-inline"> <a href="/">Home</a><a href="/blog/">Research</a><a href="/threat-intelligence/">Threat Intel</a><a href="/ctf/">Practice</a><a href="/about/">Profile</a> </div> <div class="footer-links footer-links-inline footer-links-right"> <a href="https://github.com/xelessaway" target="_blank" rel="noreferrer">GitHub</a><a href="https://www.linkedin.com/in/ahmedelessaway/" target="_blank" rel="noreferrer">LinkedIn</a><a href="https://x.com/ahmed_elessaway" target="_blank" rel="noreferrer">X</a><a href="https://xelessaway.medium.com/" target="_blank" rel="noreferrer">Medium</a> </div> </div> </footer> <dialog class="image-lightbox" data-image-lightbox aria-label="Expanded image viewer"> <button class="image-lightbox-close" type="button" data-image-lightbox-close aria-label="Close image viewer">
+Close
+</button> <img class="image-lightbox-media" data-image-lightbox-media alt=""> <p class="image-lightbox-caption" data-image-lightbox-caption hidden></p> </dialog> <script>
+      const lightbox = document.querySelector("[data-image-lightbox]");
+      const lightboxMedia = lightbox?.querySelector("[data-image-lightbox-media]");
+      const lightboxCaption = lightbox?.querySelector("[data-image-lightbox-caption]");
+      const lightboxClose = lightbox?.querySelector("[data-image-lightbox-close]");
+
+      const isZoomableImage = (element) =>
+        element instanceof HTMLImageElement &&
+        (element.matches(".prose img") || element.matches(".challenge-image") || element.hasAttribute("data-zoomable-image"));
+
+      const setZoomableState = () => {
+        document.querySelectorAll(".prose img, .challenge-image, img[data-zoomable-image]").forEach((element) => {
+          if (element instanceof HTMLImageElement) {
+            element.tabIndex = 0;
+            element.setAttribute("role", "button");
+            element.setAttribute("aria-haspopup", "dialog");
+          }
+        });
+      };
+
+      const openLightbox = (image) => {
+        if (!(lightbox instanceof HTMLDialogElement) || !(lightboxMedia instanceof HTMLImageElement)) {
+          return;
+        }
+
+        lightboxMedia.src = image.currentSrc || image.src;
+        lightboxMedia.alt = image.alt || "";
+
+        if (lightboxCaption instanceof HTMLElement) {
+          const caption = image.alt?.trim();
+          lightboxCaption.textContent = caption ?? "";
+          lightboxCaption.hidden = !caption;
+        }
+
+        lightbox.showModal();
+      };
+
+      const closeLightbox = () => {
+        if (lightbox instanceof HTMLDialogElement && lightbox.open) {
+          lightbox.close();
+        }
+      };
+
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+
+        if (target instanceof Element) {
+          const image = target.closest(".prose img, .challenge-image, img[data-zoomable-image]");
+
+          if (isZoomableImage(image)) {
+            event.preventDefault();
+            openLightbox(image);
+            return;
+          }
+        }
+
+        if (target === lightbox || target === lightboxClose) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+
+        if ((event.key === "Enter" || event.key === " ") && isZoomableImage(target)) {
+          event.preventDefault();
+          openLightbox(target);
+        }
+      });
+
+      setZoomableState();
+      document.addEventListener("astro:page-load", setZoomableState);
+    </script> </body> </html>
