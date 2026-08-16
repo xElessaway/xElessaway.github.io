@@ -58,16 +58,23 @@ relatedPosts:
 featured: true
 ---
 
-### Executive Summary
+### Key Operational Findings
 
-The **RedHydra Adaptix Cluster** represents an active Chinese-language threat group operating out of Tencent Cloud infrastructure (`101[.]42[.]255[.]92`). The cluster combines modern open-source post-exploitation frameworks (**AdaptixC2**, customized **RRR_C2**, and **Cobalt Strike 4.9.1**) with weaponized protocol-level attacks (**Rogue MySQL arbitrary client file retrieval** and **JNDI/LDAP deserialization**).
+* **Infrastructure Staging**: Host `101[.]42[.]255[.]92` operates as a centralized Command & Control hub and offensive staging node hosted on Tencent Cloud.
+* **Dual C2 Backbone**: Runs Cobalt Strike 4.9.1 on port `8081` alongside the modern **AdaptixC2** and customized `RRR_C2_v1.2` frameworks.
+* **Specialized Protocol Attack**: The cluster leverages **Rogue MySQL Server (port 3306)** to abuse MySQL's `LOCAL INFILE` protocol feature, forcing connected Java/Spring clients to exfiltrate arbitrary files (`application-dev.yml`, internal `.jar` packages).
+* **Targeting Vertical**: Direct reconnaissance against municipal and public health administration infrastructure (`卫生健康委员会`).
 
-#### Infrastructure & Capabilities
-1. **Command & Control**:
-   - Primary C2 TeamServer running Cobalt Strike 4.9.1 on `101[.]42[.]255[.]92:8081` alongside Adaptix C2 server profiles.
-   - Cross-platform targeting leveraging `genCrossC2.Linux` for Linux ELF beacon generation and `Impacket` SMB servers for Windows lateral staging.
-2. **Specialized Exploit Tradecraft**:
-   - **Rogue MySQL Server Exploitation**: The operator established rogue MySQL listeners (`rogue_mysql_server` / `MySQL_Fake_Server`) on port 3306. When vulnerable enterprise Java applications connect via JDBC, the server exploits `ALLOWLOADLOCALINFILE` to force the client to transmit sensitive files (e.g., `D:/server/yzs/code/backed/meis-yzs.jar` and `application-dev.yml`).
-   - **JNDI Deserialization**: Staging `marshalsec` and `JNDIExploit` LDAP reference servers to deliver `CommonsCollections5` and `CommonsBeanutils1` gadget chains.
-3. **Targeting & Victims**:
-   - Targeted reconnaissance logs specifically confirm scanning of Chinese provincial health commissions and municipal government information networks.
+---
+
+### Technical Telemetry & Indicators
+
+| Indicator Type | Defanged Value | Operational Role |
+|---|---|---|
+| **IPv4 Address** | `101[.]42[.]255[.]92` | Staging, Cobalt Strike & Adaptix C2 Node |
+| **Port / Service** | `101[.]42[.]255[.]92:8081` | Cobalt Strike TeamServer Listener |
+| **Port / Service** | `101[.]42[.]255[.]92:3306` | Rogue MySQL Arbitrary File Exfiltration Listener |
+| **Port / Service** | `101[.]42[.]255[.]92:8555` | JNDI / HTTP Payload Delivery |
+| **Port / Service** | `101[.]42[.]255[.]92:8857` | Interactive Reverse Shell Listener |
+| **Tool Artifact** | `genCrossC2.Linux` | Cross-platform Linux ELF Cobalt Strike Beacon Compiler |
+| **Tool Artifact** | `rogue_mysql_server` | JDBC Protocol Arbitrary Client File Extraction Tool |

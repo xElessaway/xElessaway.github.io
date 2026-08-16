@@ -633,6 +633,68 @@ ${editor.value}`;
       });
     });
 
+    // Automatic Clipboard Image Paste -> GitHub API Auto-Upload
+    editor.addEventListener("paste", async (e) => {
+      const items = (e.clipboardData || window.clipboardData)?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf("image") !== -1) {
+          e.preventDefault();
+          const file = items[i].getAsFile();
+          if (!file) continue;
+
+          const token = getStoredToken();
+          if (!token) {
+            showAlert("⚠️ Please configure your GitHub Token first to upload images.", "alert");
+            tokenDialog?.showModal();
+            return;
+          }
+
+          showAlert("⏳ Uploading pasted image directly to GitHub...", "info");
+
+          try {
+            const reader = new FileReader();
+            reader.onload = async () => {
+              const base64Data = reader.result.split(",")[1];
+              const ext = file.type.split("/")[1] || "png";
+              const filename = `paste_${Date.now()}.${ext}`;
+              const targetPath = `public/images/uploads/${filename}`;
+
+              const putRes = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${targetPath}`, {
+                method: "PUT",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  message: `Upload pasted image: ${filename}`,
+                  content: base64Data,
+                  branch: GITHUB_BRANCH
+                })
+              });
+
+              if (putRes.ok) {
+                const imgTag = `\n\n<figure><img src="/images/uploads/${filename}" alt="Exhibit" /><figcaption>Exhibit: Telemetry Analysis</figcaption></figure>\n\n`;
+                const start = editor.selectionStart;
+                const end = editor.selectionEnd;
+                editor.setRangeText(imgTag, start, end, "end");
+                showAlert("✅ Image uploaded and inserted!", "info");
+                updatePreview();
+              } else {
+                const err = await putRes.json().catch(() => ({}));
+                showAlert(`❌ Upload failed: ${err.message || "GitHub API Error"}`, "alert");
+              }
+            };
+            reader.readAsDataURL(file);
+          } catch (err) {
+            showAlert(`❌ Error uploading image: ${err.message}`, "alert");
+          }
+          break;
+        }
+      }
+    });
+
     checkAuthStatus();
     updatePreview();
   </script>

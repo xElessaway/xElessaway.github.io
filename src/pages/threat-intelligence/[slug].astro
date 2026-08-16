@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
-import { readdir } from "node:fs/promises";
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import Icon from "../../components/Icon.astro";
 
 export async function getStaticPaths() {
   const actors = await getCollection("actors");
@@ -14,7 +14,7 @@ export async function getStaticPaths() {
 const { entry } = Astro.props;
 const { Content } = await render(entry);
 const allPosts = await getCollection("blog", ({ data }) => !data.draft);
-const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts.includes(post.slug));
+const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes(post.slug));
 ---
 
 <BaseLayout
@@ -24,158 +24,651 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts.includes(
   section="Threat Intelligence"
   tags={entry.data.tags}
 >
-  <section class="dossier-hero">
-    <div class="container">
-      <article class="panel dossier-hero-panel">
-        <div class="ops-meta-strip">
-          <span class:list={["status-pill", entry.data.status]}>{entry.data.status}</span>
-          <span class="meta-chip">{entry.data.origin}</span>
-          <span class="meta-chip">first_seen {entry.data.firstSeen}</span>
-          <span class="meta-chip">last_seen {entry.data.lastSeen}</span>
-        </div>
-        <p class="eyebrow">Threat Intel Dossier</p>
-        <h1>{entry.data.name}</h1>
-        <p class="lede">{entry.data.motivation}</p>
-        {entry.data.aliases.length > 0 && (
-          <div class="tag-list">
-            {entry.data.aliases.map((alias) => <span class="tag">{alias}</span>)}
-          </div>
-        )}
-      </article>
+  <div class="dossier-wrapper">
+    <!-- Breadcrumb & Status Topline -->
+    <div class="dossier-nav-bar">
+      <a href="/threat-intelligence/" class="dossier-back-link">
+        <Icon name="chevron-right" class="rotate-180 icon-small" />
+        <span>Back to Threat Intelligence Feed</span>
+      </a>
+      <div class="dossier-status-wrap">
+        <span class:list={["status-indicator-pill", entry.data.status]}>
+          <span class="status-pulse-dot"></span>
+          <span class="status-text">{entry.data.status.toUpperCase()}</span>
+        </span>
+      </div>
     </div>
-  </section>
 
-  <section class="content-section">
-    <div class="container dossier-layout">
-      <article class="stack">
-        <div class="content-panel prose">
-          <p class="eyebrow">Executive Summary</p>
-          <Content />
+    <!-- Main Dossier Banner -->
+    <header class="dossier-banner">
+      <div class="dossier-banner-content">
+        <div class="dossier-badge-row">
+          <span class="dossier-type-tag">TACTICAL DOSSIER</span>
+          <span class="dossier-origin-pill">🌐 {entry.data.origin}</span>
+          <span class="dossier-time-pill">Active: {entry.data.firstSeen} &rarr; {entry.data.lastSeen}</span>
         </div>
+        <h1 class="dossier-actor-title">{entry.data.name}</h1>
+        <p class="dossier-lede-motivation">{entry.data.motivation}</p>
 
-        <div class="detail-grid dossier-grid">
-          <div class="meta-card">
-            <p class="eyebrow">Identity Profile</p>
-            <dl class="fact-grid">
-              <div>
-                <dt>Primary Name</dt>
-                <dd>{entry.data.name}</dd>
-              </div>
-              <div>
-                <dt>Origin</dt>
-                <dd>{entry.data.origin}</dd>
-              </div>
-              <div>
-                <dt>Status</dt>
-                <dd>{entry.data.status}</dd>
-              </div>
-              <div>
-                <dt>Motivation</dt>
-                <dd>{entry.data.motivation}</dd>
-              </div>
-            </dl>
-          </div>
-
-          {entry.data.ttps.length > 0 && (
-            <div class="content-panel">
-              <p class="eyebrow">Observed TTP Themes</p>
-              <div class="ttp-list">
-                {entry.data.ttps.map((ttp, index) => (
-                  <div class="ttp-row">
-                    <span class="ttp-index mono">TTP_{String(index + 1).padStart(2, "0")}</span>
-                    <p>{ttp}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {entry.data.timeline.length > 0 && (
-          <div class="content-panel">
-            <p class="eyebrow">Operational Timeline</p>
-            <div class="timeline">
-              {entry.data.timeline.map((item) => (
-                <article class="timeline-item">
-                  <time>{item.date}</time>
-                  <h3>{item.title}</h3>
-                  <p class="muted-copy">{item.summary}</p>
-                </article>
-              ))}
+        {entry.data.aliases && entry.data.aliases.length > 0 && (
+          <div class="dossier-aliases-strip">
+            <span class="aliases-label">Known Aliases:</span>
+            <div class="aliases-chips">
+              {entry.data.aliases.map((alias) => <span class="alias-chip">{alias}</span>)}
             </div>
           </div>
         )}
+      </div>
+    </header>
 
-        {entry.data.references.length > 0 && (
-          <div class="content-panel">
-            <p class="eyebrow">References</p>
-            <div class="stack">
-              {entry.data.references.map((reference) => (
-                <a class="story-card" href={reference.url} target="_blank" rel="noreferrer">
-                  <div class="card-topline">
-                    <span class="meta-chip">{reference.publisher ?? "external_source"}</span>
-                  </div>
-                  <h3>{reference.title}</h3>
-                </a>
-              ))}
-            </div>
+    <!-- 4-Card Threat Profile Matrix -->
+    <section class="dossier-section">
+      <div class="dossier-section-head">
+        <Icon name="radar" class="section-icon" />
+        <h2>Threat Profile & Target Surface</h2>
+      </div>
+      <div class="threat-profile-grid">
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <span class="profile-card-label">ORIGIN & THEATER</span>
           </div>
-        )}
-      </article>
+          <p class="profile-card-val primary-text">{entry.data.origin}</p>
+          <span class="profile-card-sub">Observed active infrastructure & staging</span>
+        </div>
 
-      <aside class="stack">
-        <div class="meta-card">
-          <p class="eyebrow">Target Surface</p>
-          <div class="tag-list">
-            {entry.data.targets.map((target) => <span class="tag">{target}</span>)}
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <span class="profile-card-label">OPERATIONAL STATUS</span>
+          </div>
+          <p class="profile-card-val">
+            <span class:list={["status-highlight", entry.data.status]}>{entry.data.status.toUpperCase()}</span>
+          </p>
+          <span class="profile-card-sub">First Seen: {entry.data.firstSeen} | Last: {entry.data.lastSeen}</span>
+        </div>
+
+        <div class="profile-card profile-card-wide">
+          <div class="profile-card-header">
+            <span class="profile-card-label">TARGETED SECTORS & VERTICALS</span>
+          </div>
+          <div class="pill-cloud">
+            {entry.data.targets.map((target) => <span class="target-pill">🎯 {target}</span>)}
           </div>
         </div>
 
-        {entry.data.tools.length > 0 && (
-          <div class="meta-card">
-            <p class="eyebrow">Tooling / Malware</p>
-            <div class="tag-list">
-              {entry.data.tools.map((tool) => <span class="tag">{tool}</span>)}
-            </div>
+        <div class="profile-card profile-card-wide">
+          <div class="profile-card-header">
+            <span class="profile-card-label">WEAPONRY & TOOLING ARSENAL</span>
           </div>
-        )}
-
-        <div class="meta-card">
-          <p class="eyebrow">Quick Facts</p>
-          <dl>
-            <div>
-              <dt>Aliases</dt>
-              <dd>{entry.data.aliases.join(", ") || "None listed"}</dd>
-            </div>
-            <div>
-              <dt>Targets</dt>
-              <dd>{entry.data.targets.join(", ")}</dd>
-            </div>
-            <div>
-              <dt>First Seen</dt>
-              <dd>{entry.data.firstSeen}</dd>
-            </div>
-            <div>
-              <dt>Last Seen</dt>
-              <dd>{entry.data.lastSeen}</dd>
-            </div>
-          </dl>
+          <div class="pill-cloud">
+            {entry.data.tools.map((tool) => <span class="tool-pill">⚔️ {tool}</span>)}
+          </div>
         </div>
+      </div>
+    </section>
 
-        {relatedPosts.length > 0 && (
-          <div class="meta-card">
-            <p class="eyebrow">Related Reports</p>
-            <div class="stack">
-              {relatedPosts.map((post) => (
-                <a href={`/blog/${post.slug}/`}>
-                  <strong>{post.data.title}</strong>
-                  <p class="muted-copy">{post.data.description}</p>
-                </a>
-              ))}
+    <!-- Main Investigation Body (Quick Findings & Markdown) -->
+    <section class="dossier-section">
+      <div class="dossier-section-head">
+        <Icon name="crosshair" class="section-icon" />
+        <h2>Intelligence Telemetry & Findings</h2>
+      </div>
+      <div class="dossier-prose-card prose">
+        <Content />
+      </div>
+    </section>
+
+    <!-- MITRE ATT&CK Matrix Table -->
+    {entry.data.ttps && entry.data.ttps.length > 0 && (
+      <section class="dossier-section">
+        <div class="dossier-section-head">
+          <Icon name="shield" class="section-icon" />
+          <h2>MITRE ATT&CK Framework Mapping</h2>
+        </div>
+        <div class="mitre-table-card">
+          <table class="mitre-matrix-table">
+            <thead>
+              <tr>
+                <th style="width: 140px;">Tactic / ID</th>
+                <th>Observed Adversary Technique & Context</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entry.data.ttps.map((ttp, idx) => {
+                const parts = ttp.split(" - ");
+                const ttpId = parts[0] || `TTP_${idx + 1}`;
+                const ttpDesc = parts.slice(1).join(" - ") || ttp;
+                return (
+                  <tr>
+                    <td>
+                      <span class="ttp-id-badge">{ttpId}</span>
+                    </td>
+                    <td>
+                      <span class="ttp-desc-text">{ttpDesc}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )}
+
+    <!-- Tactical Timeline -->
+    {entry.data.timeline && entry.data.timeline.length > 0 && (
+      <section class="dossier-section">
+        <div class="dossier-section-head">
+          <Icon name="clock" class="section-icon" />
+          <h2>Chronological Operational Timeline</h2>
+        </div>
+        <div class="dossier-timeline-container">
+          {entry.data.timeline.map((item, idx) => (
+            <div class="timeline-row">
+              <div class="timeline-marker">
+                <span class="timeline-dot"></span>
+                {idx < entry.data.timeline.length - 1 && <span class="timeline-line"></span>}
+              </div>
+              <div class="timeline-content-card">
+                <div class="timeline-meta">
+                  <time class="timeline-date">{item.date}</time>
+                  <span class="timeline-tag">MILESTONE</span>
+                </div>
+                <h3 class="timeline-heading">{item.title}</h3>
+                <p class="timeline-summary">{item.summary}</p>
+              </div>
             </div>
-          </div>
-        )}
-      </aside>
-    </div>
-  </section>
+          ))}
+        </div>
+      </section>
+    )}
+
+    <!-- Related In-Depth Investigation Reports -->
+    {relatedPosts.length > 0 && (
+      <section class="dossier-section">
+        <div class="dossier-section-head">
+          <Icon name="terminal" class="section-icon" />
+          <h2>Companion Technical Investigation Reports</h2>
+        </div>
+        <div class="related-reports-grid">
+          {relatedPosts.map((post) => (
+            <a href={`/blog/${post.slug}/`} class="related-report-card">
+              <div class="related-report-badge">FULL DFIR REPORT</div>
+              <h3 class="related-report-title">{post.data.title}</h3>
+              <p class="related-report-desc">{post.data.description}</p>
+              <div class="related-report-footer">
+                <span>Read in-depth technical analysis</span>
+                <Icon name="chevron-right" class="icon-small" />
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
 </BaseLayout>
+
+<style>
+  .dossier-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 5rem;
+  }
+
+  .dossier-nav-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+
+  .dossier-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .dossier-back-link:hover {
+    opacity: 0.8;
+  }
+
+  .icon-small {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .rotate-180 {
+    transform: rotate(180deg);
+  }
+
+  .status-indicator-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    border: 1px solid var(--border-color);
+    background: var(--bg-surface);
+  }
+
+  .status-pulse-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--primary);
+  }
+
+  .status-indicator-pill.active {
+    border-color: rgba(239, 68, 68, 0.4);
+    background: rgba(239, 68, 68, 0.08);
+    color: #ef4444;
+  }
+  .status-indicator-pill.active .status-pulse-dot {
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+  }
+
+  .status-indicator-pill.tracking {
+    border-color: rgba(245, 158, 11, 0.4);
+    background: rgba(245, 158, 11, 0.08);
+    color: #f59e0b;
+  }
+  .status-indicator-pill.tracking .status-pulse-dot {
+    background: #f59e0b;
+    box-shadow: 0 0 8px #f59e0b;
+  }
+
+  /* Dossier Banner */
+  .dossier-banner {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2.25rem;
+    margin-bottom: 2.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  }
+
+  .dossier-badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .dossier-type-tag {
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    color: var(--primary);
+    background: rgba(225, 29, 72, 0.08);
+    border: 1px solid rgba(225, 29, 72, 0.2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+  }
+
+  .dossier-origin-pill, .dossier-time-pill {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+  }
+
+  .dossier-actor-title {
+    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-weight: 900;
+    line-height: 1.15;
+    margin: 0 0 1rem;
+    color: var(--text-heading);
+  }
+
+  .dossier-lede-motivation {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--text-body);
+    margin: 0 0 1.5rem;
+  }
+
+  .dossier-aliases-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .aliases-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-muted);
+  }
+
+  .aliases-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .alias-chip {
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    color: var(--text-heading);
+  }
+
+  /* Sections */
+  .dossier-section {
+    margin-bottom: 2.75rem;
+  }
+
+  .dossier-section-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .dossier-section-head h2 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0;
+    color: var(--text-heading);
+  }
+
+  .section-icon {
+    width: 1.4rem;
+    height: 1.4rem;
+    color: var(--primary);
+  }
+
+  /* 4-Card Grid */
+  .threat-profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .profile-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .profile-card-wide {
+    grid-column: 1 / -1;
+  }
+
+  .profile-card-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  .profile-card-val {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin: 0.5rem 0 0.25rem;
+    color: var(--text-heading);
+  }
+
+  .profile-card-sub {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .status-highlight.active {
+    color: #ef4444;
+  }
+  .status-highlight.tracking {
+    color: #f59e0b;
+  }
+
+  .pill-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .target-pill {
+    background: rgba(14, 165, 233, 0.08);
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    color: var(--text-heading);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+  }
+
+  .tool-pill {
+    background: rgba(225, 29, 72, 0.08);
+    border: 1px solid rgba(225, 29, 72, 0.25);
+    color: var(--text-heading);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+  }
+
+  /* Prose Card */
+  .dossier-prose-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 2rem;
+  }
+
+  /* MITRE Table */
+  .mitre-table-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .mitre-matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+
+  .mitre-matrix-table th {
+    background: var(--bg-card);
+    text-align: left;
+    padding: 0.85rem 1.25rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .mitre-matrix-table td {
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+  }
+
+  .mitre-matrix-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .ttp-id-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 0.25rem 0.55rem;
+    background: rgba(225, 29, 72, 0.08);
+    border: 1px solid rgba(225, 29, 72, 0.25);
+    color: var(--primary);
+    border-radius: 6px;
+  }
+
+  .ttp-desc-text {
+    font-weight: 600;
+    color: var(--text-body);
+  }
+
+  /* Timeline */
+  .dossier-timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .timeline-row {
+    display: flex;
+    gap: 1.25rem;
+  }
+
+  .timeline-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 24px;
+  }
+
+  .timeline-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--primary);
+    border: 3px solid var(--bg-surface);
+    box-shadow: 0 0 0 2px var(--primary);
+    margin-top: 6px;
+  }
+
+  .timeline-line {
+    width: 2px;
+    flex-grow: 1;
+    background: var(--border-color);
+    margin-top: 4px;
+  }
+
+  .timeline-content-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    flex-grow: 1;
+  }
+
+  .timeline-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .timeline-date {
+    font-size: 0.82rem;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    color: var(--primary);
+  }
+
+  .timeline-tag {
+    font-size: 0.68rem;
+    font-weight: 900;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    color: var(--text-muted);
+  }
+
+  .timeline-heading {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin: 0 0 0.4rem;
+    color: var(--text-heading);
+  }
+
+  .timeline-summary {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--text-body);
+    margin: 0;
+  }
+
+  /* Related Reports Grid */
+  .related-reports-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .related-report-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .related-report-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--primary);
+    box-shadow: 0 8px 24px rgba(225, 29, 72, 0.08);
+  }
+
+  .related-report-badge {
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .related-report-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin: 0 0 0.5rem;
+    color: var(--text-heading);
+    line-height: 1.3;
+  }
+
+  .related-report-desc {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0 0 1.25rem;
+  }
+
+  .related-report-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.75rem;
+  }
+</style>

@@ -56,16 +56,24 @@ relatedPosts:
 featured: true
 ---
 
-### Executive Summary
+### Key Operational Findings
 
-The **Imikom Ghost Operation** is an advanced malware development and operational staging infrastructure identified on `2[.]27[.]63[.]244`. The operation utilizes a highly customized C/Python malware framework (**Imikom Agent**) designed to penetrate restricted enterprise environments protected by next-generation firewalls (NGFW) and Endpoint Detection & Response (EDR) solutions.
+* **Cloud Dead-Drop Egress Bypasses**: Imikom replaces direct outbound connections with trusted CDN endpoints:
+  - **GitHub Contents API (`github_c2.c`)**: Relays commands via repository `derwingoww/edge-nodes` (`nodes/{id}/out` and `nodes/{id}/in`) using authenticated PAT tokens to defeat Next-Gen Firewall (FortiGate/Palo Alto) inspection.
+  - **Google Sheets API (`deploy_google_sheets.c`)**: Bi-directional command exchange via `sheets[.]googleapis[.]com` over OAuth2.
+* **Kernel EDR Blinding (BYOVD)**: Staging signed drivers **`HWiNFO_x64_206.sys`** and **`TRIXX.sys`** to execute ring-0 kernel writes that disable `PspCreateProcessNotifyRoutine` callbacks.
+* **Evasion & Masquerading**: Obfuscated binaries disguise as **`OfficeSupport.exe`** and **`WindowsTelemetry.exe`**, using in-memory process hollowing and XOR stack string decryption.
 
-#### Key Architectural Innovations
-1. **Cloud Dead-Drop Egress Bypasses**:
-   - **GitHub Contents API (`github_c2.c`)**: Transports encrypted commands directly through `api.github.com` via Personal Access Tokens (`ghp_...`) and repository `derwingoww/edge-nodes`, bypassing firewall egress filters by blending into trusted CDN traffic.
-   - **Google Sheets C2 (`deploy_google_sheets.c`)**: Interacts directly with Google Sheets API (`sheets.googleapis.com`) using OAuth2 refresh tokens as a covert bidirectional communication queue.
-2. **Bring Your Own Vulnerable Driver (BYOVD)**:
-   - Staging of signed vulnerable kernel drivers (**`HWiNFO_x64_206.sys`** and **`TRIXX.sys`**) to disable kernel-level EDR notify routines and process monitoring callbacks from userland.
-3. **Defense Evasion & Masquerading**:
-   - Compiles polymorphic PE executables disguised as legitimate administrative utilities (**`OfficeSupport.exe`**, **`WindowsTelemetry.exe`**).
-   - In-memory process hollowing (`hollow.c`), custom stack string encryption (`obfstr.h`), and automated AMSI memory patching.
+---
+
+### Technical Telemetry & Indicators
+
+| Indicator Type | Defanged Value | Operational Role |
+|---|---|---|
+| **IPv4 Address** | `2[.]27[.]63[.]244` | Staging & Compilation Node (Fastweb, Italy) |
+| **Port / Service** | `2[.]27[.]63[.]244:9999` | Exposed Tooling & Staging Repository |
+| **Domain** | `cdn-staticfiles[.]com` | Default Fallback HTTPS C2 Domain |
+| **GitHub Relay** | `derwingoww/edge-nodes` | Covert Dead-Drop Relay Repository |
+| **Driver (BYOVD)** | `HWiNFO_x64_206.sys` | Vulnerable Signed Driver for Kernel Callback Unhooking |
+| **Driver (BYOVD)** | `TRIXX.sys` | Vulnerable Signed Driver for Kernel EDR Blinding |
+| **Persistence** | `OfficeSupport` | Scheduled Task (`%APPDATA%\Microsoft\Office\OfficeSupport.exe`) |
