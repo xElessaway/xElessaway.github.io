@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import Icon from "../components/Icon.astro";
 
 const blogPosts = (await getCollection("blog")).map((p) => ({
   slug: p.slug,
@@ -85,14 +86,17 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
       </div>
 
       <div class="studio-actions-top">
+        <button type="button" class="button button-ghost" id="studio-import-btn" title="Paste article from Medium or web and auto-format with self-hosted images">
+          <Icon name="magic" size={16} /> Import from Medium / Web
+        </button>
         <button type="button" class="button button-ghost" id="studio-new-btn">
-          <span class="material-symbols-outlined">add</span> New Post
+          <Icon name="add" size={16} /> New Post
         </button>
         <button type="button" class="button button-ghost" id="studio-save-draft">
-          <span class="material-symbols-outlined">save</span> Save Local Draft
+          <Icon name="save" size={16} /> Save Local Draft
         </button>
         <button type="button" class="button button-primary studio-publish-btn" id="studio-publish-btn">
-          <span class="material-symbols-outlined">rocket_launch</span> Publish to GitHub
+          <Icon name="rocket_launch" size={16} /> Publish to GitHub
         </button>
       </div>
     </div>
@@ -298,12 +302,63 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
     </div>
   </dialog>
 
+  <!-- Smart Import Dialog -->
+  <dialog id="import-dialog" class="studio-dialog">
+    <div class="studio-dialog-content">
+      <div class="studio-dialog-head">
+        <div>
+          <span class="eyebrow">Smart Article Importer</span>
+          <h2 style="font-size: 1.4rem; margin-top: 0.25rem;">Import from Medium / Web</h2>
+        </div>
+        <button type="button" class="studio-dialog-close" id="import-dialog-close">&times;</button>
+      </div>
+
+      <p class="studio-dialog-desc">
+        Select all &amp; copy your article from Medium or any website (<strong>Ctrl+A &rarr; Ctrl+C</strong>), then click the paste box below and press <strong>Ctrl+V</strong>. We will automatically extract the Title, Description, format all headings/code/quotes, and self-host all images directly into your GitHub repository!
+      </p>
+
+      <div id="smart-paste-zone" class="smart-paste-zone" tabindex="0">
+        <div class="paste-zone-icon">📋</div>
+        <p class="paste-zone-title"><strong>Click here &amp; press Ctrl+V to paste</strong></p>
+        <p class="paste-zone-sub">or paste rich HTML/text in the field below</p>
+      </div>
+
+      <label class="studio-field studio-field-wide" style="margin-top: 1rem;">
+        <span class="studio-label">Raw HTML or Article Content (Optional)</span>
+        <textarea id="import-raw-input" class="studio-input mono" rows="4" placeholder="Paste HTML or rich text here..."></textarea>
+      </label>
+
+      <div class="import-options-row" style="display: flex; flex-wrap: wrap; gap: 1.25rem; margin: 1rem 0;">
+        <label class="studio-checkbox-label">
+          <input type="checkbox" id="import-opt-metadata" checked />
+          <span>Auto-extract Title, Description, &amp; Tags</span>
+        </label>
+        <label class="studio-checkbox-label">
+          <input type="checkbox" id="import-opt-images" checked />
+          <span>Self-host images to GitHub repository</span>
+        </label>
+      </div>
+
+      <div class="button-row" style="justify-content: flex-end;">
+        <button type="button" class="button button-ghost" id="import-cancel-btn">Cancel</button>
+        <button type="button" class="button button-primary" id="import-process-btn">
+          <Icon name="magic" size={16} /> Convert &amp; Load Article
+        </button>
+      </div>
+
+      <div id="import-progress-box" class="import-progress-box" hidden style="margin-top: 1rem;">
+        <p id="import-progress-text" class="validator-state is-pending" style="margin: 0;">Processing article and images...</p>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Seeded JSON Data -->
   <script is:inline type="application/json" id="studio-seed-posts" set:html={existingPostsJson}></script>
   <script is:inline type="application/json" id="studio-seed-challenges" set:html={existingChallengesJson}></script>
 
-  <!-- Marked Parser Script for Live Preview -->
+  <!-- Marked Parser Script & Turndown HTML-to-Markdown Parser -->
   <script is:inline src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script is:inline src="https://cdn.jsdelivr.net/npm/turndown/dist/turndown.min.js"></script>
 
   <script is:inline>
     const GITHUB_OWNER = "xElessaway";
@@ -361,6 +416,19 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
     const deleteConfirmBtn = document.getElementById("delete-confirm-btn");
     const deleteTargetTitle = document.getElementById("delete-target-title");
     let pendingDeleteSlug = "";
+
+    // Smart Importer Dialog
+    const importDialog = document.getElementById("import-dialog");
+    const importModalOpen = document.getElementById("studio-import-btn");
+    const importDialogClose = document.getElementById("import-dialog-close");
+    const importCancelBtn = document.getElementById("import-cancel-btn");
+    const importProcessBtn = document.getElementById("import-process-btn");
+    const smartPasteZone = document.getElementById("smart-paste-zone");
+    const importRawInput = document.getElementById("import-raw-input");
+    const importOptMetadata = document.getElementById("import-opt-metadata");
+    const importOptImages = document.getElementById("import-opt-images");
+    const importProgressBox = document.getElementById("import-progress-box");
+    const importProgressText = document.getElementById("import-progress-text");
 
     // Action buttons
     const publishBtn = document.getElementById("studio-publish-btn");
@@ -637,6 +705,221 @@ const existingChallengesJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u0
         reader.readAsDataURL(file);
       } catch (err) {
         showAlert("Error reading or uploading image.", "error");
+      }
+    });
+
+    // =========================================================================
+    // SMART WEB & MEDIUM IMPORTER ENGINE
+    // =========================================================================
+
+    function getTurndownService() {
+      if (typeof TurndownService === "undefined") return null;
+      const td = new TurndownService({
+        headingStyle: "atx",
+        hr: "---",
+        bulletListMarker: "-",
+        codeBlockStyle: "fenced",
+        emDelimiter: "*"
+      });
+
+      // Keep figure and figcaption intact or nicely formatted
+      td.addRule("figure", {
+        filter: "figure",
+        replacement: function (content, node) {
+          const img = node.querySelector("img");
+          const caption = node.querySelector("figcaption");
+          if (img) {
+            const src = img.getAttribute("src") || "";
+            const alt = img.getAttribute("alt") || caption?.textContent?.trim() || "";
+            const capText = caption?.textContent?.trim() || alt;
+            return `\n\n<figure><img src="${src}" alt="${alt}" />${capText ? `<figcaption>${capText}</figcaption>` : ""}</figure>\n\n`;
+          }
+          return content;
+        }
+      });
+
+      // Clean Medium noise tags
+      td.remove(["script", "style", "nav", "button", "footer", "iframe"]);
+
+      return td;
+    }
+
+    async function uploadBase64Image(base64Data, filename, token) {
+      const uploadPath = `public/images/uploads/${filename}`;
+      const res = await fetch(`https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${uploadPath}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/vnd.github+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: `feat(media): auto-host imported image "${filename}" via Inked Intel Studio`,
+          content: base64Data,
+          branch: GITHUB_BRANCH
+        })
+      });
+      return res.ok;
+    }
+
+    async function downloadImageAsBase64(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) return null;
+        const blob = await response.blob();
+        return new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64 = reader.result.split(",")[1];
+            resolve(base64);
+          };
+          reader.readAsDataURL(blob);
+        });
+      } catch (e) {
+        return null;
+      }
+    }
+
+    async function processSmartImport(rawHtmlOrText) {
+      if (!rawHtmlOrText || !rawHtmlOrText.trim()) {
+        showAlert("Please paste some content first.", "error");
+        return;
+      }
+
+      const shouldExtractMeta = importOptMetadata?.checked ?? true;
+      const shouldSelfHostImages = importOptImages?.checked ?? true;
+      const token = getStoredToken();
+
+      if (importProgressBox) importProgressBox.hidden = false;
+      if (importProgressText) importProgressText.textContent = "Parsing article structure...";
+
+      try {
+        const parser = new DOMParser();
+        let doc = parser.parseFromString(rawHtmlOrText, "text/html");
+
+        // If user pasted pure plain text instead of HTML, wrap in paragraph
+        if (!doc.body.innerHTML.includes("<p>") && !doc.body.innerHTML.includes("<h") && !doc.body.innerHTML.includes("<img")) {
+          doc.body.innerHTML = rawHtmlOrText.split("\n\n").map(p => `<p>${p.trim()}</p>`).join("");
+        }
+
+        // Clean out Medium UI widgets (clap buttons, author follow cards)
+        doc.querySelectorAll("button, nav, svg, .speechify-ignore, [data-testid='header']").forEach(el => el.remove());
+
+        // 1. Auto-extract Metadata
+        if (shouldExtractMeta) {
+          const firstH1 = doc.querySelector("h1, h2, h3, [data-headline]");
+          if (firstH1 && firstH1.textContent) {
+            titleInput.value = firstH1.textContent.trim();
+            slugInput.value = generateSlug(titleInput.value);
+            firstH1.remove(); // Remove main title from body so it doesn't duplicate
+          }
+
+          const firstP = doc.querySelector("p");
+          if (firstP && firstP.textContent) {
+            descInput.value = firstP.textContent.trim().slice(0, 180);
+          }
+        }
+
+        // 2. Scan and Self-Host Images to GitHub
+        const images = Array.from(doc.querySelectorAll("img"));
+        let uploadedCount = 0;
+        let firstUploadedUrl = "";
+
+        if (shouldSelfHostImages && images.length > 0 && token) {
+          const timestamp = Date.now();
+          for (let i = 0; i < images.length; i++) {
+            const img = images[i];
+            const originalSrc = img.getAttribute("src") || "";
+            if (!originalSrc || originalSrc.startsWith("/images/")) continue;
+
+            if (importProgressText) {
+              importProgressText.textContent = `Self-hosting image (${i + 1}/${images.length}) to GitHub...`;
+            }
+
+            const base64Data = await downloadImageAsBase64(originalSrc);
+            if (base64Data) {
+              const cleanName = `${timestamp}_img_${String(i + 1).padStart(2, "0")}.png`;
+              const success = await uploadBase64Image(base64Data, cleanName, token);
+              if (success) {
+                const localPath = `/images/uploads/${cleanName}`;
+                img.setAttribute("src", localPath);
+                if (!firstUploadedUrl) firstUploadedUrl = localPath;
+                uploadedCount++;
+              }
+            }
+          }
+        }
+
+        // Set Cover Image if found
+        if (firstUploadedUrl && (!coverInput.value || coverInput.value.startsWith("http"))) {
+          coverInput.value = firstUploadedUrl;
+        }
+
+        // 3. Convert HTML to Clean Markdown
+        const td = getTurndownService();
+        let markdown = td ? td.turndown(doc.body.innerHTML) : doc.body.innerText;
+
+        // Clean redundant empty lines
+        markdown = markdown.replace(/\n{3,}/g, "\n\n").trim();
+
+        editor.value = markdown;
+        updatePreview();
+        importDialog.close();
+
+        if (uploadedCount > 0) {
+          showAlert(`✨ Article converted & ${uploadedCount} images self-hosted to GitHub!`, "success");
+        } else {
+          showAlert(`✨ Article successfully converted and loaded into editor!`, "success");
+        }
+      } catch (err) {
+        console.error(err);
+        showAlert("Error during article conversion. Please check the content.", "error");
+      } finally {
+        if (importProgressBox) importProgressBox.hidden = true;
+      }
+    }
+
+    // Modal Triggers
+    importModalOpen?.addEventListener("click", () => {
+      if (importRawInput) importRawInput.value = "";
+      if (importProgressBox) importProgressBox.hidden = true;
+      importDialog.showModal();
+      smartPasteZone?.focus();
+    });
+
+    importDialogClose?.addEventListener("click", () => importDialog.close());
+    importCancelBtn?.addEventListener("click", () => importDialog.close());
+
+    // Paste in Smart Zone
+    smartPasteZone?.addEventListener("paste", (e) => {
+      e.preventDefault();
+      const html = e.clipboardData.getData("text/html");
+      const text = e.clipboardData.getData("text/plain");
+      const content = html || text;
+      if (importRawInput) importRawInput.value = content;
+      processSmartImport(content);
+    });
+
+    // Process button click
+    importProcessBtn?.addEventListener("click", () => {
+      const content = importRawInput?.value || "";
+      processSmartImport(content);
+    });
+
+    // Direct Paste Interception on Markdown Editor
+    editor?.addEventListener("paste", (e) => {
+      const html = e.clipboardData?.getData("text/html");
+      if (html && (html.includes("<p>") || html.includes("<h") || html.includes("<img") || html.includes("<figure>"))) {
+        const td = getTurndownService();
+        if (td) {
+          e.preventDefault();
+          const markdown = td.turndown(html).replace(/\n{3,}/g, "\n\n");
+          const start = editor.selectionStart;
+          const end = editor.selectionEnd;
+          editor.setRangeText(markdown, start, end, "end");
+          updatePreview();
+          showAlert("✨ Converted rich clipboard HTML to clean Markdown!", "info");
+        }
       }
     });
 
@@ -1319,6 +1602,41 @@ ${body}
 
     .studio-token-steps li {
       margin-bottom: 0.4rem;
+    }
+
+    /* Smart Paste Zone */
+    .smart-paste-zone {
+      padding: 2.25rem 1.5rem;
+      border: 2.5px dashed var(--secondary);
+      border-radius: 10px;
+      background: var(--surface-low);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .smart-paste-zone:focus,
+    .smart-paste-zone:hover {
+      border-color: var(--primary);
+      background: var(--surface);
+      box-shadow: 4px 4px 0 var(--secondary);
+    }
+
+    .paste-zone-icon {
+      font-size: 2.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .paste-zone-title {
+      font-size: 1.1rem;
+      color: var(--primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .paste-zone-sub {
+      font-size: 0.85rem;
+      color: var(--text-muted);
     }
   </style>
 </BaseLayout>

@@ -11,7 +11,7 @@ tags:
   - "frp"
   - "androidforensics"
   - "cybersecurity"
-cover: "https://cdn-images-1.medium.com/max/600/1*UcHIymc3Zy-J1bmGb1n5jQ.png"
+cover: "/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-01.png"
 featured: true
 draft: false
 ---
@@ -26,8 +26,8 @@ draft: false
 <p>No one around it. No one is looking for it. Just a Samsung Galaxy A14 sitting there, screen locked, completely unresponsive to anything except a PIN prompt.</p>
 
 <div class="evidence-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
-  <figure><img loading="lazy" referrerpolicy="no-referrer" alt="Locked Samsung Galaxy A14" src="https://cdn-images-1.medium.com/max/600/1*UcHIymc3Zy-J1bmGb1n5jQ.png" /><figcaption>Exhibit A: Found Samsung Galaxy A14 (Screen Locked)</figcaption></figure>
-  <figure><img loading="lazy" referrerpolicy="no-referrer" alt="Samsung Galaxy A14 Rear Chassis" src="https://cdn-images-1.medium.com/max/600/1*n_ccUQQrdXJ1ulXQ9q-CKw.jpeg" /><figcaption>Exhibit B: Device Rear Chassis</figcaption></figure>
+  <figure><img loading="lazy" referrerpolicy="no-referrer" alt="Locked Samsung Galaxy A14" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-01.png" /><figcaption>Exhibit A: Found Samsung Galaxy A14 (Screen Locked)</figcaption></figure>
+  <figure><img loading="lazy" referrerpolicy="no-referrer" alt="Samsung Galaxy A14 Rear Chassis" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-02.jpeg" /><figcaption>Exhibit B: Device Rear Chassis</figcaption></figure>
 </div>
 
 <p>My first instinct wasn’t to hand it in somewhere and forget about it. My instinct was: <em>I work in DFIR. I should be able to figure out who this belongs to.</em> So I picked it up and started thinking.</p>
@@ -46,7 +46,7 @@ draft: false
 
 <p>So I held Volume Down + Power, entered Recovery Mode, and wiped the device.</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Android Recovery Mode" src="https://cdn-images-1.medium.com/max/800/1*25-9IIFaX9eQbN_cP7aZ4g.jpeg" /><figcaption>Exhibit C: Entering Android Recovery Mode to Wipe Device</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Android Recovery Mode" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-03.jpeg" /><figcaption>Exhibit C: Entering Android Recovery Mode to Wipe Device</figcaption></figure>
 
 <p>The phone rebooted. The setup wizard appeared. I pressed Start.</p>
 <p>And then I hit the second wall.</p>
@@ -59,7 +59,7 @@ draft: false
 
 <p>I connected the phone to SamFw Tool 5.4 to check the state:</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="SamFw Tool FRP Lock Verification" src="https://cdn-images-1.medium.com/max/800/1*djr-P29F82lxApQfujV7Ig.png" /><figcaption>Exhibit D: SamFw Tool 5.4 Query: FRP status: LOCK</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="SamFw Tool FRP Lock Verification" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-04.png" /><figcaption>Exhibit D: SamFw Tool 5.4 Query: FRP status: LOCK</figcaption></figure>
 
 <p><code>FRP status: LOCK</code>. The phone was going nowhere.</p>
 
@@ -75,7 +75,7 @@ draft: false
 
 <p>A quick search confirmed the split:</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Samsung Galaxy A14 Chipset Variants Research" src="https://cdn-images-1.medium.com/max/800/1*Vi_3yROX3ybZ8rUOx21bqw.png" /><figcaption>Exhibit E: Researching SM-A145F Chipset Allocations (MediaTek vs Exynos)</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Samsung Galaxy A14 Chipset Variants Research" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-05.png" /><figcaption>Exhibit E: Researching SM-A145F Chipset Allocations (MediaTek vs Exynos)</figcaption></figure>
 
 <blockquote>
 <strong><em>Samsung Galaxy SM-A145F ships with either MediaTek MT6769 Helio G80 or Samsung Exynos 850, depending on the regional market.</em></strong>
@@ -83,7 +83,7 @@ draft: false
 
 <p>To cross-verify, I pulled the full device specs from Phonedb:</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Phonedb Hardware Specification Sheet" src="https://cdn-images-1.medium.com/max/800/1*VBYb4OG2G3JAAJeBEDpzRw.png" /><figcaption>Exhibit F: Phonedb Hardware Specification Confirmation</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Phonedb Hardware Specification Sheet" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-06.png" /><figcaption>Exhibit F: Phonedb Hardware Specification Confirmation</figcaption></figure>
 
 <p>Same model. Same variant. Samsung Exynos 850: <strong>confirmed</strong>.</p>
 <p>Now the real question was: <strong>what can we actually do with an Exynos on a locked device?</strong></p>
@@ -92,7 +92,7 @@ draft: false
 
 <p>To check which variant I had, I entered <strong>Download Mode</strong>: Power off the device, then hold Volume Down + Volume Up + plug in USB simultaneously.</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Samsung Download Mode Screen" src="https://cdn-images-1.medium.com/max/800/1*OgmdY4KKQCfWhuS7keGDNg.png" /><figcaption>Exhibit G: Bootloader Telemetry in Samsung Download Mode</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Samsung Download Mode Screen" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-07.png" /><figcaption>Exhibit G: Bootloader Telemetry in Samsung Download Mode</figcaption></figure>
 
 <p>The bootloader screen showed the device binary, OEM lock status, and hardware identifiers. The chipset was confirmed to be the <strong>Samsung Exynos 850</strong>.</p>
 <p>That one confirmation changed everything.</p>
@@ -105,32 +105,32 @@ draft: false
 
 <p><strong>Step 1: Choose model:</strong><br>SM-A145F wasn’t in the list.</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="MOBILedit Step 1 Model Selection" src="https://cdn-images-1.medium.com/max/800/1*gT75sIrVkIX4USkO3Bn2_w.png" /><figcaption>Exhibit H: MOBILedit Step 1 - Model Not Directly Listed</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="MOBILedit Step 1 Model Selection" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-08.png" /><figcaption>Exhibit H: MOBILedit Step 1 - Model Not Directly Listed</figcaption></figure>
 
 <p>MOBILedit didn’t have this specific variant. So instead of searching by model, I pivoted; if the tool knows the chipset, that’s enough. The chipset is what drives the extraction method anyway, not the marketing name on the box.</p>
 
 <p><strong>Step 2: Choose a chipset:</strong><br>Samsung Exynos 850, confirmed.</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="MOBILedit Step 2 Chipset Selection" src="https://cdn-images-1.medium.com/max/800/1*A323op09ph8ISjqDK7pyyw.png" /><figcaption>Exhibit I: MOBILedit Step 2 - Direct Selection of Exynos 850</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="MOBILedit Step 2 Chipset Selection" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-09.png" /><figcaption>Exhibit I: MOBILedit Step 2 - Direct Selection of Exynos 850</figcaption></figure>
 
 <p>This is the critical selection; a wrong chipset here means the recovery boot will fail or brick the process entirely.</p>
 
 <p><strong>Step 3: Choose action:</strong><br>“Boot recovery and decrypt”, the description says it all: custom recovery, root access, partition-level decryption.</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="MOBILedit Step 3 Action Selection" src="https://cdn-images-1.medium.com/max/800/1*F_YykL5xc73bv-9RYr-v7g.png" /><figcaption>Exhibit J: Selecting 'Boot Recovery and Decrypt'</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="MOBILedit Step 3 Action Selection" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-10.png" /><figcaption>Exhibit J: Selecting 'Boot Recovery and Decrypt'</figcaption></figure>
 
 <p>Devices with secure startup may need password brute force; this one didn’t.</p>
 <p>I hit Next and watched the output:</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="MOBILedit Partition Decryption Progress" src="https://cdn-images-1.medium.com/max/800/1*w4InW-bARbzvFvq2Nodcdg.png" /><figcaption>Exhibit K: MOBILedit Boot Recovery & Decryption Execution</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="MOBILedit Partition Decryption Progress" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-11.png" /><figcaption>Exhibit K: MOBILedit Boot Recovery & Decryption Execution</figcaption></figure>
 
 <p><strong>The phone rebooted to the Welcome screen.</strong></p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Device Rebooted to Welcome Screen" src="https://cdn-images-1.medium.com/max/800/1*s68bXMVn_q75NSmRASDEAg.png" /><figcaption>Exhibit L: Device Rebooted into Accessible Diagnostic State</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Device Rebooted to Welcome Screen" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-12.png" /><figcaption>Exhibit L: Device Rebooted into Accessible Diagnostic State</figcaption></figure>
 
 <p>The decryption worked, but FRP wasn’t gone yet. What MOBILedit actually did was get the device into a state where USB Debugging became accessible. That was the real unlock. From here, I could actually talk to the phone.</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="USB Debugging Authorization Screen" src="https://cdn-images-1.medium.com/max/800/1*W_lbzaaMiTfIoIMCM_QyPQ.jpeg" /><figcaption>Exhibit M: USB Debugging RSA Authorization Prompt Triggered</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="USB Debugging Authorization Screen" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-13.jpeg" /><figcaption>Exhibit M: USB Debugging RSA Authorization Prompt Triggered</figcaption></figure>
 
 <p>With ADB (Android Debug Bridge) connection established, I moved to Android Utility PRO to handle the FRP removal itself.</p>
 
@@ -138,7 +138,7 @@ draft: false
 
 <p>The log showed exactly what happened:</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Android Utility PRO Log" src="https://cdn-images-1.medium.com/max/800/1*iGQSK0EzylTXDyDlvkKBag.png" /><figcaption>Exhibit N: Android Utility PRO Log - FRP Removed Successfully</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="Android Utility PRO Log" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-14.png" /><figcaption>Exhibit N: Android Utility PRO Log - FRP Removed Successfully</figcaption></figure>
 
 <p>FRP removed. Device rebooted to recovery. Factory reset performed. Done.</p>
 <p>Now the phone was fully open, no FRP, no lock. But also no data. The factory reset had wiped everything the original owner had. I needed to find them a different way.</p>
@@ -169,12 +169,12 @@ draft: false
 
 <p>Using the SamFw Tool’s App Manager to push the APK via ADB:</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="SamFw Tool APK Deployment via ADB" src="https://cdn-images-1.medium.com/max/800/1*c7c4zxWDAFQSC_1XIyTGMg.png" /><figcaption>Exhibit O: SamFw Tool App Manager - Deploying WhatsApp APK</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="SamFw Tool APK Deployment via ADB" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-15.png" /><figcaption>Exhibit O: SamFw Tool App Manager - Deploying WhatsApp APK</figcaption></figure>
 
 <p>WhatsApp was registered, the account was loaded, and the inbox was opened.</p>
 <p>The first contact name that appeared: <strong>Sayed</strong>.</p>
 
-<figure><img loading="lazy" referrerpolicy="no-referrer" alt="WhatsApp Account Cross-Confirmation" src="https://cdn-images-1.medium.com/max/800/1*Vm2HAFZvhiIe3T-MR5xJ2A.png" /><figcaption>Exhibit P: WhatsApp Server-Side Contact Verification</figcaption></figure>
+<figure><img loading="lazy" referrerpolicy="no-referrer" alt="WhatsApp Account Cross-Confirmation" src="/images/posts/i-found-a-strangers-phone-i-had-no-way-in-so-i-built-one/img-16.png" /><figcaption>Exhibit P: WhatsApp Server-Side Contact Verification</figcaption></figure>
 
 <p>The passive OSINT lookup matched what WhatsApp’s own server-side data knew about that number’s social network. Cross-confirmed. Same person.</p>
 <p>I sent a message explaining the situation. Got a reply within minutes. Arranged the handoff. Phone returned.</p>
