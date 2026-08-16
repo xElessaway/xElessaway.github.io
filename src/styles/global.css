@@ -789,7 +789,8 @@ p {
   max-width: 860px;
   padding: clamp(1.75rem, 4vw, 3rem);
   border: 2px solid var(--primary);
-  background: #d8e3fb;
+  border-radius: 8px;
+  background: var(--surface);
   box-shadow: 7px 7px 0 var(--secondary);
   transform: rotate(0.4deg);
 }
@@ -2051,7 +2052,7 @@ p {
 .validator-card {
   border: 3px solid var(--primary);
   border-radius: 10px;
-  background: #ffffff;
+  background: var(--surface);
   box-shadow: 6px 6px 0 var(--primary);
   padding: 1.75rem;
 }
@@ -2161,7 +2162,7 @@ p {
   padding: 0;
   border: 3px solid var(--primary);
   border-radius: 12px;
-  background: #ffffff;
+  background: var(--surface);
   box-shadow: 12px 12px 0 var(--primary);
   max-width: 90vw;
   max-height: 90vh;
