@@ -3,16 +3,11 @@ title: "Imikom Agent: Analyzing GitHub and Google Sheets Cloud Dead-Drop C2 Trad
 description: "Technical teardown of a sophisticated C-based malware development pipeline featuring GitHub Contents API and Google Sheets C2 channels, BYOVD EDR blinding, and process hollowing."
 publishedAt: 2026-08-16
 archiveSection: reports
-tags:
-  - "threat-intelligence"
-  - "malware-analysis"
-  - "byovd"
-  - "mythic-c2"
-  - "github-c2"
-  - "edr-evasion"
+tags: ["threat-intelligence","malware-analysis","byovd","mythic-c2","github-c2","edr-evasion"]
 cover: "/images/posts/exposed-quickdav-malware-distribution-repository-and-remcos-rat-infrastructure/img-01.png"
-featured: true
+featured: false
 draft: false
+sourceUrl: ""
 ---
 
 ### Executive Summary
