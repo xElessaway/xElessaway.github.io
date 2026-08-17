@@ -87,6 +87,7 @@ const server = http.createServer(async (req, res) => {
           ambientIOCs: intel.ambientIOCs,
           deobfuscation: intel.deobfuscation,
           forensics: intel.forensics,
+          secrets: intel.secrets,
           aiAnalysis: intel.aiAnalysis,
           actorSlug: drafts.actorSlug,
           reportSlug: drafts.reportSlug,

@@ -2,29 +2,32 @@ import { createHash } from "node:crypto";
 import { defang } from "./defang.mjs";
 import { analyzeAndDeobfuscateFiles } from "./deobfuscator.mjs";
 import { performForensicAnalysis } from "./forensics.mjs";
+import { harvestSecrets } from "./secrets_harvester.mjs";
 import { analyzeWithOllama } from "./ollama.mjs";
 
 /**
- * Enterprise Intelligence Aggregator & Threat Extraction Engine
+ * Enterprise Intelligence Aggregator & Deep Threat Extraction Engine
  */
 export async function extractIntelligence(triageResult, modelName = null) {
   if (!triageResult || !triageResult.files) return null;
 
   const { hostname, port, files } = triageResult;
   const nonLogFiles = files.filter((f) => !f.filename.endsWith(".log") && !f.filename.includes("access_log"));
-  const combinedCodeText = nonLogFiles.map((f) => f.content).join("\n");
   const allFilesText = files.map((f) => f.content).join("\n");
 
-  // 1. Run Automated Deobfuscation
+  // 1. Run Automated Deobfuscation (XOR, Hex, Base64, AST)
   const deobfResults = analyzeAndDeobfuscateFiles(files);
 
-  // 2. Run Windows Forensics (LNK) & WSL Linux Bridge (strings/file)
+  // 2. Run Windows Forensics, Magic Bytes & WSL Reverse Engineering
   const forensicResults = await performForensicAnalysis(files);
 
-  // 3. Run Local Ollama AI Reasoning (if available)
+  // 3. Run Deep Credential & Secret Harvester
+  const harvestedSecrets = harvestSecrets(files);
+
+  // 4. Run Local Ollama AI Reasoning
   const aiAnalysis = await analyzeWithOllama(triageResult, deobfResults, modelName);
 
-  // 4. Tooling heuristics
+  // 5. Tooling & Malware Heuristics
   const observedTools = new Set();
   const ttps = new Set();
 
@@ -62,15 +65,15 @@ export async function extractIntelligence(triageResult, modelName = null) {
     observedTools.add("In-Memory Shellcode Injector (P/Invoke)");
     ttps.add("T1055 - Process Injection");
   }
-  if (/bxor|\$k=\[byte\[\]\]/i.test(allFilesText) || deobfResults.recoveredKeys.length > 0) {
+  if (/bxor|\$k=\[byte\[\]\]|\$decryptionHexKey/i.test(allFilesText) || deobfResults.recoveredKeys.length > 0) {
     observedTools.add("Multi-Byte XOR Shellcode Decryptor");
     ttps.add("T1140 - Deobfuscate/Decode Files or Information");
   }
-  if (/github_c2|api\.github\.com/i.test(allFilesText)) {
+  if (/github_c2|api\.github\.com/i.test(allFilesText) || harvestedSecrets.some((s) => s.type.includes("GitHub"))) {
     observedTools.add("GitHub Contents API C2 Transport");
     ttps.add("T1102.001 - Web Service: Dead Drop Resolver");
   }
-  if (/google_sheets|sheets\.googleapis\.com/i.test(allFilesText)) {
+  if (/google_sheets|sheets\.googleapis\.com/i.test(allFilesText) || harvestedSecrets.some((s) => s.type.includes("Google"))) {
     observedTools.add("Google Sheets API C2 Transport");
     ttps.add("T1102.001 - Web Service: Dead Drop Resolver");
   }
@@ -83,20 +86,12 @@ export async function extractIntelligence(triageResult, modelName = null) {
     observedTools.add("Rogue MySQL Server (Arbitrary File Exfiltration)");
     ttps.add("T1552.001 - Credentials in Files");
   }
-  if (/marshalsec|jndi|ysoserial/i.test(allFilesText)) {
-    observedTools.add("JNDI / Marshalsec Deserialization RCE");
-    ttps.add("T1190 - Exploit Public-Facing Application");
-  }
-  if (/enscan/i.test(allFilesText)) {
-    observedTools.add("ENScan_GO Enterprise Recon");
-    ttps.add("T1596 - Search Open Technical Databases");
-  }
-  if (/hollow\.c|process.*hollow/i.test(allFilesText)) {
-    observedTools.add("Process Hollowing Injector");
-    ttps.add("T1055.012 - Process Hollowing");
+  if (/sshpass/i.test(allFilesText) || harvestedSecrets.some((s) => s.type.includes("SSH"))) {
+    observedTools.add("Automated SSH Lateral Movement Tool");
+    ttps.add("T1021.004 - Remote Services: SSH");
   }
 
-  // 5. Cryptographic SHA-256 Hashes
+  // 6. Cryptographic SHA-256 Hashes
   const verifiedHashes = [];
   files.forEach((f) => {
     if (!f.filename.endsWith(".log") && !f.filename.endsWith(".html") && !f.filename.endsWith(".txt")) {
@@ -110,7 +105,7 @@ export async function extractIntelligence(triageResult, modelName = null) {
     }
   });
 
-  // 6. High-Fidelity Verified Indicators
+  // 7. High-Fidelity Verified Indicators
   const highConfidenceIOCs = [];
 
   highConfidenceIOCs.push({
@@ -133,27 +128,15 @@ export async function extractIntelligence(triageResult, modelName = null) {
   deobfResults.recoveredKeys.forEach((key) => {
     highConfidenceIOCs.push({
       type: "XOR Decryption Key",
-      value: `${key.ascii} (Hex: ${key.hex})`,
+      value: `${key.ascii} (Hex: ${key.hex.slice(0, 32)}...)`,
       role: `Recovered from ${key.source}`,
       confidence: "High (100%)"
     });
   });
 
-  // Scheduled task persistence keys
-  deobfResults.scriptBehaviors.forEach((b) => {
-    b.scheduledTasks.forEach((st) => {
-      highConfidenceIOCs.push({
-        type: "Persistence Task",
-        value: st,
-        role: "Hijacked Scheduled Task",
-        confidence: "High (100%)"
-      });
-    });
-  });
-
   const combinedHighConfidence = [...highConfidenceIOCs, ...verifiedHashes];
 
-  // 7. Ambient Traffic Isolation (Logs)
+  // 8. Ambient Traffic Isolation (Logs)
   const logIps = [...allFilesText.matchAll(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g)].map((m) => m[0]);
   const ambientIps = [...new Set(logIps)]
     .filter((ip) => ip !== hostname && !ip.startsWith("127.") && !ip.startsWith("0.0.") && !ip.startsWith("192.168."))
@@ -174,6 +157,7 @@ export async function extractIntelligence(triageResult, modelName = null) {
     ambientIOCs: ambientIps,
     deobfuscation: deobfResults,
     forensics: forensicResults,
+    secrets: harvestedSecrets,
     aiAnalysis: aiAnalysis
   };
 }

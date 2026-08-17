@@ -552,10 +552,12 @@
         <!-- Navigation Tabs -->
         <div class="results-tab-bar">
           <button type="button" class="res-tab-btn is-active" data-view="iocs">🛡️ Verified IOCs</button>
-          <button type="button" class="res-tab-btn" data-view="deobf">🔓 XOR & Deobfuscation</button>
-          <button type="button" class="res-tab-btn" data-view="ai">🧠 Ollama AI Breakdown</button>
+          <button type="button" class="res-tab-btn" data-view="secrets">🔑 Secrets & Creds</button>
+          <button type="button" class="res-tab-btn" data-view="magic">🧙 Magic Bytes & Binary</button>
+          <button type="button" class="res-tab-btn" data-view="deobf">🔓 XOR & Deobf</button>
+          <button type="button" class="res-tab-btn" data-view="ai">🧠 Ollama AI</button>
           <button type="button" class="res-tab-btn" data-view="lnk">📁 LNK Forensics</button>
-          <button type="button" class="res-tab-btn" data-view="wsl">🐧 Linux WSL</button>
+          <button type="button" class="res-tab-btn" data-view="wsl">🐧 WSL Linux</button>
         </div>
 
         <!-- View 1: Verified IOCs Table -->
@@ -580,13 +582,56 @@
           </table>
         </div>
 
-        <!-- View 2: Deobfuscation -->
+        <!-- View 2: Harvested Secrets & Tokens -->
+        <div id="view-secrets" class="tab-view-content" style="display: none;">
+          <div class="result-section-title">
+            <span>Discovered Cloud Keys, OAuth Tokens & SSH Passwords</span>
+            <span class="confidence-pill confidence-high" id="secrets-count-pill">0 Found</span>
+          </div>
+          <table class="ioc-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Identifier / Redacted Value</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody id="res-secrets-body">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted);">No credentials or secrets detected.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- View 3: Magic Bytes & Binary Signatures -->
+        <div id="view-magic" class="tab-view-content" style="display: none;">
+          <div class="result-section-title">Deep File Typing & Magic Byte Signatures</div>
+          <table class="ioc-table">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Detected Binary Type</th>
+                <th>Hex Magic Signature</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="res-magic-body">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted);">No binary signatures scanned yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- View 4: Deobfuscation -->
         <div id="view-deobf" class="tab-view-content" style="display: none;">
-          <div class="result-section-title">Recovered Encryption Keys & Decrypted Artifacts</div>
+          <div class="result-section-title">Recovered Encryption Keys & Decrypted Payloads</div>
           <div id="res-deobf-body" class="code-box-preview">No deobfuscation data available yet.</div>
         </div>
 
-        <!-- View 3: Ollama AI Analysis -->
+        <!-- View 5: Ollama AI Analysis -->
         <div id="view-ai" class="tab-view-content" style="display: none;">
           <div class="result-section-title">
             <span>Local LLM Technical Assessment</span>
@@ -595,13 +640,13 @@
           <div id="res-ai-body" class="code-box-preview">Ollama analysis will appear here after execution.</div>
         </div>
 
-        <!-- View 4: LNK Metadata -->
+        <!-- View 6: LNK Metadata -->
         <div id="view-lnk" class="tab-view-content" style="display: none;">
           <div class="result-section-title">Windows Shortcut (LNK) Forensic Extraction</div>
           <div id="res-lnk-body" class="code-box-preview">No LNK shortcuts identified yet.</div>
         </div>
 
-        <!-- View 5: WSL Inspection -->
+        <!-- View 7: WSL Inspection -->
         <div id="view-wsl" class="tab-view-content" style="display: none;">
           <div class="result-section-title">WSL Linux Binary Analysis (`file`, `strings`, `xxd`)</div>
           <div id="res-wsl-body" class="code-box-preview">No binaries inspected yet.</div>
@@ -767,6 +812,33 @@
             <td>${ioc.role}</td>
           </tr>
         `).join("");
+
+        if (data.secrets && data.secrets.length > 0) {
+          log(`🔑 [SECRET SCANNER] Discovered ${data.secrets.length} high-value secrets/credentials!`, "purple");
+          document.getElementById("secrets-count-pill").textContent = `${data.secrets.length} Found`;
+          document.getElementById("res-secrets-body").innerHTML = data.secrets.map(s => `
+            <tr>
+              <td><strong>${s.category}</strong></td>
+              <td><span class="confidence-pill confidence-purple">${s.type}</span></td>
+              <td><code>${s.value}</code></td>
+              <td><code>${s.sourceFile}</code></td>
+            </tr>
+          `).join("");
+        } else {
+          document.getElementById("secrets-count-pill").textContent = "0 Found";
+          document.getElementById("res-secrets-body").innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No credentials or secrets detected.</td></tr>`;
+        }
+
+        if (data.forensics && data.forensics.magicByteFindings.length > 0) {
+          document.getElementById("res-magic-body").innerHTML = data.forensics.magicByteFindings.map(m => `
+            <tr>
+              <td><code>${m.filename}</code></td>
+              <td><strong>${m.type}</strong></td>
+              <td><code>${m.hexSignature}</code></td>
+              <td>${m.details} (${m.sizeBytes} bytes)</td>
+            </tr>
+          `).join("");
+        }
 
         if (data.deobfuscation) resDeobfBody.textContent = JSON.stringify(data.deobfuscation, null, 2);
         if (data.forensics && data.forensics.lnkArtifacts.length > 0) resLnkBody.textContent = JSON.stringify(data.forensics.lnkArtifacts, null, 2);
