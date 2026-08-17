@@ -106,17 +106,6 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
       </div>
     </section>
 
-    <!-- Main Investigation Body (Quick Findings & Markdown) -->
-    <section class="dossier-section">
-      <div class="dossier-section-head">
-        <Icon name="crosshair" class="section-icon" />
-        <h2>Intelligence Telemetry & Findings</h2>
-      </div>
-      <div class="dossier-prose-card prose">
-        <Content />
-      </div>
-    </section>
-
     <!-- MITRE ATT&CK Matrix Table -->
     {entry.data.ttps && entry.data.ttps.length > 0 && (
       <section class="dossier-section">
@@ -188,7 +177,7 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
         <Icon name="shield" class="section-icon" />
         <h2>Intelligence Assessment & Technical Telemetry</h2>
       </div>
-      <div class="dossier-prose-body">
+      <div class="dossier-prose-card prose">
         <Content />
       </div>
     </section>
@@ -684,59 +673,76 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
   }
 
   /* Markdown Content & Tables */
-  .dossier-prose-body {
-    font-size: 0.95rem;
-    line-height: 1.7;
-    color: var(--text-body, #cbd5e1);
+  .dossier-prose-card {
+    background: var(--surface);
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 4px 4px 0 var(--primary);
+    color: var(--text);
   }
 
-  .dossier-prose-body h1,
-  .dossier-prose-body h2,
-  .dossier-prose-body h3 {
-    color: var(--text-heading, #fff);
-    margin: 1.5rem 0 0.75rem;
+  .dossier-prose-card h1,
+  .dossier-prose-card h2,
+  .dossier-prose-card h3,
+  .dossier-prose-card h4 {
+    color: var(--text);
+    margin: 1.75rem 0 0.75rem;
+    font-family: "Bricolage Grotesque", sans-serif;
     font-weight: 800;
   }
 
-  .dossier-prose-body p,
-  .dossier-prose-body ul {
+  .dossier-prose-card p,
+  .dossier-prose-card ul,
+  .dossier-prose-card ol {
+    color: var(--text);
     margin-bottom: 1.25rem;
+    line-height: 1.7;
+    font-size: 0.95rem;
   }
 
-  .dossier-prose-body table {
+  .dossier-prose-card li {
+    color: var(--text);
+    margin-bottom: 0.4rem;
+  }
+
+  .dossier-prose-card table {
     width: 100%;
     border-collapse: collapse;
     margin: 1.5rem 0;
-    font-size: 0.86rem;
-    background: var(--surface-low, rgba(15, 23, 42, 0.6));
-    border: 1px solid var(--border-color, #2a3e5c);
-    border-radius: 8px;
+    font-size: 0.88rem;
+    background: var(--surface-low);
+    border: 2px solid var(--primary);
+    border-radius: 6px;
     overflow: hidden;
     display: block;
     overflow-x: auto;
   }
 
-  .dossier-prose-body th,
-  .dossier-prose-body td {
-    padding: 0.75rem 0.9rem;
+  .dossier-prose-card th,
+  .dossier-prose-card td {
+    padding: 0.75rem 1rem;
     text-align: left;
-    border-bottom: 1px solid var(--border-color, #2a3e5c);
-    border-right: 1px solid var(--border-color, #2a3e5c);
+    border-bottom: 1px solid var(--line-soft);
+    border-right: 1px solid var(--line-soft);
+    color: var(--text);
   }
 
-  .dossier-prose-body th {
-    background: var(--surface-panel, #1e293b);
-    color: var(--text-heading, #fff);
+  .dossier-prose-card th {
+    background: var(--surface-panel);
+    color: var(--text);
+    font-family: "Bricolage Grotesque", sans-serif;
     font-weight: 700;
   }
 
-  .dossier-prose-body code {
-    background: rgba(30, 41, 59, 0.8);
-    color: var(--accent-cyan, #00f0ff);
-    padding: 0.2rem 0.4rem;
+  .dossier-prose-card code {
+    background: var(--surface-panel);
+    color: var(--secondary);
+    padding: 0.2rem 0.45rem;
+    border: 1px solid var(--line-soft);
     border-radius: 4px;
     font-family: var(--font-mono, monospace);
-    font-size: 0.82rem;
+    font-size: 0.84rem;
     word-break: break-all;
     white-space: pre-wrap;
   }
