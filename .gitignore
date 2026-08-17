@@ -5,3 +5,7 @@ dist
 Full Agent/threat_intel_acquisitions/
 Full Agent/threat_intel_acquisitions/*
 
+
+Full_Agent/threat_intel_acquisitions/
+threat_intel_acquisitions/
+Full_Agent/sessions.json
