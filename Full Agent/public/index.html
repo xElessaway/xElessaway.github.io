@@ -439,6 +439,13 @@
         <h1 class="app-title">Threat Intel <span>Command Console</span></h1>
       </div>
       <div class="header-status-group">
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--surface-panel); border: 1px solid var(--line); border-radius: 6px; padding: 0.2rem 0.6rem;">
+          <span style="font-size: 0.8rem;">🧠 Model:</span>
+          <select id="model-select" style="background: transparent; color: var(--accent-cyan); border: none; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; cursor: pointer; outline: none;">
+            <option value="qwen2.5:7b" style="background: #0b1625; color: #fff;">qwen2.5:7b (Deep CTI 7B)</option>
+            <option value="qwen2.5:3b" style="background: #0b1625; color: #fff;" selected>qwen2.5:3b (Fast 3B)</option>
+          </select>
+        </div>
         <div class="status-pill pill-purple" id="ollama-status-pill">
           <span>🧠</span> Checking Ollama...
         </div>
@@ -717,10 +724,12 @@
           log(`🧠 [OLLAMA THOUGHT STREAM] Synthesizing threat actor tradecraft, transport channels, and MITRE TTPs...`, "thought");
         }, 4000);
 
+        const modelName = document.getElementById("model-select").value;
+
         const res = await fetch("/api/analyze", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ targetUrl })
+          body: JSON.stringify({ targetUrl, modelName })
         });
 
         clearTimeout(thoughtTimer1);

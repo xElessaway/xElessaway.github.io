@@ -55,14 +55,14 @@ const server = http.createServer(async (req, res) => {
     req.on("data", (chunk) => (body += chunk));
     req.on("end", async () => {
       try {
-        const { targetUrl } = JSON.parse(body);
+        const { targetUrl, modelName } = JSON.parse(body);
         if (!targetUrl || !targetUrl.startsWith("http")) {
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "Invalid target URL. Must start with http:// or https://" }));
           return;
         }
 
-        console.log(`\n[UI Triggered Analysis v2.1] Target: ${targetUrl}`);
+        console.log(`\n[UI Triggered Analysis v2.1] Target: ${targetUrl} (Model: ${modelName || "auto"})`);
 
         const triageData = await triageTarget(targetUrl, config);
         if (!triageData) {
@@ -71,7 +71,7 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
-        const intel = await extractIntelligence(triageData);
+        const intel = await extractIntelligence(triageData, modelName);
         const drafts = generateDraftContent(intel, config);
 
         const resultObj = {

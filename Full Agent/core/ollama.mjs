@@ -31,7 +31,7 @@ export async function checkOllamaStatus() {
 }
 
 // 2. Query Local Model for Deep CTI Code Analysis
-export async function analyzeWithOllama(triageData, deobfData, modelName = "qwen2.5:7b") {
+export async function analyzeWithOllama(triageData, deobfData, modelName = null) {
   const status = await checkOllamaStatus();
   if (!status.online) {
     return {
@@ -40,7 +40,7 @@ export async function analyzeWithOllama(triageData, deobfData, modelName = "qwen
     };
   }
 
-  const model = status.selectedModel || modelName;
+  const model = modelName || status.selectedModel || "qwen2.5:3b";
 
   // Prepare concise analytical context
   const sourceCodeSnippets = triageData.files

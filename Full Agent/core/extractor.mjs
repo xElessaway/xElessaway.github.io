@@ -7,7 +7,7 @@ import { analyzeWithOllama } from "./ollama.mjs";
 /**
  * Enterprise Intelligence Aggregator & Threat Extraction Engine
  */
-export async function extractIntelligence(triageResult) {
+export async function extractIntelligence(triageResult, modelName = null) {
   if (!triageResult || !triageResult.files) return null;
 
   const { hostname, port, files } = triageResult;
@@ -22,7 +22,7 @@ export async function extractIntelligence(triageResult) {
   const forensicResults = await performForensicAnalysis(files);
 
   // 3. Run Local Ollama AI Reasoning (if available)
-  const aiAnalysis = await analyzeWithOllama(triageResult, deobfResults);
+  const aiAnalysis = await analyzeWithOllama(triageResult, deobfResults, modelName);
 
   // 4. Tooling heuristics
   const observedTools = new Set();
