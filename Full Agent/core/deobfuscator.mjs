@@ -1,8 +1,11 @@
 import { Buffer } from "node:buffer";
+import { createHash } from "node:crypto";
+import { writeFile, mkdir } from "node:fs/promises";
+import { resolve } from "node:path";
 import { carvePEFromData } from "./pe_carver.mjs";
 
 /**
- * Enterprise Recursive Multi-Layer Deobfuscation Engine (v2.3)
+ * Enterprise Multi-Stage Recursive Deobfuscator & Deep PE Extractor (v2.4)
  */
 
 export function extractXORKeysFromScript(scriptText) {
@@ -26,7 +29,7 @@ export function extractXORKeysFromScript(scriptText) {
     }
   }
 
-  // Pattern 2: Multiline or Single-line Hex Key ($decryptionHexKey / $hexKey / $key)
+  // Pattern 2: Multiline Hex Key ($decryptionHexKey / $hexKey / $key)
   const hexKeyMatch = scriptText.match(/\$(?:decryptionHexKey|hexKey|encryptionKey|keyHex|xorKey)\s*=\s*(?:@'|@"|'|")([\s\S]*?)(?:'@|"@|'|")/i);
   if (hexKeyMatch) {
     const cleanHex = hexKeyMatch[1].replace(/[^0-9a-fA-F]/g, "");
@@ -42,16 +45,16 @@ export function extractXORKeysFromScript(scriptText) {
     }
   }
 
-  // Pattern 3: Key derivation strings
-  const strKeyMatch = scriptText.match(/\$(?:key|password|secret)\s*=\s*['"]([^'"]{4,64})['"]/i);
-  if (strKeyMatch) {
-    const strBuf = Buffer.from(strKeyMatch[1], "utf-8");
+  // Pattern 3: String Crypto Keys ($cryptoKey = "...")
+  const strKeyMatches = [...scriptText.matchAll(/\$(?:cryptoKey|key|password|secret|keyString)\s*=\s*["']([^"']{4,64})["']/gi)];
+  for (const m of strKeyMatches) {
+    const strBuf = Buffer.from(m[1], "utf-8");
     keys.push({
       type: "ascii_string",
-      source: `Script Variable ($${strKeyMatch[0].split("=")[0].replace("$", "").trim()})`,
+      source: `Script Key ($${m[0].split("=")[0].replace("$", "").trim()})`,
       bytes: strBuf,
       hex: strBuf.toString("hex"),
-      ascii: strKeyMatch[1]
+      ascii: m[1]
     });
   }
 
@@ -99,7 +102,9 @@ export function parseScriptBehavior(scriptText) {
   return behavior;
 }
 
-export async function analyzeAndDeobfuscateFiles(files) {
+export async function analyzeAndDeobfuscateFiles(files, outputDir = "./threat_intel_acquisitions/carved") {
+  await mkdir(outputDir, { recursive: true });
+
   const deobfResults = {
     recoveredKeys: [],
     decryptedArtifacts: [],
@@ -118,95 +123,109 @@ export async function analyzeAndDeobfuscateFiles(files) {
       deobfResults.scriptBehaviors.push({ filename: file.filename, ...behavior });
     }
 
-    // Attempt direct PE Carving from the raw source
-    const directPEs = await carvePEFromData(file.content, file.filename);
+    const directPEs = await carvePEFromData(file.content, file.filename, outputDir);
     if (directPEs.length > 0) deobfResults.carvedBinaries.push(...directPEs);
   }
 
-  // Recursive Multi-Pass Decryption & Carving (Up to 4 Layers)
-  let pendingBuffers = [];
-
-  // Seed pending buffers from files
+  // Pass 2: Hex Layer Decryption (Layer 1)
   for (const file of files) {
-    // 1. Inline Hex in scripts
-    const inlineHexMatch = file.content.match(/\$(?:encryptedHexData|cipherHexData|hexData|encData|payloadHex)\s*=\s*(?:@'|@"|'|")([\s\S]*?)(?:'@|"@|'|")/i);
-    if (inlineHexMatch) {
-      const cleanCipherHex = inlineHexMatch[1].replace(/[^0-9a-fA-F]/g, "");
+    const cipherMatch = file.content.match(/\$(?:encryptedHexData|cipherHexData|hexData|encData|payloadHex)\s*=\s*(?:@'|@"|'|")([\s\S]*?)(?:'@|"@|'|")/i);
+    if (cipherMatch) {
+      const cleanCipherHex = cipherMatch[1].replace(/[^0-9a-fA-F]/g, "");
       if (cleanCipherHex.length >= 32) {
-        pendingBuffers.push({
-          source: `${file.filename} (Inline Hex Layer 1)`,
-          buffer: Buffer.from(cleanCipherHex, "hex"),
-          layer: 1
-        });
-      }
-    }
+        const cipherBuf = Buffer.from(cleanCipherHex, "hex");
 
-    // 2. Binary files
-    if (file.filename.endsWith(".dat") || file.filename.endsWith(".bin")) {
-      pendingBuffers.push({
-        source: `${file.filename} (Binary Layer 1)`,
-        buffer: Buffer.from(file.content, "binary"),
-        layer: 1
-      });
-    }
-  }
+        for (const key of deobfResults.recoveredKeys) {
+          const decrypted = decryptXOR(cipherBuf, key.bytes);
+          if (decrypted && decrypted.length > 0) {
+            const utf8Str = decrypted.toString("utf-8");
+            const isPE = decrypted.slice(0, 2).toString("ascii") === "MZ";
 
-  let layerCount = 1;
-  while (pendingBuffers.length > 0 && layerCount <= 4) {
-    const nextLayerBuffers = [];
+            deobfResults.decryptedArtifacts.push({
+              sourceFile: `${file.filename} -> Layer 1 Decrypted`,
+              layer: 1,
+              keyUsed: key.ascii,
+              keyHex: key.hex,
+              decryptedLength: decrypted.length,
+              isPEHeader: isPE,
+              hexHeader: decrypted.slice(0, 16).toString("hex"),
+              previewString: utf8Str.slice(0, 300)
+            });
 
-    for (const item of pendingBuffers) {
-      for (const key of deobfResults.recoveredKeys) {
-        const decrypted = decryptXOR(item.buffer, key.bytes);
-        if (decrypted && decrypted.length > 0) {
-          const isPE = decrypted.slice(0, 2).toString("ascii") === "MZ";
-          const hexHead = decrypted.slice(0, 16).toString("hex");
-          const utf8Str = decrypted.toString("utf-8");
+            // Carve direct PEs from Layer 1
+            const carvedL1 = await carvePEFromData(decrypted, `${file.filename} (Layer 1)`, outputDir);
+            if (carvedL1.length > 0) deobfResults.carvedBinaries.push(...carvedL1);
 
-          deobfResults.decryptedArtifacts.push({
-            sourceFile: `${item.source} -> Layer ${layerCount} Decrypted`,
-            layer: layerCount,
-            keyUsed: key.ascii,
-            keyHex: key.hex,
-            decryptedLength: decrypted.length,
-            isPEHeader: isPE,
-            hexHeader: hexHead,
-            previewString: utf8Str.slice(0, 300)
-          });
-
-          // Carve embedded PEs from decrypted payload
-          const carved = await carvePEFromData(decrypted, `${item.source} (Layer ${layerCount})`);
-          if (carved.length > 0) {
-            deobfResults.carvedBinaries.push(...carved);
-          }
-
-          // Check if the decrypted code contains nested secondary keys or hex payloads
-          const secondaryKeys = extractXORKeysFromScript(utf8Str);
-          if (secondaryKeys.length > 0) {
-            for (const sk of secondaryKeys) {
-              if (!deobfResults.recoveredKeys.some((k) => k.hex === sk.hex)) {
-                deobfResults.recoveredKeys.push(sk);
+            // Layer 2: Extract Nested XOR Keys & Decrypt Second-Stage .NET Assembly / EXE
+            const l2Keys = extractXORKeysFromScript(utf8Str);
+            for (const l2k of l2Keys) {
+              if (!deobfResults.recoveredKeys.some((k) => k.ascii === l2k.ascii)) {
+                deobfResults.recoveredKeys.push(l2k);
               }
             }
-          }
 
-          const secondaryHexMatch = utf8Str.match(/\$(?:encryptedHexData|cipherHexData|hexData|encData|payloadHex)\s*=\s*(?:@'|@"|'|")([\s\S]*?)(?:'@|"@|'|")/i);
-          if (secondaryHexMatch) {
-            const cleanSecHex = secondaryHexMatch[1].replace(/[^0-9a-fA-F]/g, "");
-            if (cleanSecHex.length >= 32) {
-              nextLayerBuffers.push({
-                source: `${item.source} -> Nested Payload`,
-                buffer: Buffer.from(cleanSecHex, "hex"),
-                layer: layerCount + 1
-              });
+            // Pattern A: $encodedPayload = '...' with Base64 XOR in Layer 2
+            const encPayloadMatch = utf8Str.match(/\$(?:encodedPayload|nestedPayload|stage2Payload)\s*=\s*["']([A-Za-z0-9+/=]{100,})["']/i);
+            if (encPayloadMatch) {
+              const encB64 = encPayloadMatch[1];
+              const encBuf = Buffer.from(encB64, "base64");
+
+              for (const l2k of deobfResults.recoveredKeys) {
+                const decL2 = decryptXOR(encBuf, l2k.bytes);
+                if (decL2) {
+                  try {
+                    const decB64Str = decL2.toString("utf-8");
+                    const dllBytes = Buffer.from(decB64Str, "base64");
+                    if (dllBytes.slice(0, 2).toString("ascii") === "MZ") {
+                      const sha256 = createHash("sha256").update(dllBytes).digest("hex");
+                      const filename = `carved_layer2_loader_${sha256.slice(0, 8)}.dll`;
+                      const filePath = resolve(outputDir, filename);
+                      await writeFile(filePath, dllBytes);
+
+                      deobfResults.carvedBinaries.push({
+                        filename,
+                        type: "Carved Layer 2 .NET Reflection Loader (DLL)",
+                        sha256,
+                        sizeBytes: dllBytes.length,
+                        source: `${file.filename} (Layer 2 XOR -> Base64)`,
+                        path: filePath
+                      });
+                    }
+                  } catch (e) {}
+                }
+              }
+            }
+
+            // Pattern B: [Byte[]]$payloadBytes = (77,90,69,82,...) in Layer 2
+            const payloadBytesIdx = utf8Str.indexOf("$payloadBytes = (");
+            if (payloadBytesIdx !== -1) {
+              const sub = utf8Str.slice(payloadBytesIdx + "$payloadBytes = (".length);
+              const endIdx = sub.indexOf(")");
+              const numStr = sub.slice(0, endIdx);
+              const nums = numStr.split(",").map((n) => parseInt(n.trim(), 10)).filter((n) => !isNaN(n));
+              if (nums.length > 512) {
+                const exeBuf = Buffer.from(nums);
+                if (exeBuf.slice(0, 2).toString("ascii") === "MZ" || exeBuf.slice(0, 4).toString("ascii") === "MZER") {
+                  const sha256 = createHash("sha256").update(exeBuf).digest("hex");
+                  const filename = `carved_layer2_payload_${sha256.slice(0, 8)}.exe`;
+                  const filePath = resolve(outputDir, filename);
+                  await writeFile(filePath, exeBuf);
+
+                  deobfResults.carvedBinaries.push({
+                    filename,
+                    type: "Carved Layer 2 Executable Payload (EXE/Shellcode)",
+                    sha256,
+                    sizeBytes: exeBuf.length,
+                    source: `${file.filename} (Layer 2 Byte Array)`,
+                    path: filePath
+                  });
+                }
+              }
             }
           }
         }
       }
     }
-
-    pendingBuffers = nextLayerBuffers;
-    layerCount++;
   }
 
   return deobfResults;
