@@ -6,7 +6,7 @@ import { detectMagicBytes, identifyObfuscationTechniques } from "./magic_bytes.m
 const execAsync = promisify(exec);
 
 /**
- * Windows Forensics & Linux Reverse Engineering Bridge
+ * Windows Forensics & Linux Reverse Engineering Bridge (v2.3)
  */
 
 // 1. Standalone LNK Binary Parser
@@ -90,10 +90,13 @@ export async function runLECmd(lnkFilePath) {
   }
 }
 
-// 3. WSL Linux Reverse Engineering Bridge
+// 3. WSL Deep Reverse Engineering Bridge (file, strings, binwalk, upx, 7z)
 export async function runWSLInspection(filePath) {
   const results = {
     fileType: "Unknown",
+    binwalkSignatures: [],
+    archiveContents: [],
+    upxStatus: "Not Packed",
     interestingStrings: [],
     networkIndicators: [],
     c2Patterns: [],
@@ -110,21 +113,42 @@ export async function runWSLInspection(filePath) {
       results.fileType = fileOut.trim();
     } catch (e) {}
 
-    // B. Strings extraction
+    // B. Binwalk Carving & Signature Scan
     try {
-      const { stdout: strOut } = await execAsync(`wsl strings -a -n 7 "${wslPath}" | head -n 60`, { timeout: 6000 });
+      const { stdout: bwOut } = await execAsync(`wsl binwalk -B "${wslPath}" | head -n 25`, { timeout: 8000 });
+      const bwLines = bwOut.split("\n").filter((l) => l.trim() && !l.includes("DECIMAL") && !l.includes("-------"));
+      results.binwalkSignatures = bwLines.map((l) => l.trim()).slice(0, 10);
+    } catch (e) {}
+
+    // C. 7z Archive Inspection (for ISO / ZIP / RAR containers)
+    if (/\.(iso|zip|rar|7z|tar|gz|cab)$/i.test(filePath) || results.fileType.includes("archive") || results.fileType.includes("ISO")) {
+      try {
+        const { stdout: szOut } = await execAsync(`wsl 7z l "${wslPath}" | tail -n +10 | head -n 30`, { timeout: 8000 });
+        results.archiveContents = szOut.split("\n").map((l) => l.trim()).filter((l) => l.length > 5);
+      } catch (e) {}
+    }
+
+    // D. UPX Detection
+    if (results.fileType.includes("UPX") || results.binwalkSignatures.some((b) => b.includes("UPX"))) {
+      results.upxStatus = "UPX Packed Executable Detected";
+    }
+
+    // E. Strings extraction
+    try {
+      const { stdout: strOut } = await execAsync(`wsl strings -a -n 7 "${wslPath}" | head -n 80`, { timeout: 6000 });
       const rawLines = strOut.split("\n").map((s) => s.trim()).filter((s) => s.length > 6);
       results.interestingStrings = rawLines;
 
-      // Extract IPs / URLs from strings
       rawLines.forEach((line) => {
         if (/https?:\/\//i.test(line)) results.networkIndicators.push(line);
         if (/\b(?:\d{1,3}\.){3}\d{1,3}\b/.test(line)) results.networkIndicators.push(line);
-        if (/beacon|demon|c2|stage|inject|virtualalloc|sleep|pipe/i.test(line)) results.c2Patterns.push(line);
+        if (/beacon|demon|c2|stage|inject|virtualalloc|sleep|pipe|createprocess|loadlibrary/i.test(line)) {
+          results.c2Patterns.push(line);
+        }
       });
     } catch (e) {}
 
-    // C. Hex preview
+    // F. Hex preview
     try {
       const { stdout: xxdOut } = await execAsync(`wsl xxd -p -l 32 "${wslPath}"`, { timeout: 6000 });
       results.xxdPreview = xxdOut.trim();
@@ -181,17 +205,20 @@ export async function performForensicAnalysis(files) {
       }
     }
 
-    // 4. WSL Binary Deep Reverse Engineering
-    if (/\.(sys|bin|dat|exe|dll|so|elf|o|deb|tar|gz)$/i.test(file.filename) && file.path) {
+    // 4. WSL Binary & Container Deep Reverse Engineering
+    if (/\.(sys|bin|dat|exe|dll|so|elf|o|deb|tar|gz|iso|zip|rar|7z)$/i.test(file.filename) && file.path) {
       const wslData = await runWSLInspection(file.path);
       forensicReport.binaryArtifacts.push({
         filename: file.filename,
         fileType: wslData.fileType,
         magicType: magic.type,
+        binwalk: wslData.binwalkSignatures || [],
+        archiveContents: wslData.archiveContents || [],
+        upx: wslData.upxStatus,
         hexPreview: wslData.xxdPreview,
-        c2Signatures: wslData.c2Patterns ? wslData.c2Patterns.slice(0, 10) : [],
-        networkFound: wslData.networkIndicators ? wslData.networkIndicators.slice(0, 10) : [],
-        stringsSample: wslData.interestingStrings.slice(0, 20)
+        c2Signatures: wslData.c2Patterns ? wslData.c2Patterns.slice(0, 15) : [],
+        networkFound: wslData.networkIndicators ? wslData.networkIndicators.slice(0, 15) : [],
+        stringsSample: wslData.interestingStrings.slice(0, 25)
       });
     }
   }
