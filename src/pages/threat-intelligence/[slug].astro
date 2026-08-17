@@ -182,6 +182,17 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
       </section>
     )}
 
+    <!-- Technical Findings & Verified Telemetry (Markdown Content) -->
+    <section class="dossier-section">
+      <div class="dossier-section-head">
+        <Icon name="shield" class="section-icon" />
+        <h2>Intelligence Assessment & Technical Telemetry</h2>
+      </div>
+      <div class="dossier-prose-body">
+        <Content />
+      </div>
+    </section>
+
     <!-- Related In-Depth Investigation Reports -->
     {relatedPosts.length > 0 && (
       <section class="dossier-section">
@@ -670,5 +681,63 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     color: var(--primary);
     border-top: 1px solid var(--border-color);
     padding-top: 0.75rem;
+  }
+
+  /* Markdown Content & Tables */
+  .dossier-prose-body {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-body, #cbd5e1);
+  }
+
+  .dossier-prose-body h1,
+  .dossier-prose-body h2,
+  .dossier-prose-body h3 {
+    color: var(--text-heading, #fff);
+    margin: 1.5rem 0 0.75rem;
+    font-weight: 800;
+  }
+
+  .dossier-prose-body p,
+  .dossier-prose-body ul {
+    margin-bottom: 1.25rem;
+  }
+
+  .dossier-prose-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.86rem;
+    background: var(--surface-low, rgba(15, 23, 42, 0.6));
+    border: 1px solid var(--border-color, #2a3e5c);
+    border-radius: 8px;
+    overflow: hidden;
+    display: block;
+    overflow-x: auto;
+  }
+
+  .dossier-prose-body th,
+  .dossier-prose-body td {
+    padding: 0.75rem 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color, #2a3e5c);
+    border-right: 1px solid var(--border-color, #2a3e5c);
+  }
+
+  .dossier-prose-body th {
+    background: var(--surface-panel, #1e293b);
+    color: var(--text-heading, #fff);
+    font-weight: 700;
+  }
+
+  .dossier-prose-body code {
+    background: rgba(30, 41, 59, 0.8);
+    color: var(--accent-cyan, #00f0ff);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-family: var(--font-mono, monospace);
+    font-size: 0.82rem;
+    word-break: break-all;
+    white-space: pre-wrap;
   }
 </style>

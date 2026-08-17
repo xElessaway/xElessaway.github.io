@@ -1811,6 +1811,11 @@ p {
   margin: 1.5rem 0;
   border-collapse: collapse;
   border: 2px solid var(--primary);
+  display: block;
+  overflow-x: auto;
+  font-size: 0.88rem;
+  background: var(--surface-low);
+  border-radius: 6px;
 }
 
 .prose th, .prose td {
@@ -1823,6 +1828,11 @@ p {
   background: var(--surface-panel);
   font-family: "Bricolage Grotesque", sans-serif;
   font-weight: 700;
+}
+
+.prose code {
+  word-break: break-all;
+  white-space: pre-wrap;
 }
 
 /* Article Dossier Footer */
