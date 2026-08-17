@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Threat Intel Command Console v2.3 | Deep Forensics & Live Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #09121f;
+      --surface: #0f1c2e;
+      --surface-low: #0b1625;
+      --surface-panel: #132238;
+      --surface-high: #182b45;
+      --primary: #f0f4fc;
+      --secondary: #ff3366;
+      --secondary-soft: #3d0c1b;
+      --accent-cyan: #00f0ff;
+      --accent-green: #10b981;
+      --accent-purple: #a855f7;
+      --text: #f0f4fc;
+      --text-muted: #94a3b8;
+      --line: #2a3e5c;
+      --font-main: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 51, 102, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(0, 240, 255, 0.04) 0%, transparent 40%);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      width: 100%;
+    }
+
+    /* Header */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--line);
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--secondary);
+      background: var(--secondary-soft);
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      border: 1px solid var(--secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--secondary);
+      box-shadow: 0 0 8px var(--secondary);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .app-title { font-size: 2rem; font-weight: 900; letter-spacing: -0.02em; }
+    .app-title span { color: var(--secondary); }
+
+    .header-status-group { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .status-pill {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .pill-green { color: var(--accent-green); background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent-green); }
+    .pill-purple { color: var(--accent-purple); background: rgba(168, 85, 247, 0.1); border: 1px solid var(--accent-purple); }
+    .pill-muted { color: var(--text-muted); background: var(--surface-panel); border: 1px solid var(--line); }
+
+    /* Control Card */
+    .control-card {
+      background: var(--surface);
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 1.75rem;
+      box-shadow: 4px 4px 0 #000;
+      margin-bottom: 2rem;
+    }
+    .control-card-head {
+      font-size: 1.1rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .target-input-row { display: flex; gap: 0.75rem; align-items: stretch; }
+    .target-input {
+      flex: 1;
+      background: var(--surface-low);
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      padding: 0.85rem 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    .target-input:focus {
+      outline: none;
+      border-color: var(--secondary);
+      box-shadow: 0 0 12px rgba(255, 51, 102, 0.3);
+    }
+
+    .launch-btn {
+      background: var(--secondary);
+      color: #fff;
+      border: 2px solid var(--secondary);
+      border-radius: 8px;
+      padding: 0 1.75rem;
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 2px 2px 0 #000;
+      transition: all 0.15s;
+    }
+    .launch-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #000; }
+    .launch-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .preset-chips { display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+    .preset-label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); font-family: var(--font-mono); }
+    .preset-btn {
+      background: var(--surface-panel);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.3rem 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent-cyan);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .preset-btn:hover { border-color: var(--accent-cyan); background: rgba(0, 240, 255, 0.1); }
+
+    /* Dashboard Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 1080px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+    /* Terminal */
+    .terminal-pane {
+      background: #060b13;
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 4px 4px 0 #000;
+      display: flex;
+      flex-direction: column;
+      min-height: 540px;
+    }
+    .terminal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .terminal-dots { display: flex; gap: 6px; }
+    .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+
+    .terminal-body {
+      flex: 1;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #38bdf8;
+      overflow-y: auto;
+      max-height: 500px;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+    .terminal-line-success { color: #4ade80; }
+    .terminal-line-warn { color: #facc15; }
+    .terminal-line-error { color: #f87171; }
+    .terminal-line-purple { color: #c084fc; font-weight: 700; }
+    .terminal-line-thought { color: #e879f9; font-style: italic; border-left: 2px solid #e879f9; padding-left: 0.5rem; margin: 0.25rem 0; }
+    .terminal-line-info { color: #94a3b8; }
+
+    /* Results */
+    .results-pane {
+      background: var(--surface);
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 4px 4px 0 #000;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .results-tab-bar {
+      display: flex;
+      gap: 0.4rem;
+      background: var(--surface-low);
+      padding: 0.35rem;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      flex-wrap: wrap;
+    }
+    .res-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .res-tab-btn.is-active { background: var(--primary); color: #000; }
+
+    .result-section-title {
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .badges-flex { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tool-badge {
+      background: var(--secondary-soft);
+      color: var(--secondary);
+      border: 1px solid var(--secondary);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+    }
+    .confidence-pill {
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+    }
+    .confidence-high { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid #10b981; }
+    .confidence-purple { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border: 1px solid var(--accent-purple); }
+
+    .ioc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      font-family: var(--font-mono);
+      background: var(--surface-low);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .ioc-table th, .ioc-table td { padding: 0.5rem 0.75rem; text-align: left; border-bottom: 1px solid var(--line); }
+    .ioc-table th { background: var(--surface-panel); color: var(--text-muted); font-weight: 700; }
+    .ioc-table tr:last-child td { border-bottom: none; }
+
+    .code-box-preview {
+      background: var(--surface-low);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0.85rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: #38bdf8;
+      max-height: 260px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+
+    /* Review & Edit Workspace Section */
+    .editor-section {
+      background: var(--surface);
+      border: 2px solid var(--accent-cyan);
+      border-radius: 12px;
+      padding: 1.75rem;
+      box-shadow: 6px 6px 0 #000;
+      margin-bottom: 2rem;
+      display: none;
+    }
+
+    .editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .editor-mode-toggle {
+      display: flex;
+      gap: 0.35rem;
+      background: var(--surface-low);
+      padding: 0.25rem;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+    }
+    .mode-toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .mode-toggle-btn.is-active { background: var(--accent-cyan); color: #000; }
+
+    .editor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 900px) { .editor-grid { grid-template-columns: 1fr; } }
+
+    .editor-col-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .markdown-editor-textarea {
+      width: 100%;
+      height: 420px;
+      background: var(--surface-low);
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--text);
+      resize: vertical;
+      transition: all 0.15s;
+    }
+    .markdown-editor-textarea:focus {
+      outline: none;
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+    }
+
+    .preview-render-box {
+      width: 100%;
+      height: 420px;
+      background: #060b13;
+      border: 2px solid var(--line);
+      border-radius: 8px;
+      padding: 1.25rem;
+      font-family: var(--font-main);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      overflow-y: auto;
+      display: none;
+    }
+    .preview-render-box h1, .preview-render-box h2, .preview-render-box h3 { color: #fff; margin: 1rem 0 0.5rem; }
+    .preview-render-box code { background: #1e293b; color: var(--accent-cyan); padding: 0.15rem 0.35rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.82rem; }
+    .preview-render-box table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.82rem; }
+    .preview-render-box th, .preview-render-box td { border: 1px solid var(--line); padding: 0.4rem 0.6rem; text-align: left; }
+    .preview-render-box th { background: var(--surface-panel); color: #fff; }
+
+    .publish-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface-panel);
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .publish-btn {
+      background: var(--accent-green);
+      color: #000;
+      border: 2px solid var(--accent-green);
+      border-radius: 8px;
+      padding: 0.75rem 1.75rem;
+      font-size: 0.95rem;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 2px 2px 0 #000;
+      transition: all 0.15s;
+    }
+    .publish-btn:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 #000; }
+    .publish-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .history-card {
+      background: var(--surface);
+      border: 2px solid var(--line);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 4px 4px 0 #000;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="app-header">
+      <div>
+        <div class="logo-badge">
+          <div class="pulse-dot"></div>
+          AUTONOMOUS FORENSIC AGENT v2.3
+        </div>
+        <h1 class="app-title">Threat Intel <span>Command Console</span></h1>
+      </div>
+      <div class="header-status-group">
+        <div style="display: flex; align-items: center; gap: 0.5rem; background: var(--surface-panel); border: 1px solid var(--line); border-radius: 6px; padding: 0.2rem 0.6rem;">
+          <span style="font-size: 0.8rem;">🧠 Model:</span>
+          <select id="model-select" style="background: transparent; color: var(--accent-cyan); border: none; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; cursor: pointer; outline: none;">
+            <option value="qwen2.5:7b" style="background: #0b1625; color: #fff;">qwen2.5:7b (Deep CTI 7B)</option>
+            <option value="qwen2.5:3b" style="background: #0b1625; color: #fff;" selected>qwen2.5:3b (Fast 3B)</option>
+          </select>
+        </div>
+        <div class="status-pill pill-purple" id="ollama-status-pill">
+          <span>🧠</span> Checking Ollama...
+        </div>
+        <div class="status-pill pill-green">
+          <span>●</span> DRAFT & REVIEW MODE ACTIVE
+        </div>
+      </div>
+    </header>
+
+    <!-- Target Controller -->
+    <section class="control-card">
+      <div class="control-card-head">
+        <span>🎯 Target Triage & Multi-Layer Deep Forensics</span>
+        <span style="font-size: 0.8rem; font-family: var(--font-mono); color: var(--text-muted);">
+          100% Offline AI Reasoning · Binwalk / UPX / Magic Bytes / Carved EXE
+        </span>
+      </div>
+      <div class="target-input-row">
+        <input type="text" id="target-input" class="target-input" placeholder="Enter target URL..." value="https://178.16.53.176/DV/" />
+        <button type="button" id="launch-btn" class="launch-btn">
+          ⚡ Execute Forensic Analysis
+        </button>
+      </div>
+      <div class="preset-chips">
+        <span class="preset-label">Live Targets:</span>
+        <button type="button" class="preset-btn" onclick="setTarget('https://178.16.53.176/DV/')">Apache PS1 Droppers (178.16.53.176/DV/)</button>
+        <button type="button" class="preset-btn" onclick="setTarget('http://93.152.223.39:8089/')">PrivatBank Havoc (93.152.223.39)</button>
+        <button type="button" class="preset-btn" onclick="setTarget('http://101.42.255.92:8001/')">Adaptix / Cobalt Strike (101.42.255.92)</button>
+      </div>
+    </section>
+
+    <!-- Review & Edit Workspace Section -->
+    <section class="editor-section" id="editor-section">
+      <div class="editor-header">
+        <div>
+          <h3 style="font-size: 1.2rem; font-weight: 900; color: var(--accent-cyan);">📝 Interactive Draft Review & Live Preview</h3>
+          <p style="font-size: 0.82rem; color: var(--text-muted);">Review and edit the intelligence before publishing to your website and GitHub.</p>
+        </div>
+        <div class="editor-mode-toggle">
+          <button type="button" class="mode-toggle-btn is-active" id="btn-edit-mode" onclick="toggleEditorMode('edit')">📝 Raw Markdown</button>
+          <button type="button" class="mode-toggle-btn" id="btn-preview-mode" onclick="toggleEditorMode('preview')">👁️ Formatted Preview</button>
+        </div>
+      </div>
+
+      <div class="editor-grid">
+        <!-- Editor 1: Threat Dossier -->
+        <div>
+          <div class="editor-col-title">
+            <span>🛡️ Threat Dossier (`src/content/actors/...`)</span>
+          </div>
+          <textarea id="edit-dossier" class="markdown-editor-textarea" spellcheck="false"></textarea>
+          <div id="preview-dossier" class="preview-render-box"></div>
+        </div>
+
+        <!-- Editor 2: DFIR Blog Report -->
+        <div>
+          <div class="editor-col-title">
+            <span>📰 Companion DFIR Report (`src/content/blog/...`)</span>
+          </div>
+          <textarea id="edit-report" class="markdown-editor-textarea" spellcheck="false"></textarea>
+          <div id="preview-report" class="preview-render-box"></div>
+        </div>
+      </div>
+
+      <div class="publish-bar">
+        <div>
+          <strong style="font-size: 0.9rem;">Ready to Publish?</strong>
+          <p style="font-size: 0.8rem; color: var(--text-muted);">This will save both files and generate clean Astro content collections.</p>
+        </div>
+        <button type="button" id="approve-publish-btn" class="publish-btn">
+          🚀 Approve & Save Content to Portfolio
+        </button>
+      </div>
+      <div id="publish-status-box" style="margin-top: 1rem; display: none;"></div>
+    </section>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+      <!-- Live Terminal Console -->
+      <div class="terminal-pane">
+        <div class="terminal-head">
+          <div class="terminal-dots">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+          </div>
+          <span>LIVE OLLAMA THOUGHT STREAM & TELEMETRY</span>
+        </div>
+        <div class="terminal-body" id="terminal-body">[SYSTEM] Agent v2.3 initialized.
+[SYSTEM] Recursive Unpacker & In-Memory PE Carver active.
+[SYSTEM] WSL Reverse Engineering Suite (binwalk, upx, 7z, strings) online.
+[SYSTEM] Ready for target acquisition... Enter URL above and press Execute.</div>
+      </div>
+
+      <!-- Live Analysis Telemetry -->
+      <div class="results-pane" id="results-pane">
+        <div>
+          <div class="result-section-title">Threat Actor / Infrastructure</div>
+          <h2 style="font-size: 1.4rem; font-weight: 900;" id="res-title">No Analysis Run Yet</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;" id="res-subtitle">Telemetry results and extracted forensic evidence will appear here.</p>
+        </div>
+
+        <div>
+          <div class="result-section-title">Observed Tooling & Arsenal</div>
+          <div class="badges-flex" id="res-tools">
+            <span style="color: var(--text-muted); font-size: 0.82rem;">None</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="results-tab-bar">
+          <button type="button" class="res-tab-btn is-active" data-view="iocs">🛡️ Verified IOCs</button>
+          <button type="button" class="res-tab-btn" data-view="carved">💾 Carved Binaries</button>
+          <button type="button" class="res-tab-btn" data-view="secrets">🔑 Secrets & Creds</button>
+          <button type="button" class="res-tab-btn" data-view="magic">🧙 Magic Bytes</button>
+          <button type="button" class="res-tab-btn" data-view="deobf">🔓 XOR & Layers</button>
+          <button type="button" class="res-tab-btn" data-view="ai">🧠 Ollama AI</button>
+          <button type="button" class="res-tab-btn" data-view="wsl">🐧 WSL Linux</button>
+          <button type="button" class="res-tab-btn" data-view="lnk">📁 LNK Lures</button>
+        </div>
+
+        <!-- View 1: Verified IOCs Table -->
+        <div id="view-iocs" class="tab-view-content">
+          <div class="result-section-title">
+            <span>Verified High-Fidelity IOCs</span>
+            <span class="confidence-pill confidence-high">100% Cryptographically Verified</span>
+          </div>
+          <table class="ioc-table">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Indicator / Hash</th>
+                <th>Role</th>
+              </tr>
+            </thead>
+            <tbody id="res-high-iocs">
+              <tr>
+                <td colspan="3" style="text-align: center; color: var(--text-muted);">Awaiting target analysis...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- View 2: Carved Embedded Binaries (EXE / DLL) -->
+        <div id="view-carved" class="tab-view-content" style="display: none;">
+          <div class="result-section-title">
+            <span>Extracted In-Memory Binaries (PE / DLL / SYS)</span>
+            <span class="confidence-pill confidence-high" id="carved-count-pill">0 Extracted</span>
+          </div>
+          <table class="ioc-table">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Binary Type</th>
+                <th>Extracted SHA-256 Hash</th>
+                <th>Source Layer</th>
+              </tr>
+            </thead>
+            <tbody id="res-carved-body">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted);">No embedded executables carved yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- View 3: Harvested Secrets & Tokens -->
+        <div id="view-secrets" class="tab-view-content" style="display: none;">
+          <div class="result-section-title">
+            <span>Discovered Cloud Keys, OAuth Tokens & SSH Passwords</span>
+            <span class="confidence-pill confidence-purple" id="secrets-count-pill">0 Found</span>
+          </div>
+          <table class="ioc-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Type</th>
+                <th>Identifier / Redacted Value</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody id="res-secrets-body">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted);">No credentials or secrets detected.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- View 4: Magic Bytes & Binary Signatures -->
+        <div id="view-magic" class="tab-view-content" style="display: none;">
+          <div class="result-section-title">Deep File Typing & Magic Byte Signatures</div>
+          <table class="ioc-table">
+            <thead>
+              <tr>
+                <th>Filename</th>
+                <th>Detected Binary Type</th>
+                <th>Hex Signature</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="res-magic-body">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted);">No binary signatures scanned yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- View 5: Deobfuscation & Layers -->
+        <div id="view-deobf" class="tab-view-content" style="display: none;">
+          <div class="result-section-title">Recovered Encryption Keys & Decrypted Layer Payloads</div>
+          <div id="res-deobf-body" class="code-box-preview">No deobfuscation data available yet.</div>
+        </div>
+
+        <!-- View 6: Ollama AI Analysis -->
+        <div id="view-ai" class="tab-view-content" style="display: none;">
+          <div class="result-section-title">
+            <span>Local LLM Technical Assessment</span>
+            <span class="confidence-pill confidence-purple" id="ai-model-tag">Offline</span>
+          </div>
+          <div id="res-ai-body" class="code-box-preview">Ollama analysis will appear here after execution.</div>
+        </div>
+
+        <!-- View 7: WSL Inspection -->
+        <div id="view-wsl" class="tab-view-content" style="display: none;">
+          <div class="result-section-title">WSL Linux Binary Analysis (`file`, `binwalk`, `upx`, `strings`)</div>
+          <div id="res-wsl-body" class="code-box-preview">No binaries inspected yet.</div>
+        </div>
+
+        <!-- View 8: LNK Metadata -->
+        <div id="view-lnk" class="tab-view-content" style="display: none;">
+          <div class="result-section-title">Windows Shortcut (LNK) Forensic Extraction</div>
+          <div id="res-lnk-body" class="code-box-preview">No LNK shortcuts identified yet.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History -->
+    <section class="history-card">
+      <div class="result-section-title" style="margin-bottom: 1rem;">Recent Forensic Investigations</div>
+      <table class="ioc-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Target URL</th>
+            <th>Artifacts Found</th>
+            <th>Identified Arsenal</th>
+            <th>Dossier Slug</th>
+          </tr>
+        </thead>
+        <tbody id="history-rows">
+          <tr>
+            <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 1.5rem;">No historical analyses in this session.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <script>
+    const targetInput = document.getElementById("target-input");
+    const launchBtn = document.getElementById("launch-btn");
+    const terminal = document.getElementById("terminal-body");
+    const ollamaPill = document.getElementById("ollama-status-pill");
+
+    const editorSection = document.getElementById("editor-section");
+    const editDossier = document.getElementById("edit-dossier");
+    const editReport = document.getElementById("edit-report");
+    const previewDossier = document.getElementById("preview-dossier");
+    const previewReport = document.getElementById("preview-report");
+    const approvePublishBtn = document.getElementById("approve-publish-btn");
+    const publishStatusBox = document.getElementById("publish-status-box");
+
+    const resTitle = document.getElementById("res-title");
+    const resSubtitle = document.getElementById("res-subtitle");
+    const resTools = document.getElementById("res-tools");
+    const resHighIocs = document.getElementById("res-high-iocs");
+    const resCarvedBody = document.getElementById("res-carved-body");
+    const resSecretsBody = document.getElementById("res-secrets-body");
+    const resMagicBody = document.getElementById("res-magic-body");
+    const resDeobfBody = document.getElementById("res-deobf-body");
+    const resLnkBody = document.getElementById("res-lnk-body");
+    const resWslBody = document.getElementById("res-wsl-body");
+    const resAiBody = document.getElementById("res-ai-body");
+    const aiModelTag = document.getElementById("ai-model-tag");
+    const historyRows = document.getElementById("history-rows");
+
+    let currentAnalysisData = null;
+    let heartbeatInterval = null;
+
+    function setTarget(url) { targetInput.value = url; }
+
+    document.querySelectorAll(".res-tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".res-tab-btn").forEach(b => b.classList.remove("is-active"));
+        btn.classList.add("is-active");
+        const view = btn.getAttribute("data-view");
+        document.querySelectorAll(".tab-view-content").forEach(c => c.style.display = "none");
+        const targetView = document.getElementById(`view-${view}`);
+        if (targetView) targetView.style.display = "block";
+      });
+    });
+
+    function renderSimpleMarkdown(md) {
+      let html = md
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+        .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+        .replace(/`([^`]+)`/gim, '<code>$1</code>')
+        .replace(/^\* (.*$)/gim, '<li>$1</li>');
+
+      // Table converter
+      const lines = html.split('\n');
+      let inTable = false;
+      let tableHtml = '';
+      const finalLines = [];
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line.startsWith('|') && line.endsWith('|')) {
+          if (line.includes('---')) continue; // Skip separator line
+          const cells = line.slice(1, -1).split('|').map(c => c.trim());
+          if (!inTable) {
+            inTable = true;
+            tableHtml += '<table class="ioc-table"><thead><tr>' + cells.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+          } else {
+            tableHtml += '<tr>' + cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
+          }
+        } else {
+          if (inTable) {
+            tableHtml += '</tbody></table>';
+            finalLines.push(tableHtml);
+            tableHtml = '';
+            inTable = false;
+          }
+          finalLines.push(line);
+        }
+      }
+      if (inTable) {
+        tableHtml += '</tbody></table>';
+        finalLines.push(tableHtml);
+      }
+
+      return finalLines.join('<br>');
+    }
+
+    function toggleEditorMode(mode) {
+      if (mode === 'edit') {
+        document.getElementById("btn-edit-mode").classList.add("is-active");
+        document.getElementById("btn-preview-mode").classList.remove("is-active");
+        editDossier.style.display = "block";
+        editReport.style.display = "block";
+        previewDossier.style.display = "none";
+        previewReport.style.display = "none";
+      } else {
+        document.getElementById("btn-preview-mode").classList.add("is-active");
+        document.getElementById("btn-edit-mode").classList.remove("is-active");
+        previewDossier.innerHTML = renderSimpleMarkdown(editDossier.value);
+        previewReport.innerHTML = renderSimpleMarkdown(editReport.value);
+        editDossier.style.display = "none";
+        editReport.style.display = "none";
+        previewDossier.style.display = "block";
+        previewReport.style.display = "block";
+      }
+    }
+
+    function log(msg, type = "normal") {
+      const line = document.createElement("div");
+      if (type === "success") line.className = "terminal-line-success";
+      if (type === "warn") line.className = "terminal-line-warn";
+      if (type === "error") line.className = "terminal-line-error";
+      if (type === "purple") line.className = "terminal-line-purple";
+      if (type === "thought") line.className = "terminal-line-thought";
+      if (type === "info") line.className = "terminal-line-info";
+      line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      terminal.appendChild(line);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    async function checkOllama() {
+      try {
+        const res = await fetch("/api/ollama/status");
+        const data = await res.json();
+        if (data.online) {
+          ollamaPill.className = "status-pill pill-purple";
+          ollamaPill.innerHTML = `<span>🧠</span> Ollama Ready (${data.selectedModel})`;
+        } else {
+          ollamaPill.className = "status-pill pill-muted";
+          ollamaPill.innerHTML = `<span>🧠</span> Ollama Offline`;
+        }
+      } catch (e) {
+        ollamaPill.className = "status-pill pill-muted";
+        ollamaPill.innerHTML = `<span>🧠</span> Ollama Offline`;
+      }
+    }
+    checkOllama();
+
+    launchBtn.addEventListener("click", async () => {
+      const targetUrl = targetInput.value.trim();
+      if (!targetUrl) return;
+
+      launchBtn.disabled = true;
+      launchBtn.textContent = "⏳ Running Deep Forensics...";
+      editorSection.style.display = "none";
+      publishStatusBox.style.display = "none";
+
+      log(`[PIPELINE START] Probing target: ${targetUrl}`, "warn");
+      log(`[CRAWLER] Triaging remote directory (Self-Signed TLS Bypass Active)...`, "info");
+
+      // Dynamic Continuous Thought Stream Heartbeat
+      const thoughtMilestones = [
+        "Ingesting acquired source files & scripts into memory...",
+        "Sweeping byte arrays for multi-byte XOR encryption keys...",
+        "Recursive Unpacker: Decrypting inline hex payloads & carving embedded PE/DLL binaries...",
+        "Executing WSL Linux inspection (binwalk, upx, 7z archive analysis)...",
+        "Harvesting cloud tokens, OAuth client secrets & SSH credentials...",
+        "Ollama LLM: Synthesizing threat actor tradecraft and C2 transport...",
+        "Confidence Engine: Verifying cryptographic hashes & compiling high-fidelity indicators..."
+      ];
+      let stepIdx = 0;
+      clearInterval(heartbeatInterval);
+      heartbeatInterval = setInterval(() => {
+        if (stepIdx < thoughtMilestones.length) {
+          log(`🧠 [OLLAMA ACTIVE] ${thoughtMilestones[stepIdx]}`, "thought");
+          stepIdx++;
+        } else {
+          log(`🧠 [OLLAMA ACTIVE] Finalizing technical assessment and dossier generation...`, "thought");
+        }
+      }, 3000);
+
+      try {
+        const modelName = document.getElementById("model-select").value;
+
+        const res = await fetch("/api/analyze", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ targetUrl, modelName })
+        });
+
+        clearInterval(heartbeatInterval);
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Analysis failed");
+
+        currentAnalysisData = data;
+
+        log(`[CRAWLER] Acquired ${data.filesFound} artifacts into workspace.`, "success");
+
+        if (data.deobfuscation && data.deobfuscation.recoveredKeys.length > 0) {
+          data.deobfuscation.recoveredKeys.forEach(k => {
+            log(`[KEY RECOVERY] Recovered XOR Key: "${k.ascii}" (Hex: ${k.hex}) from ${k.source}`, "purple");
+          });
+        }
+
+        if (data.deobfuscation && data.deobfuscation.carvedBinaries && data.deobfuscation.carvedBinaries.length > 0) {
+          data.deobfuscation.carvedBinaries.forEach(b => {
+            log(`[PE CARVER] Extracted ${b.type}: ${b.filename} (SHA256: ${b.sha256.slice(0, 16)}...)`, "success");
+          });
+        }
+
+        if (data.secrets && data.secrets.length > 0) {
+          log(`🔑 [SECRET SCANNER] Discovered ${data.secrets.length} high-value secrets/credentials!`, "purple");
+        }
+
+        if (data.aiAnalysis && data.aiAnalysis.used) {
+          log(`🧠 [OLLAMA REASONING COMPLETE] Generated technical assessment using ${data.aiAnalysis.model}!`, "purple");
+        }
+
+        log(`[CONFIDENCE ENGINE] Verified ${data.highConfidenceIOCs.length} high-fidelity IOCs & hashes!`, "success");
+        log(`[DRAFT READY] Prepared draft Threat Dossier and DFIR Report for review!`, "warn");
+
+        // Populate Telemetry
+        resTitle.textContent = `Threat Cluster ${data.host}`;
+        resSubtitle.textContent = `Staging Port: ${data.port || "443"} | Server: ${data.serverHeader} | Files Discovered: ${data.filesFound}`;
+        resTools.innerHTML = data.tools.map(t => `<span class="tool-badge">${t}</span>`).join("") || `<span style="color: var(--text-muted); font-size: 0.82rem;">None detected</span>`;
+
+        resHighIocs.innerHTML = data.highConfidenceIOCs.map(ioc => `
+          <tr>
+            <td><strong>${ioc.type}</strong></td>
+            <td><code>${ioc.value}</code></td>
+            <td>${ioc.role}</td>
+          </tr>
+        `).join("");
+
+        // Carved Binaries
+        if (data.deobfuscation && data.deobfuscation.carvedBinaries && data.deobfuscation.carvedBinaries.length > 0) {
+          document.getElementById("carved-count-pill").textContent = `${data.deobfuscation.carvedBinaries.length} Extracted`;
+          resCarvedBody.innerHTML = data.deobfuscation.carvedBinaries.map(b => `
+            <tr>
+              <td><code>${b.filename}</code></td>
+              <td><strong>${b.type}</strong></td>
+              <td><code>${b.sha256}</code></td>
+              <td>${b.source}</td>
+            </tr>
+          `).join("");
+        } else {
+          document.getElementById("carved-count-pill").textContent = "0 Extracted";
+          resCarvedBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No embedded executables carved.</td></tr>`;
+        }
+
+        // Secrets
+        if (data.secrets && data.secrets.length > 0) {
+          document.getElementById("secrets-count-pill").textContent = `${data.secrets.length} Found`;
+          resSecretsBody.innerHTML = data.secrets.map(s => `
+            <tr>
+              <td><strong>${s.category}</strong></td>
+              <td><span class="confidence-pill confidence-purple">${s.type}</span></td>
+              <td><code>${s.value}</code></td>
+              <td><code>${s.sourceFile}</code></td>
+            </tr>
+          `).join("");
+        } else {
+          document.getElementById("secrets-count-pill").textContent = "0 Found";
+          resSecretsBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No credentials or secrets detected.</td></tr>`;
+        }
+
+        // Magic Bytes
+        if (data.forensics && data.forensics.magicByteFindings.length > 0) {
+          resMagicBody.innerHTML = data.forensics.magicByteFindings.map(m => `
+            <tr>
+              <td><code>${m.filename}</code></td>
+              <td><strong>${m.type}</strong></td>
+              <td><code>${m.hexSignature}</code></td>
+              <td>${m.details} (${m.sizeBytes} bytes)</td>
+            </tr>
+          `).join("");
+        }
+
+        if (data.deobfuscation) resDeobfBody.textContent = JSON.stringify(data.deobfuscation, null, 2);
+        if (data.forensics && data.forensics.lnkArtifacts.length > 0) resLnkBody.textContent = JSON.stringify(data.forensics.lnkArtifacts, null, 2);
+        if (data.forensics && data.forensics.binaryArtifacts.length > 0) resWslBody.textContent = JSON.stringify(data.forensics.binaryArtifacts, null, 2);
+
+        if (data.aiAnalysis && data.aiAnalysis.used) {
+          aiModelTag.textContent = data.aiAnalysis.model;
+          aiModelTag.className = "confidence-pill confidence-purple";
+          resAiBody.textContent = data.aiAnalysis.analysisText;
+        } else {
+          aiModelTag.textContent = "Offline / Skipped";
+          aiModelTag.className = "confidence-pill confidence-low";
+          resAiBody.textContent = data.aiAnalysis ? data.aiAnalysis.reason : "Ollama was not available.";
+        }
+
+        // Open Markdown Review & Editor Section
+        editDossier.value = data.draftDossier;
+        editReport.value = data.draftReport;
+        toggleEditorMode('edit');
+        editorSection.style.display = "block";
+        editorSection.scrollIntoView({ behavior: "smooth" });
+
+        updateHistory();
+      } catch (err) {
+        clearInterval(heartbeatInterval);
+        log(`[ERROR] ${err.message}`, "error");
+      } finally {
+        launchBtn.disabled = false;
+        launchBtn.textContent = "⚡ Execute Forensic Analysis";
+      }
+    });
+
+    // Handle Publish Button
+    approvePublishBtn.addEventListener("click", async () => {
+      if (!currentAnalysisData) return;
+
+      approvePublishBtn.disabled = true;
+      approvePublishBtn.textContent = "⏳ Publishing...";
+
+      try {
+        const payload = {
+          actorSlug: currentAnalysisData.actorSlug,
+          dossierMarkdown: editDossier.value,
+          reportSlug: currentAnalysisData.reportSlug,
+          blogMarkdown: editReport.value
+        };
+
+        const res = await fetch("/api/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Publish failed");
+
+        log(`[PUBLISH COMPLETE] Successfully published Threat Dossier: ${currentAnalysisData.actorSlug}.md`, "success");
+        log(`[PUBLISH COMPLETE] Successfully published DFIR Report: ${currentAnalysisData.reportSlug}.md`, "success");
+
+        publishStatusBox.style.display = "block";
+        publishStatusBox.innerHTML = `
+          <div style="background: rgba(16, 185, 129, 0.15); border: 1px solid var(--accent-green); padding: 1rem; border-radius: 8px;">
+            <strong style="color: var(--accent-green);">🎉 Content Successfully Saved & Published!</strong>
+            <div style="display: flex; gap: 1rem; margin-top: 0.5rem; flex-wrap: wrap;">
+              <a href="${data.dossierUrl}" target="_blank" style="color: var(--accent-cyan); font-weight: 700; text-decoration: none;">📄 View Published Threat Dossier &rarr;</a>
+              <a href="${data.reportUrl}" target="_blank" style="color: var(--accent-cyan); font-weight: 700; text-decoration: none;">📰 View Published DFIR Report &rarr;</a>
+            </div>
+          </div>
+        `;
+      } catch (err) {
+        log(`[PUBLISH ERROR] ${err.message}`, "error");
+        publishStatusBox.style.display = "block";
+        publishStatusBox.innerHTML = `<div style="color: #f87171;">❌ Publish Error: ${err.message}</div>`;
+      } finally {
+        approvePublishBtn.disabled = false;
+        approvePublishBtn.textContent = "🚀 Approve & Save Content to Portfolio";
+      }
+    });
+
+    async function updateHistory() {
+      try {
+        const res = await fetch("/api/history");
+        const list = await res.json();
+        if (list.length === 0) return;
+
+        historyRows.innerHTML = list.map(item => `
+          <tr>
+            <td>${new Date(item.timestamp).toLocaleTimeString()}</td>
+            <td><code>${item.targetUrl}</code></td>
+            <td>${item.filesFound} files</td>
+            <td>${item.tools.join(", ") || "Generic"}</td>
+            <td><code>${item.actorSlug}</code></td>
+          </tr>
+        `).join("");
+      } catch (e) {}
+    }
+  </script>
+</body>
+</html>

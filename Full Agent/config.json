@@ -1,0 +1,23 @@
+{
+  "github": {
+    "owner": "xElessaway",
+    "repo": "xElessaway.github.io",
+    "branch": "main",
+    "tokenEnv": "GITHUB_PAT"
+  },
+  "crawler": {
+    "timeoutMs": 10000,
+    "maxFileSizeBytes": 5242880,
+    "skipBinaryExtensions": [".exe", ".bin", ".iso", ".vmdk", ".zip", ".tar.gz", ".dll", ".so"]
+  },
+  "paths": {
+    "acquisitionsDir": "./threat_intel_acquisitions",
+    "actorsOutputDir": "f:/CTI/Github Profile/src/content/actors",
+    "blogOutputDir": "f:/CTI/Github Profile/src/content/blog"
+  },
+  "defang": {
+    "protocols": true,
+    "ipv4": true,
+    "domains": true
+  }
+}
