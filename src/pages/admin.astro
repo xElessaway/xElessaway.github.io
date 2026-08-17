@@ -1137,6 +1137,57 @@ const existingCtfJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u003c");
       }
     });
 
+    function parseYamlString(yamlText) {
+      const data = {};
+      const lines = yamlText.split(/\r?\n/);
+      let currentKey = null;
+      let currentArray = null;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        if (!trimmed || trimmed.startsWith("#")) continue;
+
+        // List item
+        if (line.match(/^\s*-\s+/)) {
+          const val = line.replace(/^\s*-\s+/, "").trim().replace(/^["']|["']$/g, "");
+          if (currentKey && currentArray) {
+            currentArray.push(val);
+          }
+          continue;
+        }
+
+        // Key-value pair
+        const kvMatch = line.match(/^([a-zA-Z0-9_-]+):\s*(.*)$/);
+        if (kvMatch) {
+          const key = kvMatch[1];
+          let val = kvMatch[2].trim();
+
+          if (!val) {
+            currentKey = key;
+            currentArray = [];
+            data[key] = currentArray;
+          } else if (val.startsWith("[") && val.endsWith("]")) {
+            try {
+              data[key] = JSON.parse(val);
+            } catch (e) {
+              data[key] = val.slice(1, -1).split(",").map((s) => s.trim().replace(/^["']|["']$/g, "")).filter(Boolean);
+            }
+            currentKey = null;
+            currentArray = null;
+          } else {
+            val = val.replace(/^["']|["']$/g, "");
+            if (val === "true") data[key] = true;
+            else if (val === "false") data[key] = false;
+            else data[key] = val;
+            currentKey = null;
+            currentArray = null;
+          }
+        }
+      }
+      return data;
+    }
+
     // Smart Importer Dialog
     importBtn?.addEventListener("click", () => importDialog?.showModal());
     importDialogClose?.addEventListener("click", () => importDialog?.close());
@@ -1151,6 +1202,99 @@ const existingCtfJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u003c");
 
       if (importAutoDefang?.checked) {
         raw = defangIOCs(raw);
+      }
+
+      // 1. Check for YAML Frontmatter (Markdown files)
+      const frontmatterMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+      if (frontmatterMatch) {
+        const yamlBlock = frontmatterMatch[1];
+        const bodyContent = frontmatterMatch[2].trim();
+        const meta = parseYamlString(yamlBlock);
+
+        // Detect if this is an Actor Dossier or a Blog Post
+        const isActor = !!(meta.name || meta.motivation || meta.origin || meta.tools || meta.ttps || meta.aliases);
+        const isCtf = !!(meta.collection || meta.prompt || meta.passwordFormat || meta.answerHashes);
+
+        if (isActor) {
+          // Switch tab to actors
+          document.querySelectorAll(".studio-tab").forEach((t) => t.classList.remove("is-active"));
+          const actorTab = document.querySelector('.studio-tab[data-type="actors"]');
+          actorTab?.classList.add("is-active");
+          currentStudioMode = "actors";
+
+          const formBlog = document.getElementById("form-blog");
+          const formActors = document.getElementById("form-actors");
+          const formCtf = document.getElementById("form-ctf");
+          if (formBlog) formBlog.style.display = "none";
+          if (formActors) formActors.style.display = "block";
+          if (formCtf) formCtf.style.display = "none";
+
+          if (actorNameInput) actorNameInput.value = meta.name || "";
+          if (actorSlugInput) actorSlugInput.value = meta.slug || generateSlug(meta.name || "cluster");
+          if (actorStatusInput && meta.status) actorStatusInput.value = meta.status;
+          if (actorOriginInput) actorOriginInput.value = meta.origin || "Unknown / Threat Staging Infrastructure";
+          if (actorFirstSeenInput) actorFirstSeenInput.value = meta.firstSeen || "2026-08";
+          if (actorLastSeenInput) actorLastSeenInput.value = meta.lastSeen || "2026-08";
+          if (actorMotivationInput) actorMotivationInput.value = meta.motivation || "";
+          if (actorAliasesInput) actorAliasesInput.value = Array.isArray(meta.aliases) ? meta.aliases.join(", ") : (meta.aliases || "");
+          if (actorTargetsInput) actorTargetsInput.value = Array.isArray(meta.targets) ? meta.targets.join(", ") : (meta.targets || "");
+          if (actorToolsInput) actorToolsInput.value = Array.isArray(meta.tools) ? meta.tools.join(", ") : (meta.tools || "");
+          if (actorTtpsInput) actorTtpsInput.value = Array.isArray(meta.ttps) ? meta.ttps.join(", ") : (meta.ttps || "");
+          if (actorTagsInput) actorTagsInput.value = Array.isArray(meta.tags) ? meta.tags.join(", ") : (meta.tags || "");
+          if (actorRelatedPostsInput) actorRelatedPostsInput.value = Array.isArray(meta.relatedPosts) ? meta.relatedPosts.join(", ") : (meta.relatedPosts || "");
+          if (actorFeaturedCheck) actorFeaturedCheck.checked = !!meta.featured;
+        } else if (isCtf) {
+          // Switch tab to CTF
+          document.querySelectorAll(".studio-tab").forEach((t) => t.classList.remove("is-active"));
+          const ctfTab = document.querySelector('.studio-tab[data-type="ctf"]');
+          ctfTab?.classList.add("is-active");
+          currentStudioMode = "ctf";
+
+          const formBlog = document.getElementById("form-blog");
+          const formActors = document.getElementById("form-actors");
+          const formCtf = document.getElementById("form-ctf");
+          if (formBlog) formBlog.style.display = "none";
+          if (formActors) formActors.style.display = "none";
+          if (formCtf) formCtf.style.display = "block";
+
+          if (ctfTitleInput) ctfTitleInput.value = meta.title || "";
+          if (ctfSlugInput) ctfSlugInput.value = meta.slug || generateSlug(meta.title || "challenge");
+          if (ctfCollectionInput && meta.collection) ctfCollectionInput.value = meta.collection;
+          if (ctfDifficultyInput && meta.difficulty) ctfDifficultyInput.value = meta.difficulty;
+          if (ctfPromptInput) ctfPromptInput.value = meta.prompt || "";
+          if (ctfFormatInput) ctfFormatInput.value = meta.passwordFormat || "";
+          if (ctfHintInput) ctfHintInput.value = meta.hint || "";
+          if (ctfAnswersInput) ctfAnswersInput.value = Array.isArray(meta.answerHashes) ? meta.answerHashes.join(", ") : (meta.answerHashes || "");
+        } else {
+          // Switch tab to Blog
+          document.querySelectorAll(".studio-tab").forEach((t) => t.classList.remove("is-active"));
+          const blogTab = document.querySelector('.studio-tab[data-type="blog"]');
+          blogTab?.classList.add("is-active");
+          currentStudioMode = "blog";
+
+          const formBlog = document.getElementById("form-blog");
+          const formActors = document.getElementById("form-actors");
+          const formCtf = document.getElementById("form-ctf");
+          if (formBlog) formBlog.style.display = "block";
+          if (formActors) formActors.style.display = "none";
+          if (formCtf) formCtf.style.display = "none";
+
+          if (titleInput) titleInput.value = meta.title || "";
+          if (slugInput) slugInput.value = meta.slug || generateSlug(meta.title || "article");
+          if (descInput) descInput.value = meta.description || "";
+          if (dateInput && meta.publishedAt) dateInput.value = meta.publishedAt;
+          if (coverInput && meta.cover) coverInput.value = meta.cover;
+          if (sectionInput && meta.archiveSection) sectionInput.value = meta.archiveSection;
+          if (tagsInput) tagsInput.value = Array.isArray(meta.tags) ? meta.tags.join(", ") : (meta.tags || "");
+          if (featuredCheck) featuredCheck.checked = !!meta.featured;
+          if (draftCheck) draftCheck.checked = !!meta.draft;
+        }
+
+        if (editor) editor.value = bodyContent;
+        updatePreview();
+        importDialog?.close();
+        showAlert("✅ Frontmatter parsed and loaded cleanly into form & editor!", "info");
+        return;
       }
 
       if (raw.includes("<") && raw.includes(">")) {
