@@ -1,3 +1,7 @@
 node_modules
 .astro
 dist
+
+Full Agent/threat_intel_acquisitions/
+Full Agent/threat_intel_acquisitions/*
+

