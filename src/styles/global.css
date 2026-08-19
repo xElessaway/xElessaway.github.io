@@ -1827,31 +1827,37 @@ p {
 }
 
 .prose .table-collapse-wrap {
-  margin: 1.5rem 0;
+  margin: 1.75rem 0;
   border: 2px solid var(--primary);
   border-radius: 6px;
   background: var(--surface-low);
-  box-shadow: 2px 2px 0 var(--primary);
+  box-shadow: 3px 3px 0 var(--primary);
   overflow: hidden;
   position: relative;
 }
 
-.prose .table-collapse-wrap.is-collapsed {
-  max-height: 480px;
+.prose .table-collapse-viewport {
+  position: relative;
+  width: 100%;
 }
 
-.prose .table-collapse-wrap.is-collapsed .table-responsive-wrap {
-  overflow-y: hidden;
+.prose .table-collapse-viewport.is-collapsed {
+  max-height: 380px;
+  overflow: hidden;
 }
 
-.prose .table-collapse-wrap.is-collapsed::after {
-  content: "";
+.prose .table-fade-overlay {
+  display: none;
+}
+
+.prose .table-collapse-viewport.is-collapsed .table-fade-overlay {
+  display: block;
   position: absolute;
-  bottom: 44px;
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 90px;
-  background: linear-gradient(to bottom, transparent, var(--surface-low));
+  height: 100px;
+  background: linear-gradient(to bottom, transparent, var(--surface-low) 88%);
   pointer-events: none;
   z-index: 2;
 }
@@ -1867,37 +1873,61 @@ p {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.6rem 1rem;
+  padding: 0.65rem 1rem;
   background: var(--surface-panel);
-  border-top: 1.5px solid var(--primary);
+  border-top: 2px dashed var(--line-soft);
   position: relative;
-  z-index: 3;
+  z-index: 4;
 }
 
 .prose .table-toggle-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: center;
+  gap: 0.6rem;
   background: var(--surface);
-  border: 1.5px solid var(--primary);
+  border: 2px solid var(--primary);
   border-radius: 4px;
   color: var(--primary);
   font-family: "JetBrains Mono", monospace;
   font-size: 0.76rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  padding: 0.35rem 0.85rem;
+  padding: 0.45rem 1.15rem;
   cursor: pointer;
   box-shadow: 2px 2px 0 var(--primary);
-  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transform: rotate(-0.5deg);
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .prose .table-toggle-btn:hover {
   background: var(--secondary);
   color: #ffffff;
-  transform: translate(1px, 1px);
+  transform: rotate(0deg) translate(1px, 1px);
   box-shadow: 1px 1px 0 var(--primary);
+}
+
+.prose .table-toggle-btn:hover .pulse-dot {
+  background: #ffffff;
+}
+
+.prose .table-toggle-btn:hover .table-doodle-chevron {
+  stroke: #ffffff;
+}
+
+.prose .table-doodle-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.prose .table-doodle-chevron {
+  transition: transform 0.25s ease;
+}
+
+.prose .table-toggle-btn.is-expanded .table-doodle-chevron {
+  transform: rotate(180deg);
 }
 
 .prose table {
