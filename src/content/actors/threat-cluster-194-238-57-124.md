@@ -3,7 +3,7 @@ name: "Threat Cluster 194[.]238[.]57[.]124"
 aliases: []
 status: "tracking"
 origin: "Unknown / observed staging infrastructure"
-motivation: ""
+motivation: "Operational staging infrastructure at 194.238.57.124 maintained for artifact hosting, remote delivery, and adversary reconnaissance."
 targets: []
 firstSeen: "2026-08-19"
 lastSeen: "2026-08-19"
@@ -246,4 +246,4 @@ The revised assessment now fully reflects the evidence:
 2. **`dp.sh`** – Complete set of 15 download URLs documented, providing a full picture of the script’s dynamic behavior.  
 3. **`pito.arm7`** – Added `scriptBehaviors` entry clarifies its acquisition and attempted execution.  
 
-All other sections (PE candidates, LNK artifacts, secrets) remain consistent with the original data. No additional malicious functionality has been uncovered beyond what is already reported.  
+All other sections (PE candidates, LNK artifacts, secrets) remain consistent with the original data. No additional malicious functionality has been uncovered beyond what is already reported.
