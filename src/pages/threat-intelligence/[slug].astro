@@ -19,36 +19,45 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
 
 <BaseLayout
   title={`${entry.data.name} | Threat Intelligence Dossier`}
-  description={entry.data.motivation}
+  description={entry.data.motivation || `Adversary dossier and technical static analysis for ${entry.data.name}`}
   type="article"
   section="Threat Intelligence"
   tags={entry.data.tags}
 >
   <div class="dossier-wrapper">
     <!-- Breadcrumb & Status Topline -->
-    <div class="dossier-nav-bar">
+    <nav class="dossier-nav-bar">
       <a href="/threat-intelligence/" class="dossier-back-link">
-        <Icon name="chevron-right" class="rotate-180 icon-small" />
+        <Icon name="arrow_back" size={16} />
         <span>Back to Threat Intelligence Feed</span>
       </a>
-      <div class="dossier-status-wrap">
+      <div class="dossier-nav-meta">
+        <span class="dossier-doc-id">DOSSIER_ID: {entry.slug.toUpperCase()}</span>
         <span class:list={["status-indicator-pill", entry.data.status]}>
-          <span class="status-pulse-dot"></span>
+          <span class="status-pulse-dot" aria-hidden="true"></span>
           <span class="status-text">{entry.data.status.toUpperCase()}</span>
         </span>
       </div>
-    </div>
+    </nav>
 
-    <!-- Main Dossier Banner -->
+    <!-- Main Dossier Banner / Hero Box -->
     <header class="dossier-banner">
+      <div class="dossier-tape-sticker" aria-hidden="true"></div>
+
       <div class="dossier-banner-content">
         <div class="dossier-badge-row">
           <span class="dossier-type-tag">TACTICAL DOSSIER</span>
-          <span class="dossier-origin-pill">🌐 {entry.data.origin}</span>
-          <span class="dossier-time-pill">Active: {entry.data.firstSeen} &rarr; {entry.data.lastSeen}</span>
+          <span class="dossier-origin-pill">🌐 {entry.data.origin || "Observed Staging"}</span>
+          <span class="dossier-time-pill">
+            <Icon name="schedule" size={14} />
+            <span>Active: {entry.data.firstSeen || "Observed"} &rarr; {entry.data.lastSeen || "Current"}</span>
+          </span>
         </div>
+
         <h1 class="dossier-actor-title">{entry.data.name}</h1>
-        <p class="dossier-lede-motivation">{entry.data.motivation}</p>
+        {entry.data.motivation && (
+          <p class="dossier-lede-motivation">{entry.data.motivation}</p>
+        )}
 
         {entry.data.aliases && entry.data.aliases.length > 0 && (
           <div class="dossier-aliases-strip">
@@ -58,22 +67,31 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
             </div>
           </div>
         )}
+
+        {entry.data.tags && entry.data.tags.length > 0 && (
+          <div class="dossier-tags-strip">
+            {entry.data.tags.map((tag) => (
+              <span class="dossier-tag-chip">#{tag}</span>
+            ))}
+          </div>
+        )}
       </div>
     </header>
 
     <!-- 4-Card Threat Profile Matrix -->
     <section class="dossier-section">
       <div class="dossier-section-head">
-        <Icon name="radar" class="section-icon" />
-        <h2>Threat Profile & Target Surface</h2>
+        <div class="status-stamp"><span></span>Telemetry Matrix</div>
+        <h2>Threat Profile &amp; Target Surface</h2>
       </div>
+
       <div class="threat-profile-grid">
         <div class="profile-card">
           <div class="profile-card-header">
-            <span class="profile-card-label">ORIGIN & THEATER</span>
+            <span class="profile-card-label">ORIGIN &amp; THEATER</span>
           </div>
-          <p class="profile-card-val primary-text">{entry.data.origin}</p>
-          <span class="profile-card-sub">Observed active infrastructure & staging</span>
+          <p class="profile-card-val">{entry.data.origin || "Observed staging infrastructure"}</p>
+          <span class="profile-card-sub">Observed active infrastructure &amp; staging</span>
         </div>
 
         <div class="profile-card">
@@ -81,26 +99,37 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
             <span class="profile-card-label">OPERATIONAL STATUS</span>
           </div>
           <p class="profile-card-val">
-            <span class:list={["status-highlight", entry.data.status]}>{entry.data.status.toUpperCase()}</span>
+            <span class:list={["status-highlight", entry.data.status]}>
+              <span class="status-pulse-dot" aria-hidden="true"></span>
+              {entry.data.status.toUpperCase()}
+            </span>
           </p>
-          <span class="profile-card-sub">First Seen: {entry.data.firstSeen} | Last: {entry.data.lastSeen}</span>
+          <span class="profile-card-sub">First Seen: {entry.data.firstSeen || "N/A"} | Last: {entry.data.lastSeen || "N/A"}</span>
         </div>
 
         <div class="profile-card profile-card-wide">
           <div class="profile-card-header">
-            <span class="profile-card-label">TARGETED SECTORS & VERTICALS</span>
+            <span class="profile-card-label">TARGETED SECTORS &amp; VERTICALS</span>
           </div>
           <div class="pill-cloud">
-            {entry.data.targets.map((target) => <span class="target-pill">🎯 {target}</span>)}
+            {entry.data.targets && entry.data.targets.length > 0 ? (
+              entry.data.targets.map((target) => <span class="target-pill">🎯 {target}</span>)
+            ) : (
+              <span class="empty-telemetry-badge">⚡ Broad reconnaissance / Unspecified staging target</span>
+            )}
           </div>
         </div>
 
         <div class="profile-card profile-card-wide">
           <div class="profile-card-header">
-            <span class="profile-card-label">WEAPONRY & TOOLING ARSENAL</span>
+            <span class="profile-card-label">WEAPONRY &amp; TOOLING ARSENAL</span>
           </div>
           <div class="pill-cloud">
-            {entry.data.tools.map((tool) => <span class="tool-pill">⚔️ {tool}</span>)}
+            {entry.data.tools && entry.data.tools.length > 0 ? (
+              entry.data.tools.map((tool) => <span class="tool-pill">⚔️ {tool}</span>)
+            ) : (
+              <span class="empty-telemetry-badge">🛡️ Multi-architecture staging scripts &amp; native loaders</span>
+            )}
           </div>
         </div>
       </div>
@@ -110,35 +139,37 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     {entry.data.ttps && entry.data.ttps.length > 0 && (
       <section class="dossier-section">
         <div class="dossier-section-head">
-          <Icon name="shield" class="section-icon" />
-          <h2>MITRE ATT&CK Framework Mapping</h2>
+          <div class="status-stamp"><span></span>MITRE ATT&amp;CK</div>
+          <h2>Framework Technique Mapping</h2>
         </div>
         <div class="mitre-table-card">
-          <table class="mitre-matrix-table">
-            <thead>
-              <tr>
-                <th style="width: 140px;">Tactic / ID</th>
-                <th>Observed Adversary Technique & Context</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entry.data.ttps.map((ttp, idx) => {
-                const parts = ttp.split(" - ");
-                const ttpId = parts[0] || `TTP_${idx + 1}`;
-                const ttpDesc = parts.slice(1).join(" - ") || ttp;
-                return (
-                  <tr>
-                    <td>
-                      <span class="ttp-id-badge">{ttpId}</span>
-                    </td>
-                    <td>
-                      <span class="ttp-desc-text">{ttpDesc}</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div class="table-responsive-wrap">
+            <table class="mitre-matrix-table">
+              <thead>
+                <tr>
+                  <th style="width: 150px;">Tactic / ID</th>
+                  <th>Observed Adversary Technique &amp; Context</th>
+                </tr>
+              </thead>
+              <tbody>
+                {entry.data.ttps.map((ttp, idx) => {
+                  const parts = ttp.split(" - ");
+                  const ttpId = parts[0] || `TTP_${idx + 1}`;
+                  const ttpDesc = parts.slice(1).join(" - ") || ttp;
+                  return (
+                    <tr>
+                      <td>
+                        <span class="ttp-id-badge">{ttpId}</span>
+                      </td>
+                      <td>
+                        <span class="ttp-desc-text">{ttpDesc}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     )}
@@ -147,7 +178,7 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     {entry.data.timeline && entry.data.timeline.length > 0 && (
       <section class="dossier-section">
         <div class="dossier-section-head">
-          <Icon name="clock" class="section-icon" />
+          <div class="status-stamp"><span></span>Campaign History</div>
           <h2>Chronological Operational Timeline</h2>
         </div>
         <div class="dossier-timeline-container">
@@ -174,8 +205,8 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     <!-- Technical Findings & Verified Telemetry (Markdown Content) -->
     <section class="dossier-section">
       <div class="dossier-section-head">
-        <Icon name="shield" class="section-icon" />
-        <h2>Intelligence Assessment & Technical Telemetry</h2>
+        <div class="status-stamp"><span></span>Verified Intelligence</div>
+        <h2>Intelligence Assessment &amp; Technical Telemetry</h2>
       </div>
       <div class="dossier-prose-card prose">
         <Content />
@@ -186,7 +217,7 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     {relatedPosts.length > 0 && (
       <section class="dossier-section">
         <div class="dossier-section-head">
-          <Icon name="terminal" class="section-icon" />
+          <div class="status-stamp"><span></span>Linked Publications</div>
           <h2>Companion Technical Investigation Reports</h2>
         </div>
         <div class="related-reports-grid">
@@ -197,7 +228,7 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
               <p class="related-report-desc">{post.data.description}</p>
               <div class="related-report-footer">
                 <span>Read in-depth technical analysis</span>
-                <Icon name="chevron-right" class="icon-small" />
+                <Icon name="east" size={16} />
               </div>
             </a>
           ))}
@@ -209,91 +240,124 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
 
 <style>
   .dossier-wrapper {
-    max-width: 1200px;
+    max-width: 1080px;
     margin: 0 auto;
-    padding: 2rem 1.25rem 5rem;
+    padding: 1.5rem 0 5rem;
   }
 
+  /* Breadcrumb Nav */
   .dossier-nav-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
     gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--primary);
   }
 
   .dossier-back-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.88rem;
-    font-weight: 700;
+    gap: 0.45rem;
     color: var(--primary);
-    text-decoration: none;
-    transition: opacity 0.2s ease;
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    transition: color 0.15s ease, transform 0.15s ease;
   }
 
   .dossier-back-link:hover {
-    opacity: 0.8;
+    color: var(--secondary);
+    transform: translateX(-3px);
   }
 
-  .icon-small {
-    width: 1rem;
-    height: 1rem;
+  .dossier-nav-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
   }
 
-  .rotate-180 {
-    transform: rotate(180deg);
+  .dossier-doc-id {
+    color: var(--text-soft);
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
   }
 
   .status-indicator-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.85rem;
-    border-radius: 9999px;
-    font-size: 0.8rem;
+    gap: 0.45rem;
+    padding: 0.28rem 0.65rem;
+    border-radius: 4px;
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.68rem;
     font-weight: 800;
-    letter-spacing: 0.05em;
-    border: 1px solid var(--border-color);
-    background: var(--bg-surface);
+    letter-spacing: 0.06em;
+    border: 1.5px solid var(--primary);
+    background: var(--surface);
+    color: var(--primary);
+    box-shadow: 2px 2px 0 var(--primary);
   }
 
   .status-pulse-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
-    background: var(--primary);
+    background: currentColor;
   }
 
   .status-indicator-pill.active {
-    border-color: rgba(239, 68, 68, 0.4);
-    background: rgba(239, 68, 68, 0.08);
-    color: #ef4444;
-  }
-  .status-indicator-pill.active .status-pulse-dot {
-    background: #ef4444;
-    box-shadow: 0 0 8px #ef4444;
+    border-color: var(--primary);
+    background: var(--secondary-soft);
+    color: var(--secondary);
+    box-shadow: 2px 2px 0 var(--secondary);
   }
 
   .status-indicator-pill.tracking {
-    border-color: rgba(245, 158, 11, 0.4);
-    background: rgba(245, 158, 11, 0.08);
+    border-color: var(--primary);
+    background: #f59e0b1a;
     color: #f59e0b;
-  }
-  .status-indicator-pill.tracking .status-pulse-dot {
-    background: #f59e0b;
-    box-shadow: 0 0 8px #f59e0b;
+    box-shadow: 2px 2px 0 var(--primary);
   }
 
-  /* Dossier Banner */
+  [data-theme="dark"] .status-indicator-pill.tracking {
+    background: #f59e0b22;
+    color: #fbbf24;
+  }
+
+  /* Dossier Banner / Hero Box */
   .dossier-banner {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 16px;
-    padding: 2.25rem;
+    position: relative;
+    border: 3px solid var(--primary);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 6px 6px 0 var(--secondary);
+    padding: clamp(1.5rem, 4vw, 2.75rem);
     margin-bottom: 2.5rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  }
+
+  .dossier-tape-sticker {
+    position: absolute;
+    top: -10px;
+    right: 32px;
+    width: 64px;
+    height: 24px;
+    background: #d8e3fb;
+    border: 1px solid var(--primary);
+    transform: rotate(4deg);
+    z-index: 10;
+    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.15);
+  }
+
+  [data-theme="dark"] .dossier-tape-sticker {
+    background: #1f3555;
+    border-color: var(--primary);
   }
 
   .dossier-badge-row {
@@ -301,42 +365,59 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     flex-wrap: wrap;
     align-items: center;
     gap: 0.6rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.25rem;
   }
 
   .dossier-type-tag {
-    font-size: 0.75rem;
-    font-weight: 900;
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
     letter-spacing: 0.08em;
-    color: var(--primary);
-    background: rgba(225, 29, 72, 0.08);
-    border: 1px solid rgba(225, 29, 72, 0.2);
-    padding: 0.2rem 0.6rem;
-    border-radius: 6px;
+    color: #ffffff;
+    background: var(--primary);
+    border: 1.5px solid var(--primary);
+    padding: 0.3rem 0.65rem;
+    border-radius: 3px;
+    text-transform: uppercase;
   }
 
-  .dossier-origin-pill, .dossier-time-pill {
-    font-size: 0.8rem;
+  [data-theme="dark"] .dossier-type-tag {
+    background: var(--secondary);
+    border-color: var(--primary);
+    color: #ffffff;
+  }
+
+  .dossier-origin-pill,
+  .dossier-time-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.74rem;
     font-weight: 600;
-    color: var(--text-muted);
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    padding: 0.2rem 0.6rem;
-    border-radius: 6px;
+    color: var(--text-soft);
+    background: var(--surface-panel);
+    border: 1.5px solid var(--line-soft);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
   }
 
   .dossier-actor-title {
-    font-size: clamp(2rem, 3.5vw, 2.75rem);
+    font-size: clamp(2rem, 4vw, 3.2rem);
     font-weight: 900;
     line-height: 1.15;
     margin: 0 0 1rem;
-    color: var(--text-heading);
+    color: var(--primary);
+    font-family: Bricolage Grotesque, sans-serif;
+    letter-spacing: -0.02em;
   }
 
   .dossier-lede-motivation {
-    font-size: 1.15rem;
+    color: var(--text-muted);
+    font-size: clamp(1.05rem, 1.8vw, 1.25rem);
     line-height: 1.6;
-    color: var(--text-body);
+    border-left: 3px solid var(--secondary);
+    padding-left: 1.2rem;
     margin: 0 0 1.5rem;
   }
 
@@ -346,13 +427,16 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     align-items: center;
     gap: 0.75rem;
     padding-top: 1.25rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px dashed var(--line-soft);
+    margin-top: 1rem;
   }
 
   .aliases-label {
-    font-size: 0.85rem;
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.75rem;
     font-weight: 700;
-    color: var(--text-muted);
+    color: var(--text-soft);
+    text-transform: uppercase;
   }
 
   .aliases-chips {
@@ -362,42 +446,59 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
   }
 
   .alias-chip {
-    font-size: 0.82rem;
-    font-family: var(--font-mono);
-    font-weight: 600;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
-    padding: 0.2rem 0.6rem;
-    border-radius: 6px;
-    color: var(--text-heading);
+    font-size: 0.78rem;
+    font-family: JetBrains Mono, monospace;
+    font-weight: 700;
+    background: var(--surface-panel);
+    border: 1.5px solid var(--primary);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    color: var(--primary);
+    box-shadow: 2px 2px 0 var(--primary);
   }
 
-  /* Sections */
+  .dossier-tags-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1.25rem;
+  }
+
+  .dossier-tag-chip {
+    padding: 0.25rem 0.55rem;
+    border: 1.5px solid var(--primary);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--primary);
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    box-shadow: 2px 2px 0 var(--primary);
+  }
+
+  /* Section Styles */
   .dossier-section {
-    margin-bottom: 2.75rem;
+    margin-bottom: 3rem;
   }
 
   .dossier-section-head {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.25rem;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 2px solid var(--primary);
   }
 
   .dossier-section-head h2 {
-    font-size: 1.4rem;
+    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
     font-weight: 800;
-    margin: 0;
-    color: var(--text-heading);
-  }
-
-  .section-icon {
-    width: 1.4rem;
-    height: 1.4rem;
     color: var(--primary);
+    margin: 0;
+    font-family: Bricolage Grotesque, sans-serif;
   }
 
-  /* 4-Card Grid */
+  /* 4-Card Threat Profile Grid */
   .threat-profile-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -405,13 +506,15 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
   }
 
   .profile-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 4px 4px 0 var(--primary);
     padding: 1.25rem 1.5rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    gap: 0.75rem;
   }
 
   .profile-card-wide {
@@ -419,95 +522,128 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
   }
 
   .profile-card-label {
-    font-size: 0.75rem;
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.68rem;
     font-weight: 800;
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
+    letter-spacing: 0.08em;
+    color: var(--secondary);
+    text-transform: uppercase;
   }
 
   .profile-card-val {
-    font-size: 1.3rem;
+    font-family: Bricolage Grotesque, sans-serif;
+    font-size: 1.35rem;
     font-weight: 800;
-    margin: 0.5rem 0 0.25rem;
-    color: var(--text-heading);
+    color: var(--primary);
+    margin: 0;
+    line-height: 1.2;
   }
 
   .profile-card-sub {
-    font-size: 0.8rem;
-    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-family: JetBrains Mono, monospace;
+    color: var(--text-soft);
+  }
+
+  .status-highlight {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
   }
 
   .status-highlight.active {
-    color: #ef4444;
+    color: var(--secondary);
   }
+
   .status-highlight.tracking {
     color: #f59e0b;
+  }
+
+  [data-theme="dark"] .status-highlight.tracking {
+    color: #fbbf24;
   }
 
   .pill-cloud {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-    margin-top: 0.75rem;
+  }
+
+  .empty-telemetry-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: var(--surface-panel);
+    border: 1.5px dashed var(--line-soft);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
   }
 
   .target-pill {
-    background: rgba(14, 165, 233, 0.08);
-    border: 1px solid rgba(14, 165, 233, 0.25);
-    color: var(--text-heading);
-    font-size: 0.85rem;
-    font-weight: 600;
+    background: var(--surface-panel);
+    border: 1.5px solid var(--primary);
+    color: var(--primary);
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
     padding: 0.35rem 0.75rem;
-    border-radius: 8px;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0 var(--primary);
   }
 
   .tool-pill {
-    background: rgba(225, 29, 72, 0.08);
-    border: 1px solid rgba(225, 29, 72, 0.25);
-    color: var(--text-heading);
-    font-size: 0.85rem;
-    font-weight: 600;
+    background: var(--secondary-soft);
+    border: 1.5px solid var(--secondary);
+    color: var(--secondary);
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.78rem;
+    font-weight: 700;
     padding: 0.35rem 0.75rem;
-    border-radius: 8px;
+    border-radius: 6px;
+    box-shadow: 2px 2px 0 var(--secondary);
   }
 
-  /* Prose Card */
-  .dossier-prose-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
-    padding: 2rem;
-  }
-
-  /* MITRE Table */
+  /* MITRE Table Card */
   .mitre-table-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    background: var(--surface-low);
+    box-shadow: 4px 4px 0 var(--primary);
     overflow: hidden;
+  }
+
+  .table-responsive-wrap {
+    width: 100%;
+    overflow-x: auto;
   }
 
   .mitre-matrix-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
   }
 
   .mitre-matrix-table th {
-    background: var(--bg-card);
+    background: var(--surface-panel);
     text-align: left;
     padding: 0.85rem 1.25rem;
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 800;
     letter-spacing: 0.05em;
-    color: var(--text-muted);
-    border-bottom: 1px solid var(--border-color);
+    font-family: JetBrains Mono, monospace;
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
   }
 
   .mitre-matrix-table td {
     padding: 0.85rem 1.25rem;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--line-soft);
     vertical-align: middle;
+    color: var(--text);
   }
 
   .mitre-matrix-table tr:last-child td {
@@ -516,19 +652,20 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
 
   .ttp-id-badge {
     display: inline-block;
-    font-family: var(--font-mono);
-    font-size: 0.82rem;
-    font-weight: 700;
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.78rem;
+    font-weight: 800;
     padding: 0.25rem 0.55rem;
-    background: rgba(225, 29, 72, 0.08);
-    border: 1px solid rgba(225, 29, 72, 0.25);
-    color: var(--primary);
-    border-radius: 6px;
+    background: var(--secondary-soft);
+    border: 1.5px solid var(--secondary);
+    color: var(--secondary);
+    border-radius: 4px;
+    box-shadow: 2px 2px 0 var(--secondary);
   }
 
   .ttp-desc-text {
     font-weight: 600;
-    color: var(--text-body);
+    color: var(--text);
   }
 
   /* Timeline */
@@ -554,23 +691,24 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: var(--primary);
-    border: 3px solid var(--bg-surface);
-    box-shadow: 0 0 0 2px var(--primary);
+    background: var(--secondary);
+    border: 2px solid var(--primary);
+    box-shadow: 2px 2px 0 var(--primary);
     margin-top: 6px;
   }
 
   .timeline-line {
     width: 2px;
     flex-grow: 1;
-    background: var(--border-color);
+    background: var(--line-soft);
     margin-top: 4px;
   }
 
   .timeline-content-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 3px 3px 0 var(--primary);
     padding: 1.25rem 1.5rem;
     flex-grow: 1;
   }
@@ -583,74 +721,89 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
   }
 
   .timeline-date {
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     font-weight: 800;
-    font-family: var(--font-mono);
-    color: var(--primary);
+    font-family: JetBrains Mono, monospace;
+    color: var(--secondary);
   }
 
   .timeline-tag {
-    font-size: 0.68rem;
-    font-weight: 900;
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
+    font-size: 0.65rem;
+    font-weight: 800;
+    font-family: JetBrains Mono, monospace;
+    background: var(--surface-panel);
+    border: 1px solid var(--line-soft);
     padding: 0.1rem 0.4rem;
-    border-radius: 4px;
-    color: var(--text-muted);
+    border-radius: 3px;
+    color: var(--text-soft);
   }
 
   .timeline-heading {
     font-size: 1.1rem;
     font-weight: 800;
     margin: 0 0 0.4rem;
-    color: var(--text-heading);
+    color: var(--primary);
+    font-family: Bricolage Grotesque, sans-serif;
   }
 
   .timeline-summary {
     font-size: 0.92rem;
     line-height: 1.5;
-    color: var(--text-body);
+    color: var(--text-muted);
     margin: 0;
+  }
+
+  /* Prose Card (Markdown Body) */
+  .dossier-prose-card {
+    border: 2px solid var(--primary);
+    border-radius: 12px;
+    background: var(--surface);
+    box-shadow: 6px 6px 0 var(--primary);
+    padding: clamp(1.5rem, 4vw, 3rem);
+    color: var(--text);
   }
 
   /* Related Reports Grid */
   .related-reports-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
   .related-report-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 14px;
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    background: var(--surface);
+    box-shadow: 4px 4px 0 var(--primary);
     padding: 1.5rem;
     text-decoration: none;
     color: inherit;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .related-report-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--primary);
-    box-shadow: 0 8px 24px rgba(225, 29, 72, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 6px 6px 0 var(--secondary);
   }
 
   .related-report-badge {
-    font-size: 0.72rem;
-    font-weight: 900;
-    color: var(--primary);
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--secondary);
     margin-bottom: 0.5rem;
+    letter-spacing: 0.06em;
   }
 
   .related-report-title {
     font-size: 1.15rem;
     font-weight: 800;
     margin: 0 0 0.5rem;
-    color: var(--text-heading);
+    color: var(--primary);
+    font-family: Bricolage Grotesque, sans-serif;
     line-height: 1.3;
   }
 
@@ -665,90 +818,13 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 0.85rem;
+    font-family: JetBrains Mono, monospace;
+    font-size: 0.76rem;
     font-weight: 700;
     color: var(--primary);
-    border-top: 1px solid var(--border-color);
+    border-top: 1px dashed var(--line-soft);
     padding-top: 0.75rem;
-  }
-
-  /* Markdown Content & Tables */
-  .dossier-prose-card {
-    background: var(--surface);
-    border: 2px solid var(--primary);
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 4px 4px 0 var(--primary);
-    color: var(--text);
-  }
-
-  .dossier-prose-card h1,
-  .dossier-prose-card h2,
-  .dossier-prose-card h3,
-  .dossier-prose-card h4 {
-    color: var(--text);
-    margin: 1.75rem 0 0.75rem;
-    font-family: "Bricolage Grotesque", sans-serif;
-    font-weight: 800;
-    overflow-wrap: break-word;
-    word-break: break-word;
-  }
-
-  .dossier-prose-card p,
-  .dossier-prose-card ul,
-  .dossier-prose-card ol {
-    color: var(--text);
-    margin-bottom: 1.25rem;
-    line-height: 1.7;
-    font-size: 0.95rem;
-    overflow-wrap: break-word;
-    word-break: break-word;
-  }
-
-  .dossier-prose-card li {
-    color: var(--text);
-    margin-bottom: 0.4rem;
-  }
-
-  .dossier-prose-card table {
-    width: 100%;
-    min-width: 100%;
-    border-collapse: collapse;
-    margin: 1.5rem 0;
-    font-size: 0.88rem;
-    background: var(--surface-low);
-    border: 2px solid var(--primary);
-    border-radius: 6px;
-    display: table;
-    box-shadow: 2px 2px 0 var(--primary);
-  }
-
-  .dossier-prose-card th,
-  .dossier-prose-card td {
-    padding: 0.75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--line-soft);
-    border-right: 1px solid var(--line-soft);
-    color: var(--text);
-    vertical-align: middle;
-  }
-
-  .dossier-prose-card th {
-    background: var(--surface-panel);
-    color: var(--text);
-    font-family: "Bricolage Grotesque", sans-serif;
-    font-weight: 700;
-  }
-
-  .dossier-prose-card code {
-    background: var(--surface-panel);
-    color: var(--secondary);
-    padding: 0.2rem 0.45rem;
-    border: 1px solid var(--line-soft);
-    border-radius: 4px;
-    font-family: var(--font-mono, monospace);
-    font-size: 0.84rem;
-    word-break: break-all;
-    white-space: pre-wrap;
+    text-transform: uppercase;
   }
 </style>
+
