@@ -2,6 +2,8 @@
 import { getCollection, render } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Icon from "../../components/Icon.astro";
+import SocialIcon from "../../components/SocialIcon.astro";
+import { siteMeta } from "../../data/site";
 
 export async function getStaticPaths() {
   const actors = await getCollection("actors");
@@ -19,812 +21,173 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
 
 <BaseLayout
   title={`${entry.data.name} | Threat Intelligence Dossier`}
-  description={entry.data.motivation || `Adversary dossier and technical static analysis for ${entry.data.name}`}
+  description={entry.data.motivation || `Tactical adversary dossier and static telemetry analysis for ${entry.data.name}`}
   type="article"
   section="Threat Intelligence"
   tags={entry.data.tags}
 >
-  <div class="dossier-wrapper">
-    <!-- Breadcrumb & Status Topline -->
-    <nav class="dossier-nav-bar">
-      <a href="/threat-intelligence/" class="dossier-back-link">
+  <div class="article-dossier-container">
+    <!-- Top Back Navigation Bar -->
+    <nav class="article-breadcrumb-bar">
+      <a href="/threat-intelligence/" class="article-back-link">
         <Icon name="arrow_back" size={16} />
         <span>Back to Threat Intelligence Feed</span>
       </a>
-      <div class="dossier-nav-meta">
-        <span class="dossier-doc-id">DOSSIER_ID: {entry.slug.toUpperCase()}</span>
-        <span class:list={["status-indicator-pill", entry.data.status]}>
-          <span class="status-pulse-dot" aria-hidden="true"></span>
-          <span class="status-text">{entry.data.status.toUpperCase()}</span>
-        </span>
-      </div>
+      <span class="article-doc-id">DOSSIER_ID: {entry.slug.toUpperCase()}</span>
     </nav>
 
-    <!-- Main Dossier Banner / Hero Box -->
-    <header class="dossier-banner">
-      <div class="dossier-tape-sticker" aria-hidden="true"></div>
+    <!-- Unified Dossier Header Card -->
+    <header class="article-dossier-header">
+      <div class="article-tape-sticker" aria-hidden="true"></div>
 
-      <div class="dossier-banner-content">
-        <div class="dossier-badge-row">
-          <span class="dossier-type-tag">TACTICAL DOSSIER</span>
-          <span class="dossier-origin-pill">🌐 {entry.data.origin || "Observed Staging"}</span>
-          <span class="dossier-time-pill">
-            <Icon name="schedule" size={14} />
-            <span>Active: {entry.data.firstSeen || "Observed"} &rarr; {entry.data.lastSeen || "Current"}</span>
-          </span>
+      <div class="article-meta-ribbon">
+        <span class="article-type-pill">THREAT DOSSIER</span>
+        <span class:list={["article-status-pill", entry.data.status]}>
+          <span class="pulse-dot" aria-hidden="true"></span>
+          {entry.data.status.toUpperCase()}
+        </span>
+      </div>
+
+      <h1 class="article-title">{entry.data.name}</h1>
+
+      {entry.data.motivation && (
+        <p class="article-lede">{entry.data.motivation}</p>
+      )}
+
+      <div class="article-info-strip">
+        <div class="article-info-item">
+          <Icon name="public" size={16} />
+          <span>{entry.data.origin || "Observed Staging"}</span>
         </div>
 
-        <h1 class="dossier-actor-title">{entry.data.name}</h1>
-        {entry.data.motivation && (
-          <p class="dossier-lede-motivation">{entry.data.motivation}</p>
-        )}
+        <div class="article-info-item">
+          <Icon name="schedule" size={16} />
+          <span>Active: {entry.data.firstSeen || "Observed"} &rarr; {entry.data.lastSeen || "Current"}</span>
+        </div>
 
         {entry.data.aliases && entry.data.aliases.length > 0 && (
-          <div class="dossier-aliases-strip">
-            <span class="aliases-label">Known Aliases:</span>
-            <div class="aliases-chips">
-              {entry.data.aliases.map((alias) => <span class="alias-chip">{alias}</span>)}
-            </div>
-          </div>
-        )}
-
-        {entry.data.tags && entry.data.tags.length > 0 && (
-          <div class="dossier-tags-strip">
-            {entry.data.tags.map((tag) => (
-              <span class="dossier-tag-chip">#{tag}</span>
-            ))}
+          <div class="article-info-item">
+            <Icon name="policy" size={16} />
+            <span>Aliases: {entry.data.aliases.join(", ")}</span>
           </div>
         )}
       </div>
+
+      {entry.data.tags && entry.data.tags.length > 0 && (
+        <div class="article-tags-wrap">
+          {entry.data.tags.map((tag) => (
+            <span class="article-tag-chip">#{tag}</span>
+          ))}
+        </div>
+      )}
     </header>
 
-    <!-- 4-Card Threat Profile Matrix -->
-    <section class="dossier-section">
-      <div class="dossier-section-head">
-        <div class="status-stamp"><span></span>Telemetry Matrix</div>
-        <h2>Threat Profile &amp; Target Surface</h2>
-      </div>
-
-      <div class="threat-profile-grid">
-        <div class="profile-card">
-          <div class="profile-card-header">
-            <span class="profile-card-label">ORIGIN &amp; THEATER</span>
-          </div>
-          <p class="profile-card-val">{entry.data.origin || "Observed staging infrastructure"}</p>
-          <span class="profile-card-sub">Observed active infrastructure &amp; staging</span>
-        </div>
-
-        <div class="profile-card">
-          <div class="profile-card-header">
-            <span class="profile-card-label">OPERATIONAL STATUS</span>
-          </div>
-          <p class="profile-card-val">
-            <span class:list={["status-highlight", entry.data.status]}>
-              <span class="status-pulse-dot" aria-hidden="true"></span>
-              {entry.data.status.toUpperCase()}
-            </span>
-          </p>
-          <span class="profile-card-sub">First Seen: {entry.data.firstSeen || "N/A"} | Last: {entry.data.lastSeen || "N/A"}</span>
-        </div>
-
-        <div class="profile-card profile-card-wide">
-          <div class="profile-card-header">
-            <span class="profile-card-label">TARGETED SECTORS &amp; VERTICALS</span>
-          </div>
-          <div class="pill-cloud">
-            {entry.data.targets && entry.data.targets.length > 0 ? (
-              entry.data.targets.map((target) => <span class="target-pill">🎯 {target}</span>)
-            ) : (
-              <span class="empty-telemetry-badge">⚡ Broad reconnaissance / Unspecified staging target</span>
-            )}
-          </div>
-        </div>
-
-        <div class="profile-card profile-card-wide">
-          <div class="profile-card-header">
-            <span class="profile-card-label">WEAPONRY &amp; TOOLING ARSENAL</span>
-          </div>
-          <div class="pill-cloud">
-            {entry.data.tools && entry.data.tools.length > 0 ? (
-              entry.data.tools.map((tool) => <span class="tool-pill">⚔️ {tool}</span>)
-            ) : (
-              <span class="empty-telemetry-badge">🛡️ Multi-architecture staging scripts &amp; native loaders</span>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- MITRE ATT&CK Matrix Table -->
-    {entry.data.ttps && entry.data.ttps.length > 0 && (
-      <section class="dossier-section">
-        <div class="dossier-section-head">
-          <div class="status-stamp"><span></span>MITRE ATT&amp;CK</div>
-          <h2>Framework Technique Mapping</h2>
-        </div>
-        <div class="mitre-table-card">
-          <div class="table-responsive-wrap">
-            <table class="mitre-matrix-table">
-              <thead>
-                <tr>
-                  <th style="width: 150px;">Tactic / ID</th>
-                  <th>Observed Adversary Technique &amp; Context</th>
-                </tr>
-              </thead>
-              <tbody>
-                {entry.data.ttps.map((ttp, idx) => {
-                  const parts = ttp.split(" - ");
-                  const ttpId = parts[0] || `TTP_${idx + 1}`;
-                  const ttpDesc = parts.slice(1).join(" - ") || ttp;
-                  return (
-                    <tr>
-                      <td>
-                        <span class="ttp-id-badge">{ttpId}</span>
-                      </td>
-                      <td>
-                        <span class="ttp-desc-text">{ttpDesc}</span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
-    )}
-
-    <!-- Tactical Timeline -->
-    {entry.data.timeline && entry.data.timeline.length > 0 && (
-      <section class="dossier-section">
-        <div class="dossier-section-head">
-          <div class="status-stamp"><span></span>Campaign History</div>
-          <h2>Chronological Operational Timeline</h2>
-        </div>
-        <div class="dossier-timeline-container">
-          {entry.data.timeline.map((item, idx) => (
-            <div class="timeline-row">
-              <div class="timeline-marker">
-                <span class="timeline-dot"></span>
-                {idx < entry.data.timeline.length - 1 && <span class="timeline-line"></span>}
-              </div>
-              <div class="timeline-content-card">
-                <div class="timeline-meta">
-                  <time class="timeline-date">{item.date}</time>
-                  <span class="timeline-tag">MILESTONE</span>
-                </div>
-                <h3 class="timeline-heading">{item.title}</h3>
-                <p class="timeline-summary">{item.summary}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    )}
-
-    <!-- Technical Findings & Verified Telemetry (Markdown Content) -->
-    <section class="dossier-section">
-      <div class="dossier-section-head">
-        <div class="status-stamp"><span></span>Verified Intelligence</div>
-        <h2>Intelligence Assessment &amp; Technical Telemetry</h2>
-      </div>
-      <div class="dossier-prose-card prose">
+    <!-- Main Dossier Manuscript -->
+    <main class="article-manuscript-panel">
+      <div class="article-prose prose">
         <Content />
       </div>
-    </section>
 
-    <!-- Related In-Depth Investigation Reports -->
-    {relatedPosts.length > 0 && (
-      <section class="dossier-section">
-        <div class="dossier-section-head">
-          <div class="status-stamp"><span></span>Linked Publications</div>
-          <h2>Companion Technical Investigation Reports</h2>
+      <!-- Companion Reports (if any) -->
+      {relatedPosts.length > 0 && (
+        <section style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--primary);">
+          <div class="archive-entries-header" style="margin-bottom: 1.5rem;">
+            <h2 class="archive-section-title" style="font-size: 1.3rem;">Companion Investigation Reports</h2>
+          </div>
+          <div class="archive-cards-grid">
+            {relatedPosts.map((post) => (
+              <article class="archive-folder-card">
+                <div class="archive-folder-tab" aria-hidden="true"></div>
+                <a href={`/blog/${post.slug}/`} class="archive-folder-content">
+                  <div class="archive-folder-top">
+                    <Icon name="terminal" size={24} class="archive-card-icon" />
+                    <span class="archive-card-tag">REPORT</span>
+                  </div>
+                  <h3 class="archive-folder-title">{post.data.title}</h3>
+                  <p class="archive-folder-excerpt">{post.data.description}</p>
+                </a>
+                <div class="archive-folder-footer">
+                  <span class="archive-read-time">DFIR Analysis</span>
+                  <a href={`/blog/${post.slug}/`} class="archive-folder-arrow">
+                    <span>READ REPORT</span>
+                    <Icon name="east" size={16} />
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- Dossier Footer & Author Monogram -->
+      <footer class="article-dossier-footer">
+        <div class="article-author-card">
+          <img src="/logo-me.png" alt="Ahmed Elessaway (xElessaway)" class="article-author-avatar-img" />
+          <div class="article-author-info">
+            <p class="eyebrow">Investigator / Author</p>
+            <h3 class="article-author-name">Ahmed Elessaway (xElessaway)</h3>
+            <p class="article-author-bio">
+              Cybersecurity researcher specializing in DFIR, threat intelligence, and OSINT investigation methodologies.
+            </p>
+            <div class="article-author-links">
+              {siteMeta.socials.map((s) => (
+                <a href={s.href} target="_blank" rel="noreferrer" class="author-social-pill">
+                  <SocialIcon name={s.label.toLowerCase()} size={15} />
+                  <span>{s.label}</span>
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
-        <div class="related-reports-grid">
-          {relatedPosts.map((post) => (
-            <a href={`/blog/${post.slug}/`} class="related-report-card">
-              <div class="related-report-badge">FULL DFIR REPORT</div>
-              <h3 class="related-report-title">{post.data.title}</h3>
-              <p class="related-report-desc">{post.data.description}</p>
-              <div class="related-report-footer">
-                <span>Read in-depth technical analysis</span>
-                <Icon name="east" size={16} />
-              </div>
-            </a>
-          ))}
+
+        <div class="article-nav-actions">
+          <a href="/threat-intelligence/" class="button button-primary">
+            <Icon name="arrow_back" size={16} />
+            Back to Dossiers Feed
+          </a>
+          <a href="/blog/" class="button button-ghost">
+            Browse Research Archive
+            <Icon name="east" size={16} />
+          </a>
         </div>
-      </section>
-    )}
+      </footer>
+    </main>
   </div>
 </BaseLayout>
 
 <style>
-  .dossier-wrapper {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 1.5rem 0 5rem;
-  }
-
-  /* Breadcrumb Nav */
-  .dossier-nav-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--primary);
-  }
-
-  .dossier-back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    color: var(--primary);
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    transition: color 0.15s ease, transform 0.15s ease;
-  }
-
-  .dossier-back-link:hover {
-    color: var(--secondary);
-    transform: translateX(-3px);
-  }
-
-  .dossier-nav-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .dossier-doc-id {
-    color: var(--text-soft);
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.68rem;
-    font-weight: 600;
-  }
-
-  .status-indicator-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.28rem 0.65rem;
-    border-radius: 4px;
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.68rem;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    border: 1.5px solid var(--primary);
-    background: var(--surface);
-    color: var(--primary);
-    box-shadow: 2px 2px 0 var(--primary);
-  }
-
-  .status-pulse-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-  }
-
-  .status-indicator-pill.active {
-    border-color: var(--primary);
-    background: var(--secondary-soft);
-    color: var(--secondary);
-    box-shadow: 2px 2px 0 var(--secondary);
-  }
-
-  .status-indicator-pill.tracking {
-    border-color: var(--primary);
+  .article-status-pill.tracking {
     background: #f59e0b1a;
+    border-color: #f59e0b;
     color: #f59e0b;
-    box-shadow: 2px 2px 0 var(--primary);
   }
-
-  [data-theme="dark"] .status-indicator-pill.tracking {
+  .article-status-pill.tracking .pulse-dot {
+    background: #f59e0b;
+  }
+  [data-theme="dark"] .article-status-pill.tracking {
     background: #f59e0b22;
+    border-color: #fbbf24;
     color: #fbbf24;
   }
-
-  /* Dossier Banner / Hero Box */
-  .dossier-banner {
-    position: relative;
-    border: 3px solid var(--primary);
-    border-radius: 12px;
-    background: var(--surface);
-    box-shadow: 6px 6px 0 var(--secondary);
-    padding: clamp(1.5rem, 4vw, 2.75rem);
-    margin-bottom: 2.5rem;
+  [data-theme="dark"] .article-status-pill.tracking .pulse-dot {
+    background: #fbbf24;
   }
 
-  .dossier-tape-sticker {
-    position: absolute;
-    top: -10px;
-    right: 32px;
-    width: 64px;
-    height: 24px;
-    background: #d8e3fb;
-    border: 1px solid var(--primary);
-    transform: rotate(4deg);
-    z-index: 10;
-    box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.15);
-  }
-
-  [data-theme="dark"] .dossier-tape-sticker {
-    background: #1f3555;
-    border-color: var(--primary);
-  }
-
-  .dossier-badge-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .dossier-type-tag {
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.68rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: #ffffff;
-    background: var(--primary);
-    border: 1.5px solid var(--primary);
-    padding: 0.3rem 0.65rem;
-    border-radius: 3px;
-    text-transform: uppercase;
-  }
-
-  [data-theme="dark"] .dossier-type-tag {
-    background: var(--secondary);
-    border-color: var(--primary);
-    color: #ffffff;
-  }
-
-  .dossier-origin-pill,
-  .dossier-time-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.74rem;
-    font-weight: 600;
-    color: var(--text-soft);
-    background: var(--surface-panel);
-    border: 1.5px solid var(--line-soft);
-    padding: 0.25rem 0.6rem;
-    border-radius: 4px;
-  }
-
-  .dossier-actor-title {
-    font-size: clamp(2rem, 4vw, 3.2rem);
-    font-weight: 900;
-    line-height: 1.15;
-    margin: 0 0 1rem;
-    color: var(--primary);
-    font-family: Bricolage Grotesque, sans-serif;
-    letter-spacing: -0.02em;
-  }
-
-  .dossier-lede-motivation {
-    color: var(--text-muted);
-    font-size: clamp(1.05rem, 1.8vw, 1.25rem);
-    line-height: 1.6;
-    border-left: 3px solid var(--secondary);
-    padding-left: 1.2rem;
-    margin: 0 0 1.5rem;
-  }
-
-  .dossier-aliases-strip {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem;
-    padding-top: 1.25rem;
-    border-top: 1px dashed var(--line-soft);
-    margin-top: 1rem;
-  }
-
-  .aliases-label {
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--text-soft);
-    text-transform: uppercase;
-  }
-
-  .aliases-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .alias-chip {
-    font-size: 0.78rem;
-    font-family: JetBrains Mono, monospace;
-    font-weight: 700;
-    background: var(--surface-panel);
-    border: 1.5px solid var(--primary);
-    padding: 0.25rem 0.6rem;
-    border-radius: 4px;
-    color: var(--primary);
-    box-shadow: 2px 2px 0 var(--primary);
-  }
-
-  .dossier-tags-strip {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 1.25rem;
-  }
-
-  .dossier-tag-chip {
-    padding: 0.25rem 0.55rem;
-    border: 1.5px solid var(--primary);
-    border-radius: 4px;
-    background: var(--surface);
-    color: var(--primary);
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.68rem;
-    font-weight: 600;
-    box-shadow: 2px 2px 0 var(--primary);
-  }
-
-  /* Section Styles */
-  .dossier-section {
-    margin-bottom: 3rem;
-  }
-
-  .dossier-section-head {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.65rem;
-    border-bottom: 2px solid var(--primary);
-  }
-
-  .dossier-section-head h2 {
-    font-size: clamp(1.4rem, 2.5vw, 1.85rem);
-    font-weight: 800;
-    color: var(--primary);
-    margin: 0;
-    font-family: Bricolage Grotesque, sans-serif;
-  }
-
-  /* 4-Card Threat Profile Grid */
-  .threat-profile-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.25rem;
-  }
-
-  .profile-card {
-    border: 2px solid var(--primary);
-    border-radius: 8px;
-    background: var(--surface);
-    box-shadow: 4px 4px 0 var(--primary);
-    padding: 1.25rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 0.75rem;
-  }
-
-  .profile-card-wide {
-    grid-column: 1 / -1;
-  }
-
-  .profile-card-label {
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.68rem;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    color: var(--secondary);
-    text-transform: uppercase;
-  }
-
-  .profile-card-val {
-    font-family: Bricolage Grotesque, sans-serif;
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: var(--primary);
-    margin: 0;
-    line-height: 1.2;
-  }
-
-  .profile-card-sub {
-    font-size: 0.78rem;
-    font-family: JetBrains Mono, monospace;
-    color: var(--text-soft);
-  }
-
-  .status-highlight {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-  }
-
-  .status-highlight.active {
-    color: var(--secondary);
-  }
-
-  .status-highlight.tracking {
-    color: #f59e0b;
-  }
-
-  [data-theme="dark"] .status-highlight.tracking {
-    color: #fbbf24;
-  }
-
-  .pill-cloud {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .empty-telemetry-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    background: var(--surface-panel);
-    border: 1.5px dashed var(--line-soft);
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-  }
-
-  .target-pill {
-    background: var(--surface-panel);
-    border: 1.5px solid var(--primary);
-    color: var(--primary);
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 0.35rem 0.75rem;
-    border-radius: 6px;
-    box-shadow: 2px 2px 0 var(--primary);
-  }
-
-  .tool-pill {
+  .article-status-pill.active {
     background: var(--secondary-soft);
-    border: 1.5px solid var(--secondary);
+    border-color: var(--secondary);
     color: var(--secondary);
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 0.35rem 0.75rem;
-    border-radius: 6px;
-    box-shadow: 2px 2px 0 var(--secondary);
   }
 
-  /* MITRE Table Card */
-  .mitre-table-card {
-    border: 2px solid var(--primary);
-    border-radius: 8px;
-    background: var(--surface-low);
-    box-shadow: 4px 4px 0 var(--primary);
-    overflow: hidden;
-  }
-
-  .table-responsive-wrap {
-    width: 100%;
-    overflow-x: auto;
-  }
-
-  .mitre-matrix-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.92rem;
-  }
-
-  .mitre-matrix-table th {
+  .article-status-pill.disrupted,
+  .article-status-pill.historic {
     background: var(--surface-panel);
-    text-align: left;
-    padding: 0.85rem 1.25rem;
-    font-size: 0.78rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    font-family: JetBrains Mono, monospace;
-    color: var(--primary);
-    border-bottom: 2px solid var(--primary);
-  }
-
-  .mitre-matrix-table td {
-    padding: 0.85rem 1.25rem;
-    border-bottom: 1px solid var(--line-soft);
-    vertical-align: middle;
-    color: var(--text);
-  }
-
-  .mitre-matrix-table tr:last-child td {
-    border-bottom: none;
-  }
-
-  .ttp-id-badge {
-    display: inline-block;
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.78rem;
-    font-weight: 800;
-    padding: 0.25rem 0.55rem;
-    background: var(--secondary-soft);
-    border: 1.5px solid var(--secondary);
-    color: var(--secondary);
-    border-radius: 4px;
-    box-shadow: 2px 2px 0 var(--secondary);
-  }
-
-  .ttp-desc-text {
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  /* Timeline */
-  .dossier-timeline-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .timeline-row {
-    display: flex;
-    gap: 1.25rem;
-  }
-
-  .timeline-marker {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 24px;
-  }
-
-  .timeline-dot {
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    background: var(--secondary);
-    border: 2px solid var(--primary);
-    box-shadow: 2px 2px 0 var(--primary);
-    margin-top: 6px;
-  }
-
-  .timeline-line {
-    width: 2px;
-    flex-grow: 1;
-    background: var(--line-soft);
-    margin-top: 4px;
-  }
-
-  .timeline-content-card {
-    border: 2px solid var(--primary);
-    border-radius: 8px;
-    background: var(--surface);
-    box-shadow: 3px 3px 0 var(--primary);
-    padding: 1.25rem 1.5rem;
-    flex-grow: 1;
-  }
-
-  .timeline-meta {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .timeline-date {
-    font-size: 0.78rem;
-    font-weight: 800;
-    font-family: JetBrains Mono, monospace;
-    color: var(--secondary);
-  }
-
-  .timeline-tag {
-    font-size: 0.65rem;
-    font-weight: 800;
-    font-family: JetBrains Mono, monospace;
-    background: var(--surface-panel);
-    border: 1px solid var(--line-soft);
-    padding: 0.1rem 0.4rem;
-    border-radius: 3px;
+    border-color: var(--line-soft);
     color: var(--text-soft);
   }
-
-  .timeline-heading {
-    font-size: 1.1rem;
-    font-weight: 800;
-    margin: 0 0 0.4rem;
-    color: var(--primary);
-    font-family: Bricolage Grotesque, sans-serif;
-  }
-
-  .timeline-summary {
-    font-size: 0.92rem;
-    line-height: 1.5;
-    color: var(--text-muted);
-    margin: 0;
-  }
-
-  /* Prose Card (Markdown Body) */
-  .dossier-prose-card {
-    border: 2px solid var(--primary);
-    border-radius: 12px;
-    background: var(--surface);
-    box-shadow: 6px 6px 0 var(--primary);
-    padding: clamp(1.5rem, 4vw, 3rem);
-    color: var(--text);
-  }
-
-  /* Related Reports Grid */
-  .related-reports-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .related-report-card {
-    border: 2px solid var(--primary);
-    border-radius: 8px;
-    background: var(--surface);
-    box-shadow: 4px 4px 0 var(--primary);
-    padding: 1.5rem;
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-  }
-
-  .related-report-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 6px 6px 0 var(--secondary);
-  }
-
-  .related-report-badge {
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.68rem;
-    font-weight: 800;
-    color: var(--secondary);
-    margin-bottom: 0.5rem;
-    letter-spacing: 0.06em;
-  }
-
-  .related-report-title {
-    font-size: 1.15rem;
-    font-weight: 800;
-    margin: 0 0 0.5rem;
-    color: var(--primary);
-    font-family: Bricolage Grotesque, sans-serif;
-    line-height: 1.3;
-  }
-
-  .related-report-desc {
-    font-size: 0.88rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-    margin: 0 0 1.25rem;
-  }
-
-  .related-report-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: JetBrains Mono, monospace;
-    font-size: 0.76rem;
-    font-weight: 700;
-    color: var(--primary);
-    border-top: 1px dashed var(--line-soft);
-    padding-top: 0.75rem;
-    text-transform: uppercase;
+  .article-status-pill.disrupted .pulse-dot,
+  .article-status-pill.historic .pulse-dot {
+    background: var(--text-soft);
   }
 </style>
 
