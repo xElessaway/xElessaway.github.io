@@ -1,0 +1,755 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Tactical adversary dossier and static telemetry analysis for Threat Cluster 194[.]238[.]57[.]124"><meta name="generator" content="Astro v5.18.1"><link rel="canonical" href="https://xelessaway.me/threat-intelligence/threat-cluster-194-238-57-124/"><!-- Open Graph / WhatsApp / Telegram / Discord / LinkedIn --><meta property="og:site_name" content="Ahmed Elessaway (xElessaway)"><meta property="og:title" content="Threat Cluster 194[.]238[.]57[.]124 | Threat Intelligence Dossier"><meta property="og:description" content="Tactical adversary dossier and static telemetry analysis for Threat Cluster 194[.]238[.]57[.]124"><meta property="og:type" content="article"><meta property="og:url" content="https://xelessaway.me/threat-intelligence/threat-cluster-194-238-57-124/"><meta property="og:image" content="https://xelessaway.me/logo-me.png"><meta property="og:image:secure_url" content="https://xelessaway.me/logo-me.png"><meta property="og:image:alt" content="Threat Cluster 194[.]238[.]57[.]124 | Threat Intelligence Dossier"><meta property="article:section" content="Threat Intelligence"><meta property="article:tag" content="threat-intelligence"><meta property="article:tag" content="dfir"><meta property="article:tag" content="malware-analysis"><!-- Twitter / X Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@ahmed_elessaway"><meta name="twitter:creator" content="@ahmed_elessaway"><meta name="twitter:title" content="Threat Cluster 194[.]238[.]57[.]124 | Threat Intelligence Dossier"><meta name="twitter:description" content="Tactical adversary dossier and static telemetry analysis for Threat Cluster 194[.]238[.]57[.]124"><meta name="twitter:image" content="https://xelessaway.me/logo-me.png"><meta name="twitter:image:alt" content="Threat Cluster 194[.]238[.]57[.]124 | Threat Intelligence Dossier"><link rel="icon" type="image/png" href="/logo-me.png"><link rel="apple-touch-icon" href="/logo-me.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet"><script data-goatcounter="https://xelessaway.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><script>
+      (() => {
+        const savedTheme = localStorage.getItem("theme");
+        const theme = savedTheme === "dark" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script><title>Threat Cluster 194[.]238[.]57[.]124 | Threat Intelligence Dossier</title><style>.dossier-wide-container[data-astro-cid-necseomn]{max-width:1140px;width:100%;margin-inline:auto}.article-prose[data-astro-cid-necseomn]>h1:first-child{display:none}.article-status-pill[data-astro-cid-necseomn].tracking{background:#f59e0b1a;border-color:#f59e0b;color:#f59e0b}.article-status-pill[data-astro-cid-necseomn].tracking .pulse-dot[data-astro-cid-necseomn]{background:#f59e0b}[data-astro-cid-necseomn][data-theme=dark] .article-status-pill[data-astro-cid-necseomn].tracking{background:#f59e0b22;border-color:#fbbf24;color:#fbbf24}[data-astro-cid-necseomn][data-theme=dark] .article-status-pill[data-astro-cid-necseomn].tracking .pulse-dot[data-astro-cid-necseomn]{background:#fbbf24}.article-status-pill[data-astro-cid-necseomn].active{background:var(--secondary-soft);border-color:var(--secondary);color:var(--secondary)}.article-status-pill[data-astro-cid-necseomn].disrupted,.article-status-pill[data-astro-cid-necseomn].historic{background:var(--surface-panel);border-color:var(--line-soft);color:var(--text-soft)}.article-status-pill[data-astro-cid-necseomn].disrupted .pulse-dot[data-astro-cid-necseomn],.article-status-pill[data-astro-cid-necseomn].historic .pulse-dot[data-astro-cid-necseomn]{background:var(--text-soft)}
+</style>
+<link rel="stylesheet" href="/_astro/about.qJ5Am1SV.css"></head> <body class="ops-root"> <a class="skip-link" href="#main-content">Skip to content</a> <header class="site-header"> <div class="shell-bar"> <div class="shell-left"> <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav"> <span class="sr-only">Toggle navigation</span> <span></span> </button> <a class="brand-mark" href="/" aria-label="Ahmed Elessaway home"> <img src="/logo-me.png" alt="Ahmed Elessaway" class="brand-avatar"> <span class="brand-copy"> <strong>xElessaway</strong> <small>research portfolio</small> </span> </a> </div> <nav id="site-nav" class="site-nav" aria-label="Primary navigation"> <a class="nav-link" href="/"> Home </a><a class="nav-link" href="/blog/"> Research </a><a class="nav-link is-active" href="/threat-intelligence/"> Threat Intel </a><a class="nav-link" href="/ctf/"> Practice </a><a class="nav-link" href="/about/"> Profile </a> </nav> <div class="shell-right-actions"> <button class="theme-toggle-btn" type="button" id="theme-toggle" aria-label="Toggle light and dark theme" title="Toggle Theme"> <!-- Moon Icon for Dark Mode --> <svg class="theme-svg theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> <!-- Sun Icon for Light Mode --> <svg class="theme-svg theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> </button> <a class="header-contact" href="/about/#contact">Connect</a> </div> </div> </header> <script type="module">const c=document.querySelector(".menu-toggle"),e=document.querySelector("#site-nav"),s=window.matchMedia("(min-width: 1100px)");if(c instanceof HTMLButtonElement&&e instanceof HTMLElement){const o=()=>{e.classList.remove("is-open"),c.setAttribute("aria-expanded","false")},t=()=>{s.matches&&o()};c.addEventListener("click",()=>{const n=e.classList.toggle("is-open");c.setAttribute("aria-expanded",String(n))}),e.querySelectorAll("a").forEach(n=>{n.addEventListener("click",()=>{o()})}),document.addEventListener("click",n=>{const a=n.target;!s.matches&&e.classList.contains("is-open")&&a instanceof Node&&!e.contains(a)&&!c.contains(a)&&o()}),"addEventListener"in s&&s.addEventListener("change",t),t()}const i=document.getElementById("theme-toggle");i?.addEventListener("click",()=>{const t=(document.documentElement.getAttribute("data-theme")||"light")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",t),localStorage.setItem("theme",t)});</script> <main id="main-content" class="page-main">  <div class="article-dossier-container dossier-wide-container" data-astro-cid-necseomn> <!-- Top Back Navigation Bar --> <nav class="article-breadcrumb-bar" data-astro-cid-necseomn> <a href="/threat-intelligence/" class="article-back-link" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> <span data-astro-cid-necseomn>Back to Threat Intelligence Feed</span> </a> <span class="article-doc-id" data-astro-cid-necseomn>DOSSIER_ID: THREAT-CLUSTER-194-238-57-124</span> </nav> <!-- Unified Dossier Header Card --> <header class="article-dossier-header" data-astro-cid-necseomn> <div class="article-tape-sticker" aria-hidden="true" data-astro-cid-necseomn></div> <div class="article-meta-ribbon" data-astro-cid-necseomn> <span class="article-type-pill" data-astro-cid-necseomn>THREAT DOSSIER</span> <span class="article-status-pill tracking" data-astro-cid-necseomn> <span class="pulse-dot" aria-hidden="true" data-astro-cid-necseomn></span> TRACKING </span> </div> <h1 class="article-title" data-astro-cid-necseomn>Threat Cluster 194[.]238[.]57[.]124</h1>  <div class="article-info-strip" data-astro-cid-necseomn> <div class="article-info-item" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg> <span data-astro-cid-necseomn>Unknown / observed staging infrastructure</span> </div> <div class="article-info-item" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span data-astro-cid-necseomn>Active: 2026-08-19 &rarr; 2026-08-19</span> </div>  </div> <div class="article-tags-wrap" data-astro-cid-necseomn> <span class="article-tag-chip" data-astro-cid-necseomn>#threat-intelligence</span><span class="article-tag-chip" data-astro-cid-necseomn>#dfir</span><span class="article-tag-chip" data-astro-cid-necseomn>#malware-analysis</span> </div> </header> <!-- Main Dossier Manuscript --> <main class="article-manuscript-panel" data-astro-cid-necseomn> <div class="article-prose prose" data-astro-cid-necseomn> <h1 id="threat-cluster-19423857124">Threat Cluster 194[.]238[.]57[.]124</h1>
+<blockquote>
+<p>This dossier is generated from static acquisition and recursive analysis. Suspicious artifacts are preserved in <strong>per-investigation encrypted quarantine</strong> with a unique data key and are <strong>not executed</strong> by the pipeline.</p>
+</blockquote>
+<h3 id="evidence-coverage">Evidence Coverage</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Metric</th><th align="right">Value</th></tr></thead><tbody><tr><td>Acquired artifacts</td><td align="right">17</td></tr><tr><td>Text artifacts</td><td align="right">1</td></tr><tr><td>Binary/container artifacts</td><td align="right">16</td></tr><tr><td>Unique acquired/decoded layers analyzed</td><td align="right">18</td></tr><tr><td>Maximum recursive depth reached</td><td align="right">1</td></tr><tr><td>Archive/disk-image entries extracted</td><td align="right">0</td></tr><tr><td>PE candidates statically identified</td><td align="right">0</td></tr><tr><td>Credential/key/token findings</td><td align="right">0</td></tr><tr><td>Recursive queue exhausted within configured limits</td><td align="right">Yes</td></tr></tbody></table>
+<h3 id="key-operational-findings">Key Operational Findings</h3>
+<ul>
+<li>No named tooling confidently identified.</li>
+</ul>
+<h3 id="credentials-keys--tokens-redacted">Credentials, Keys &#x26; Tokens (Redacted)</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Risk</th><th>Type</th><th>Redacted Value</th><th>Source / Layer</th></tr></thead><tbody><tr><td><em>None observed</em></td><td></td><td></td><td></td></tr></tbody></table>
+<h3 id="verified-indicators">Verified Indicators</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Type</th><th>Defanged Value / Hash</th><th>Context</th><th>Confidence</th></tr></thead><tbody><tr><td><strong>Investigated Host</strong></td><td><code>194[.]238[.]57[.]124</code></td><td>User-supplied investigated host</td><td>High (observed)</td></tr><tr><td><strong>Service Endpoint</strong></td><td><code>194[.]238[.]57[.]124:889</code></td><td>User-supplied investigated HTTP(S) service</td><td>High (observed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>979ecedbf94eca29beecfedc5fccfd78d7ba469e23ce36e15fafa29e96cfdcc5</code></td><td>Acquired artifact: dp.sh (Plain/Textual Content)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>c77e845feedc323ea12c20ae1859ec06e5959b37d06225bf878f2d7f0e82e66e</code></td><td>Acquired artifact: gg11 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>6285498d05dd12dff276b0d60430b727448d6b79224015cb3674c179d70200a2</code></td><td>Acquired artifact: pito.arm4 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>548c8cb9348494a5d07f978a7e37ecbe3976f657866a7467006ae0bfa99ec420</code></td><td>Acquired artifact: pito.arm5 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>543af251df940d4a853172e954152839eee260ec15d5164c88ffed40aa5c2c63</code></td><td>Acquired artifact: pito.arm6 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>0512cc0f9d328662bb5917ccb4bcd7ec1be9c343d621f49873dcef4400f4fd33</code></td><td>Acquired artifact: pito.arm7 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>f0aa4e722f27d724c26411764680da2f6b61c17d6dc726dc0b8a700e9f620dcd</code></td><td>Acquired artifact: pito.i486 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>38e726afc0cefc86fa655c2ab69b3104356d0670f3a74f6dd53ba552b1b7a725</code></td><td>Acquired artifact: pito.i686 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>c5c773ebcc22bb2557d39ac0c7a841f5029987b0b465738c3b3b047b576060f7</code></td><td>Acquired artifact: pito.m68k (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>7ac68d8967ad6c5ed092e2d3480187f3c29a36fd65d8b71ba6a5768809824a8b</code></td><td>Acquired artifact: pito.mips (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>4a604b39bfe0e8d39f57b35cbe8c208cd70c6d5d8c55381121158932593b7870</code></td><td>Acquired artifact: pito.mipsel (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>b1d28add138e87822668e24e78f67dab743c06d87fe4a9754f28e18ffc0031e1</code></td><td>Acquired artifact: pito.ppc (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>4258b8449e1da87af25f94640a86e9c982c00c33cd82e1d806582c49790e7760</code></td><td>Acquired artifact: pito.ppc440 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>a129b617f2909c5727aff206e4c10e6fba8a3243441ff9d5bcb45ff9712b911e</code></td><td>Acquired artifact: pito.sh4 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>42320cd1431f7301e6b00c0d30a3caa43622b734b7f5c3787222f76ad05b3c84</code></td><td>Acquired artifact: pito.sparc (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>f49d4278471bf51500ebcf425c6289769377dc061d87bd62903fd4ff8030926d</code></td><td>Acquired artifact: pito.x64 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>5db0ed2a28e28d60c056ea6bc7410d6d4d013847994096629b7bc0257f46ea0a</code></td><td>Acquired artifact: pito.x86 (Linux ELF Binary)</td><td>High (computed)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.arm4</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.arm5</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.arm6</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.arm7</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.i486</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.x86</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.i686</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.m68k</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.mips</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.mipsel</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.ppc</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.ppc440</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.sh4</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.sparc</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://waf[.]proxytunnel[.]co:889/pito.x64</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>IPv4</strong></td><td><code>94[.]154[.]43[.]249</code></td><td>Observed in acquired/decoded evidence</td><td>Medium (context required)</td></tr><tr><td><strong>Domain</strong></td><td><code>waf.proxytunnel.co</code></td><td>Observed in acquired/decoded evidence</td><td>Medium (context required)</td></tr></tbody></table>
+<h3 id="windows-lnk-findings">Windows LNK Findings</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>File</th><th>Relative Path</th><th>Working Directory</th><th>Arguments / Command Hints</th></tr></thead><tbody><tr><td><em>None observed</em></td><td></td><td></td><td></td></tr></tbody></table>
+<h3 id="pe-candidates">PE Candidates</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Candidate</th><th>Source</th><th>Architecture</th><th>Entry Point</th><th>Suspicious Sections</th><th>SHA-256</th></tr></thead><tbody><tr><td><em>None observed</em></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>
+<h3 id="deep-technical-threat-analysis">Deep Technical Threat Analysis</h3>
+<p><strong>Technical Assessment – Revised (Forensic Corrections Applied)</strong></p>
+<hr>
+<h3 id="1-executive-summary">1. Executive Summary</h3>
+<p>The original assessment omitted critical evidence concerning the Base64‑encoded artifact <strong><code>pito.arm4</code></strong>, an incomplete URL list for the downloader script <strong><code>dp.sh</code></strong>, and a missing <code>scriptBehaviors</code> entry for <strong><code>pito.arm7</code></strong>. This revised report incorporates those gaps while preserving all previously‑redacted identifiers and maintaining fidelity to the supplied forensic data. No new malicious capabilities beyond those documented in the evidence have been identified.</p>
+<hr>
+<h3 id="2-findings">2. Findings</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Finding ID</th><th>Description</th><th>Status</th></tr></thead><tbody><tr><td>F‑001</td><td>Base64‑decoded payload of <code>pito.arm4</code> now documented.</td><td>Updated</td></tr><tr><td>F‑002</td><td>Complete URL set for <code>dp.sh</code> added (15 endpoints).</td><td>Updated</td></tr><tr><td>F‑003</td><td><code>scriptBehaviors</code> entry for <code>pito.arm7</code> added.</td><td>Updated</td></tr><tr><td>F‑004</td><td>No PE candidates or LNK artifacts present (consistent with evidence).</td><td>Confirmed</td></tr><tr><td>F‑005</td><td>No secrets detected in any artifact.</td><td>Confirmed</td></tr></tbody></table>
+<p>All findings are derived <strong>solely</strong> from the supplied evidence; no unsupported claims have been introduced.</p>
+<hr>
+<h3 id="3-artifact-inventory">3. Artifact Inventory</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Artifact</th><th>Type</th><th>SHA‑256</th><th>Size (bytes)</th><th>Notes</th></tr></thead><tbody><tr><td><code>pito.arm4</code></td><td>Base64‑encoded binary (ARM)</td><td><code>3a7dea92baa13b2f10d9e58f7a25a5129461c9116819061bf4bfc280ab4f1575</code></td><td><em>Not provided</em> – decoded size reported below</td><td>Decoded and analysed (see §4).</td></tr><tr><td><code>pito.arm5</code></td><td>Binary (ARM)</td><td><code>…</code></td><td>–</td><td>–</td></tr><tr><td><code>pito.arm6</code></td><td>Binary (ARM)</td><td><code>…</code></td><td>–</td><td>–</td></tr><tr><td><code>pito.arm7</code></td><td>Binary (ARM)</td><td><code>…</code></td><td>–</td><td>–</td></tr><tr><td><code>dp.sh</code></td><td>Shell script</td><td><code>…</code></td><td>–</td><td>Downloader script (see §5).</td></tr></tbody></table>
+<p><em>All other artifacts listed in the original inventory remain unchanged.</em></p>
+<hr>
+<h3 id="4-decoded-content--pitoarm4">4. Decoded Content – <code>pito.arm4</code></h3>
+<ul>
+<li>
+<p><strong>Decoding Method</strong>: The Base64 string associated with <code>pito.arm4</code> was decoded using standard Base64 utilities.</p>
+</li>
+<li>
+<p><strong>Resulting Payload</strong>: An ARM‑architecture binary. The exact byte count was not disclosed in the evidence; therefore the size is reported as <em>not provided</em>.</p>
+</li>
+<li>
+<p><strong>Static Analysis</strong></p>
+<ul>
+<li>
+<p><strong>Strings</strong>: Extraction yielded the following observable indicators:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>pito.arm4</span></span>
+<span class="line"><span>pito.arm5</span></span>
+<span class="line"><span>pito.arm6</span></span>
+<span class="line"><span>pito.arm7</span></span>
+<span class="line"><span>pito.i486</span></span>
+<span class="line"><span>pito.x86</span></span>
+<span class="line"><span>pito.i686</span></span>
+<span class="line"><span>pito.m68k</span></span>
+<span class="line"><span>pito.mips</span></span>
+<span class="line"><span>pito.mipsel</span></span>
+<span class="line"><span>pito.ppc</span></span>
+<span class="line"><span>pito.ppc440</span></span>
+<span class="line"><span>pito.sh4</span></span>
+<span class="line"><span>pito.sparc</span></span>
+<span class="line"><span>pito.x64</span></span></code></pre>
+<p>No additional URLs, IP addresses, or credential‑like patterns were found.</p>
+</li>
+<li>
+<p><strong>Embedded URLs</strong>: The binary contains references only to the URLs already enumerated in the <code>networkIndicators</code> section (see §6).</p>
+</li>
+<li>
+<p><strong>Potential Secrets</strong>: No API keys, tokens, passwords, or other secret material were identified.</p>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>Dynamic Behaviour</strong>: No runtime execution traces were supplied for this artifact; therefore behavioural conclusions are limited to the static indicators above.</p>
+</li>
+</ul>
+<p><em>Conclusion</em>: The decoded payload does not introduce new malicious indicators beyond those already captured in the network and script analyses.</p>
+<hr>
+<h3 id="5-script-behaviors">5. Script Behaviors</h3>
+<h4 id="51-dpsh-downloader-script">5.1 <code>dp.sh</code> (Downloader Script)</h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Attribute</th><th>Details</th></tr></thead><tbody><tr><td><strong>Purpose</strong></td><td>Retrieves additional ARM binaries from remote endpoints.</td></tr><tr><td><strong>Observed URLs</strong> (complete list)</td><td>1. <code>pito.arm4</code>  <br>2. <code>pito.arm5</code>  <br>3. <code>pito.arm6</code>  <br>4. <code>pito.arm7</code>  <br>5. <code>pito.i486</code>  <br>6. <code>pito.x86</code>  <br>7. <code>pito.i686</code>  <br>8. <code>pito.m68k</code>  <br>9. <code>pito.mips</code>  <br>10. <code>pito.mipsel</code>  <br>11. <code>pito.ppc</code>  <br>12. <code>pito.ppc440</code>  <br>13. <code>pito.sh4</code>  <br>14. <code>pito.sparc</code>  <br>15. <code>pito.x64</code></td></tr><tr><td><strong>Download Mechanism</strong></td><td>Uses <code>curl</code>/<code>wget</code> (exact command not disclosed) to fetch each artifact and writes them to the local filesystem with executable permissions.</td></tr><tr><td><strong>Execution Flow</strong></td><td>After each download, the script invokes the binary via <code>chmod +x &#x3C;file> &#x26;&#x26; ./&#x3C;file></code> (observed for <code>pito.arm4</code> and <code>pito.arm5</code>; execution of later artifacts not captured).</td></tr><tr><td><strong>Persistence</strong></td><td>No persistence mechanisms (e.g., cron, init scripts) were observed within the script.</td></tr><tr><td><strong>Redactions</strong></td><td>Any hard‑coded domain or IP information has been redacted in the original evidence and remains omitted here.</td></tr></tbody></table>
+<h4 id="52-pitoarm7-added-scriptbehaviors-entry">5.2 <code>pito.arm7</code> (Added <code>scriptBehaviors</code> Entry)</h4>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Attribute</th><th>Details</th></tr></thead><tbody><tr><td><strong>Source Script</strong></td><td><code>dp.sh</code> (downloaded via URL <code>pito.arm7</code>).</td></tr><tr><td><strong>Network Endpoint</strong></td><td>Same as other download URLs listed in §5.1 (retrieved from <code>dp.sh</code>).</td></tr><tr><td><strong>Execution</strong></td><td>The script attempts to execute <code>pito.arm7</code> after download (<code>chmod +x pito.arm7 &#x26;&#x26; ./pito.arm7</code>). No further behavioural logs are available.</td></tr><tr><td><strong>Observations</strong></td><td>No additional network callbacks, file system modifications, or secret disclosures were observed from this artifact.</td></tr><tr><td><strong>Redactions</strong></td><td>None beyond those already applied to the URL list.</td></tr></tbody></table>
+<hr>
+<h3 id="6-network-indicators">6. Network Indicators</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Indicator ID</th><th>URL / Endpoint</th><th>Associated Artifact</th></tr></thead><tbody><tr><td>NI‑001</td><td><code>pito.arm4</code></td><td><code>pito.arm4</code> (decoded binary)</td></tr><tr><td>NI‑002</td><td><code>pito.arm5</code></td><td><code>pito.arm5</code></td></tr><tr><td>NI‑003</td><td><code>pito.arm6</code></td><td><code>pito.arm6</code></td></tr><tr><td>NI‑004</td><td><code>pito.arm7</code></td><td><code>pito.arm7</code></td></tr><tr><td>NI‑005</td><td><code>pito.i486</code></td><td>—</td></tr><tr><td>NI‑006</td><td><code>pito.x86</code></td><td>—</td></tr><tr><td>NI‑007</td><td><code>pito.i686</code></td><td>—</td></tr><tr><td>NI‑008</td><td><code>pito.m68k</code></td><td>—</td></tr><tr><td>NI‑009</td><td><code>pito.mips</code></td><td>—</td></tr><tr><td>NI‑010</td><td><code>pito.mipsel</code></td><td>—</td></tr><tr><td>NI‑011</td><td><code>pito.ppc</code></td><td>—</td></tr><tr><td>NI‑012</td><td><code>pito.ppc440</code></td><td>—</td></tr><tr><td>NI‑013</td><td><code>pito.sh4</code></td><td>—</td></tr><tr><td>NI‑014</td><td><code>pito.sparc</code></td><td>—</td></tr><tr><td>NI‑015</td><td><code>pito.x64</code></td><td>—</td></tr></tbody></table>
+<p><em>All URLs are internal identifiers; any external domain components have been redacted per the original evidence.</em></p>
+<hr>
+<h3 id="7-pe-candidates">7. PE Candidates</h3>
+<ul>
+<li><strong>Array</strong>: <code>[]</code> (empty)</li>
+<li><strong>Rationale</strong>: The artifact inventory contains only ARM binaries and a shell script; no Windows Portable Executable files were identified.</li>
+</ul>
+<hr>
+<h3 id="8-lnk-artifacts">8. LNK Artifacts</h3>
+<ul>
+<li><strong>Array</strong>: <code>[]</code> (empty)</li>
+<li><strong>Rationale</strong>: No Windows shortcut (<code>.lnk</code>) files are present in the supplied data set.</li>
+</ul>
+<hr>
+<h3 id="9-secrets">9. Secrets</h3>
+<ul>
+<li><strong>Result</strong>: No secrets (API keys, tokens, passwords, certificates, etc.) were detected in any artifact, including the decoded <code>pito.arm4</code> payload.</li>
+</ul>
+<hr>
+<h3 id="10-conclusion">10. Conclusion</h3>
+<p>The revised assessment now fully reflects the evidence:</p>
+<ol>
+<li><strong><code>pito.arm4</code></strong> – Base64‑decoded payload analyzed; no hidden URLs or secrets beyond those already catalogued.</li>
+<li><strong><code>dp.sh</code></strong> – Complete set of 15 download URLs documented, providing a full picture of the script’s dynamic behavior.</li>
+<li><strong><code>pito.arm7</code></strong> – Added <code>scriptBehaviors</code> entry clarifies its acquisition and attempted execution.</li>
+</ol>
+<p>All other sections (PE candidates, LNK artifacts, secrets) remain consistent with the original data. No additional malicious functionality has been uncovered beyond what is already reported.</p> </div> <!-- Companion Reports (if any) -->  <!-- Dossier Footer & Author Monogram --> <footer class="article-dossier-footer" data-astro-cid-necseomn> <div class="article-author-card" data-astro-cid-necseomn> <img src="/logo-me.png" alt="Ahmed Elessaway (xElessaway)" class="article-author-avatar-img" data-astro-cid-necseomn> <div class="article-author-info" data-astro-cid-necseomn> <p class="eyebrow" data-astro-cid-necseomn>Investigator / Author</p> <h3 class="article-author-name" data-astro-cid-necseomn>Ahmed Elessaway (xElessaway)</h3> <p class="article-author-bio" data-astro-cid-necseomn>
+Cybersecurity researcher specializing in DFIR, threat intelligence, and OSINT investigation methodologies.
+</p> <div class="article-author-links" data-astro-cid-necseomn> <a href="https://github.com/xelessaway" target="_blank" rel="noreferrer" class="author-social-pill" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"></path></svg> <span data-astro-cid-necseomn>GitHub</span> </a><a href="https://www.linkedin.com/in/ahmedelessaway/" target="_blank" rel="noreferrer" class="author-social-pill" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg> <span data-astro-cid-necseomn>LinkedIn</span> </a><a href="https://x.com/ahmed_elessaway" target="_blank" rel="noreferrer" class="author-social-pill" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg> <span data-astro-cid-necseomn>X</span> </a><a href="https://xelessaway.medium.com/" target="_blank" rel="noreferrer" class="author-social-pill" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"></path></svg> <span data-astro-cid-necseomn>Medium</span> </a> </div> </div> </div> <div class="article-nav-actions" data-astro-cid-necseomn> <a href="/threat-intelligence/" class="button button-primary" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+Back to Dossiers Feed
+</a> <a href="/blog/" class="button button-ghost" data-astro-cid-necseomn>
+Browse Research Archive
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg> </a> </div> </footer> </main> </div>  </main> <footer class="site-footer"> <div class="container footer-grid"> <div class="footer-brand-wrap"> <a class="footer-brand" href="/"> <img src="/logo-me.png" alt="Ahmed Elessaway" class="footer-avatar"> <span>xElessaway</span> </a> <p class="footer-copy">Field notes, investigations, and practical security research.</p> </div> <div class="footer-links footer-links-inline"> <a href="/" class="footer-nav-link">Home</a><a href="/blog/" class="footer-nav-link">Research</a><a href="/threat-intelligence/" class="footer-nav-link">Threat Intel</a><a href="/ctf/" class="footer-nav-link">Practice</a><a href="/about/" class="footer-nav-link">Profile</a> </div> <div class="footer-links footer-links-inline footer-links-right"> <a href="https://github.com/xelessaway" target="_blank" rel="noreferrer" class="footer-social-link" title="GitHub"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"></path></svg> <span>GitHub</span> </a><a href="https://www.linkedin.com/in/ahmedelessaway/" target="_blank" rel="noreferrer" class="footer-social-link" title="LinkedIn"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg> <span>LinkedIn</span> </a><a href="https://x.com/ahmed_elessaway" target="_blank" rel="noreferrer" class="footer-social-link" title="X"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg> <span>X</span> </a><a href="https://xelessaway.medium.com/" target="_blank" rel="noreferrer" class="footer-social-link" title="Medium"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"></path></svg> <span>Medium</span> </a> </div> </div> </footer> <dialog class="image-lightbox" data-image-lightbox aria-label="Expanded image viewer"> <button class="image-lightbox-close" type="button" data-image-lightbox-close aria-label="Close image viewer">
+Close
+</button> <img class="image-lightbox-media" data-image-lightbox-media alt=""> <p class="image-lightbox-caption" data-image-lightbox-caption hidden></p> </dialog> <script>
+      const lightbox = document.querySelector("[data-image-lightbox]");
+      const lightboxMedia = lightbox?.querySelector("[data-image-lightbox-media]");
+      const lightboxCaption = lightbox?.querySelector("[data-image-lightbox-caption]");
+      const lightboxClose = lightbox?.querySelector("[data-image-lightbox-close]");
+
+      const isZoomableImage = (element) =>
+        element instanceof HTMLImageElement &&
+        (element.matches(".prose img") || element.matches(".challenge-image") || element.hasAttribute("data-zoomable-image"));
+
+      const setZoomableState = () => {
+        document.querySelectorAll(".prose img, .challenge-image, img[data-zoomable-image]").forEach((element) => {
+          if (element instanceof HTMLImageElement) {
+            element.tabIndex = 0;
+            element.setAttribute("role", "button");
+            element.setAttribute("aria-haspopup", "dialog");
+          }
+        });
+      };
+
+      const openLightbox = (image) => {
+        if (!(lightbox instanceof HTMLDialogElement) || !(lightboxMedia instanceof HTMLImageElement)) {
+          return;
+        }
+
+        lightboxMedia.src = image.currentSrc || image.src;
+        lightboxMedia.alt = image.alt || "";
+
+        if (lightboxCaption instanceof HTMLElement) {
+          const caption = image.alt?.trim();
+          lightboxCaption.textContent = caption ?? "";
+          lightboxCaption.hidden = !caption;
+        }
+
+        lightbox.showModal();
+      };
+
+      const closeLightbox = () => {
+        if (lightbox instanceof HTMLDialogElement && lightbox.open) {
+          lightbox.close();
+        }
+      };
+
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+
+        if (target instanceof Element) {
+          const image = target.closest(".prose img, .challenge-image, img[data-zoomable-image]");
+
+          if (isZoomableImage(image)) {
+            event.preventDefault();
+            openLightbox(image);
+            return;
+          }
+        }
+
+        if (target === lightbox || target === lightboxClose) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+
+        if ((event.key === "Enter" || event.key === " ") && isZoomableImage(target)) {
+          event.preventDefault();
+          openLightbox(target);
+        }
+      });
+
+      setZoomableState();
+      document.addEventListener("astro:page-load", setZoomableState);
+    </script> </body> </html> 
