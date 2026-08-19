@@ -401,6 +401,12 @@ pre,
   background: var(--surface);
   box-shadow: 2px 2px 0 var(--primary);
   cursor: pointer;
+  color: var(--primary);
+}
+
+.menu-toggle:focus-visible {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
 }
 
 .menu-toggle span:last-child,
@@ -1047,11 +1053,14 @@ p {
   margin-top: 0.75rem;
 }
 
-.archive-tag-chip {
+.archive-tag-chip,
+.article-tag-chip {
+  display: inline-flex;
+  align-items: center;
   padding: 0.25rem 0.55rem;
   border: 1.5px solid var(--primary);
   border-radius: 4px;
-  background: #ffffff;
+  background: var(--surface);
   color: var(--primary);
   font-family: "JetBrains Mono", monospace;
   font-size: 0.68rem;
@@ -1059,15 +1068,34 @@ p {
   cursor: pointer;
   box-shadow: 2px 2px 0 var(--primary);
   transition: all 0.15s ease;
+  text-decoration: none;
 }
 
 .archive-tag-chip:hover,
-.archive-tag-chip.is-active {
+.archive-tag-chip.is-active,
+.article-tag-chip:hover {
   background: var(--secondary);
   border-color: var(--primary);
   color: #ffffff;
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 var(--primary);
+}
+
+[data-theme="dark"] .archive-tag-chip,
+[data-theme="dark"] .article-tag-chip {
+  background: #1f3555;
+  color: #f0f4fc;
+  border-color: #3b5275;
+  box-shadow: 2px 2px 0 #09121f;
+}
+
+[data-theme="dark"] .archive-tag-chip:hover,
+[data-theme="dark"] .archive-tag-chip.is-active,
+[data-theme="dark"] .article-tag-chip:hover {
+  background: #ff3366;
+  border-color: #ff3366;
+  color: #ffffff;
+  box-shadow: 1px 1px 0 #000000;
 }
 
 /* ==========================================================================
@@ -1306,7 +1334,7 @@ p {
   padding: 0.9rem;
   border: 2px solid var(--primary);
   border-radius: 6px;
-  background: var(--primary);
+  background: #091426;
   color: #d8e2ff;
   font-family: "JetBrains Mono", monospace;
   font-size: 0.72rem;
@@ -1314,6 +1342,13 @@ p {
   overflow-x: auto;
   box-shadow: 2px 2px 0 var(--secondary);
   margin-bottom: 1rem;
+}
+
+[data-theme="dark"] .archive-code-snippet {
+  background: #060b14;
+  color: #93c5fd;
+  border-color: #ff3366;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.4);
 }
 
 .archive-snippet-pill {
@@ -1601,6 +1636,12 @@ p {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border-radius: 3px;
+}
+
+[data-theme="dark"] .article-type-pill {
+  background: #1f3555;
+  color: #f0f4fc;
+  border: 1px solid #3b5275;
 }
 
 .article-status-pill {
@@ -2096,17 +2137,37 @@ p {
 .difficulty-chip.easy {
   background: #d8e2ff;
   color: #00275b;
+  border-color: #00275b;
 }
 
 .difficulty-chip.medium {
-  background: #f0edea;
-  color: var(--primary);
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #d97706;
 }
 
 .difficulty-chip.hard {
   background: #ffdada;
   border-color: var(--secondary);
   color: var(--secondary);
+}
+
+[data-theme="dark"] .difficulty-chip.easy {
+  background: #0f2e22;
+  color: #86efac;
+  border-color: #22c55e;
+}
+
+[data-theme="dark"] .difficulty-chip.medium {
+  background: #3a2f24;
+  color: #f4d7a1;
+  border-color: #d6a85f;
+}
+
+[data-theme="dark"] .difficulty-chip.hard {
+  background: #3d0c1b;
+  color: #ff8aa8;
+  border-color: #ff3366;
 }
 
 .ctf-mission-sections {
