@@ -3,7 +3,7 @@ name: "Threat Cluster 37[.]49[.]230[.]40"
 aliases: []
 status: "tracking"
 origin: "Unknown / observed staging infrastructure"
-motivation: ""
+motivation: "Automated distributed ingress staging and multi-architecture malware delivery designed for Linux server and IoT botnet recruitment, infrastructure expansion, and remote execution."
 targets: []
 firstSeen: "2026-08-19"
 lastSeen: "2026-08-19"
