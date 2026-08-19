@@ -642,6 +642,7 @@ p {
   inset: 16px;
   border: 2px dashed rgba(255, 255, 255, 0.6);
   border-radius: inherit;
+  pointer-events: none;
 }
 
 .identity-initials {
@@ -656,12 +657,15 @@ p {
   right: -1rem;
   bottom: 1.2rem;
   padding: 0.4rem 0.7rem;
-  background: var(--primary);
+  background: #091426;
   color: #ffffff;
   font: 700 0.66rem "JetBrains Mono", monospace;
   letter-spacing: 0.08em;
   transform: rotate(3deg);
   box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  z-index: 2;
 }
 
 .identity-tape {
@@ -670,13 +674,43 @@ p {
   right: 1.5rem;
   padding: 0.35rem 0.8rem;
   background: #d8e3fb;
-  border: 1px solid var(--primary);
-  color: var(--primary);
+  border: 1.5px solid #091426;
+  color: #091426;
   font: 700 0.65rem "JetBrains Mono", monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transform: rotate(8deg);
-  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.15);
+  border-radius: 2px;
+  z-index: 2;
+}
+
+[data-theme="dark"] .identity-card {
+  border-color: var(--primary);
+  box-shadow: 8px 8px 0 #000000;
+}
+
+[data-theme="dark"] .identity-card::before {
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="dark"] .identity-avatar-img {
+  border-color: #0b1424;
+  box-shadow: 3px 3px 0 #000000;
+}
+
+[data-theme="dark"] .identity-label {
+  background: #0b1424;
+  color: #f0f4fc;
+  border: 1.5px solid #ff3366;
+  box-shadow: 2px 2px 0 #000000;
+}
+
+[data-theme="dark"] .identity-tape {
+  background: #1e293b;
+  color: #93c5fd;
+  border-color: #3b5275;
+  box-shadow: 2px 2px 0 #000000;
 }
 
 .content-section {
