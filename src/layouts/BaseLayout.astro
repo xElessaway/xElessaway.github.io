@@ -186,8 +186,70 @@ const ogImage = image
         }
       });
 
+      const setupCollapsibleTables = () => {
+        document.querySelectorAll(".prose table").forEach((table) => {
+          if (!(table instanceof HTMLTableElement) || table.dataset.collapsedInitialized) {
+            return;
+          }
+          table.dataset.collapsedInitialized = "true";
+
+          const rows = table.querySelectorAll("tbody tr");
+          const rowCount = rows.length;
+
+          // Only collapse tables that have more than 10 rows
+          if (rowCount <= 10) {
+            // Still ensure responsive wrapper if not already present
+            const existingWrap = table.closest(".table-responsive-wrap, .table-collapse-wrap");
+            if (!existingWrap) {
+              const resWrap = document.createElement("div");
+              resWrap.className = "table-responsive-wrap";
+              table.parentNode?.insertBefore(resWrap, table);
+              resWrap.appendChild(table);
+            }
+            return;
+          }
+
+          // Build collapsible container
+          const collapseWrap = document.createElement("div");
+          collapseWrap.className = "table-collapse-wrap is-collapsed";
+
+          const resWrap = document.createElement("div");
+          resWrap.className = "table-responsive-wrap";
+
+          const toggleBar = document.createElement("div");
+          toggleBar.className = "table-toggle-bar";
+
+          const toggleBtn = document.createElement("button");
+          toggleBtn.type = "button";
+          toggleBtn.className = "table-toggle-btn";
+          toggleBtn.innerHTML = `<span>Show All ${rowCount} Records</span> <span class="material-symbols-outlined" style="font-size:16px;">expand_more</span>`;
+
+          toggleBtn.addEventListener("click", () => {
+            const isCollapsed = collapseWrap.classList.toggle("is-collapsed");
+            if (isCollapsed) {
+              toggleBtn.innerHTML = `<span>Show All ${rowCount} Records</span> <span class="material-symbols-outlined" style="font-size:16px;">expand_more</span>`;
+              collapseWrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            } else {
+              toggleBtn.innerHTML = `<span>Collapse Table (${rowCount} Records)</span> <span class="material-symbols-outlined" style="font-size:16px;">expand_less</span>`;
+            }
+          });
+
+          toggleBar.appendChild(toggleBtn);
+
+          // Insert structure around table
+          table.parentNode?.insertBefore(collapseWrap, table);
+          resWrap.appendChild(table);
+          collapseWrap.appendChild(resWrap);
+          collapseWrap.appendChild(toggleBar);
+        });
+      };
+
       setZoomableState();
-      document.addEventListener("astro:page-load", setZoomableState);
+      setupCollapsibleTables();
+      document.addEventListener("astro:page-load", () => {
+        setZoomableState();
+        setupCollapsibleTables();
+      });
     </script>
   </body>
 </html>

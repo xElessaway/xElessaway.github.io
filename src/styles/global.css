@@ -1826,6 +1826,80 @@ p {
   box-shadow: 2px 2px 0 var(--primary);
 }
 
+.prose .table-collapse-wrap {
+  margin: 1.5rem 0;
+  border: 2px solid var(--primary);
+  border-radius: 6px;
+  background: var(--surface-low);
+  box-shadow: 2px 2px 0 var(--primary);
+  overflow: hidden;
+  position: relative;
+}
+
+.prose .table-collapse-wrap.is-collapsed {
+  max-height: 480px;
+}
+
+.prose .table-collapse-wrap.is-collapsed .table-responsive-wrap {
+  overflow-y: hidden;
+}
+
+.prose .table-collapse-wrap.is-collapsed::after {
+  content: "";
+  position: absolute;
+  bottom: 44px;
+  left: 0;
+  right: 0;
+  height: 90px;
+  background: linear-gradient(to bottom, transparent, var(--surface-low));
+  pointer-events: none;
+  z-index: 2;
+}
+
+.prose .table-collapse-wrap .table-responsive-wrap {
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.prose .table-toggle-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  background: var(--surface-panel);
+  border-top: 1.5px solid var(--primary);
+  position: relative;
+  z-index: 3;
+}
+
+.prose .table-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: var(--surface);
+  border: 1.5px solid var(--primary);
+  border-radius: 4px;
+  color: var(--primary);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--primary);
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+.prose .table-toggle-btn:hover {
+  background: var(--secondary);
+  color: #ffffff;
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--primary);
+}
+
 .prose table {
   width: 100%;
   min-width: 100%;
@@ -1839,7 +1913,8 @@ p {
   box-shadow: 2px 2px 0 var(--primary);
 }
 
-.prose .table-responsive-wrap table {
+.prose .table-responsive-wrap table,
+.prose .table-collapse-wrap table {
   margin: 0;
   border: none;
   box-shadow: none;

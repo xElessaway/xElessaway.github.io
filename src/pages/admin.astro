@@ -993,6 +993,31 @@ const existingCtfJson = JSON.stringify(ctfChallenges).replace(/</g, "\\u003c");
       return res;
     }
 
+    function sanitizeStudioSecrets(text) {
+      if (!text) return "";
+      let out = String(text);
+      out = out.replace(/\b(?:gh[pousr]_[A-Za-z0-9_]{10,255}|github_pat_[A-Za-z0-9_]{20,255})\b/g, '[REDACTED_GITHUB_TOKEN]');
+      out = out.replace(/\bglpat-[A-Za-z0-9_-]{10,}\b/g, '[REDACTED_GITLAB_TOKEN]');
+      out = out.replace(/\bnpm_[A-Za-z0-9]{10,}\b/g, '[REDACTED_NPM_TOKEN]');
+      out = out.replace(/\bpypi-[A-Za-z0-9_-]{10,}\b/g, '[REDACTED_PYPI_TOKEN]');
+      out = out.replace(/\b(?:AKIA|ASIA)[0-9A-Z]{16}\b/g, '[REDACTED_AWS_ACCESS_KEY]');
+      out = out.replace(/\bGOCSPX-[A-Za-z0-9_-]{10,60}\b/g, '[REDACTED_GOOGLE_OAUTH_CLIENT_SECRET]');
+      out = out.replace(/\bAIza[0-9A-Za-z_-]{30,}\b/g, '[REDACTED_GOOGLE_API_KEY]');
+      out = out.replace(/\bsk-(?:proj-|svcacct-|admin-)?[A-Za-z0-9_-]{20,}\b/g, '[REDACTED_OPENAI_API_KEY]');
+      out = out.replace(/\bsk-ant-[A-Za-z0-9_-]{20,}\b/g, '[REDACTED_ANTHROPIC_API_KEY]');
+      out = out.replace(/\bgsk_[A-Za-z0-9]{20,}\b/g, '[REDACTED_GROQ_API_KEY]');
+      out = out.replace(/\bhf_[A-Za-z0-9]{20,}\b/g, '[REDACTED_HUGGINGFACE_TOKEN]');
+      out = out.replace(/\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g, '[REDACTED_SLACK_TOKEN]');
+      out = out.replace(/\bSG\.[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{20,}\b/g, '[REDACTED_SENDGRID_API_KEY]');
+      out = out.replace(/\bsk_(?:live|test)_[A-Za-z0-9]{16,}\b/g, '[REDACTED_STRIPE_KEY]');
+      out = out.replace(/`gh[pousr]_[^`]*\[redacted\]`/gi, '`[REDACTED_GITHUB_TOKEN]`');
+      out = out.replace(/`GOCS[^`]*\[redacted\]`/gi, '`[REDACTED_GOOGLE_OAUTH_CLIENT_SECRET]`');
+      out = out.replace(/`AIza[^`]*\[redacted\]`/gi, '`[REDACTED_GOOGLE_API_KEY]`');
+      out = out.replace(/`sk-[^`]*\[redacted\]`/gi, '`[REDACTED_API_KEY]`');
+      out = out.replace(/`eyJ[^`]*\[redacted\]`/gi, '`[REDACTED_JWT_TOKEN]`');
+      return out;
+    }
+
     // Toolbar Buttons
     document.querySelectorAll("[data-tool]").forEach((btn) => {
       btn.addEventListener("click", () => {
@@ -1432,6 +1457,7 @@ ${editor.value}`;
           }
         } catch (e) {}
 
+        markdownContent = sanitizeStudioSecrets(markdownContent);
         const utf8Bytes = new TextEncoder().encode(markdownContent);
         let binary = "";
         for (let i = 0; i < utf8Bytes.length; i++) {
