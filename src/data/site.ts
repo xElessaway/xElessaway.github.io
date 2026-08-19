@@ -7,10 +7,6 @@ export const siteMeta = {
   siteUrl: "https://xelessaway.github.io",
   socials: [
     {
-      label: "GitHub",
-      href: "https://github.com/xelessaway"
-    },
-    {
       label: "LinkedIn",
       href: "https://www.linkedin.com/in/ahmedelessaway/"
     },

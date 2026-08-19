@@ -4,7 +4,7 @@ description: "Technical teardown of a sophisticated C-based malware development 
 publishedAt: 2026-08-16
 archiveSection: reports
 tags: ["threat-intelligence","malware-analysis","byovd","mythic-c2","github-c2","edr-evasion"]
-cover: "/images/posts/exposed-quickdav-malware-distribution-repository-and-remcos-rat-infrastructure/img-01.png"
+cover: "/images/posts/imikom-agent-analyzing-github-and-google-sheets-cloud-dead-drop-c2-tradecraft/img-01.png"
 featured: false
 draft: false
 ---

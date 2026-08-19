@@ -49,44 +49,72 @@ const actors = (await getCollection("actors")).sort((a, b) => {
 
     {
       actors.length > 0 ? (
-        <div class="archive-cards-grid">
-          {
-            actors.map((actor) => (
-              <article
-                class="archive-folder-card"
-                data-dossier-card
-                data-status={actor.data.status}
-                data-tags={actor.data.tags.join("|")}
-                data-search={[actor.data.name, ...actor.data.aliases, ...actor.data.tags].join(" ").toLowerCase()}
-              >
-                <div class="archive-folder-tab" aria-hidden="true"></div>
-                <a href={`/threat-intelligence/${actor.slug}/`} class="archive-folder-content">
-                  <div class="archive-folder-top">
-                    <Icon name="policy" size={24} class="archive-card-icon" />
-                    <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
-                  </div>
+        <>
+          <div class="archive-cards-grid" id="dossier-cards-grid">
+            {
+              actors.map((actor) => {
+                const searchTokens = [
+                  actor.data.name,
+                  ...(actor.data.aliases || []),
+                  ...(actor.data.tags || []),
+                  actor.data.motivation,
+                  actor.data.origin,
+                  actor.data.status,
+                  actor.slug
+                ].filter(Boolean).join(" ").toLowerCase();
 
-                  <h3 class="archive-folder-title">{actor.data.name}</h3>
-                  <p class="archive-folder-excerpt">{actor.data.motivation}</p>
+                return (
+                  <article
+                    class="archive-folder-card"
+                    data-dossier-card
+                    data-status={actor.data.status}
+                    data-tags={actor.data.tags.join("|")}
+                    data-search={searchTokens}
+                  >
+                    <div class="archive-folder-tab" aria-hidden="true"></div>
+                    <a href={`/threat-intelligence/${actor.slug}/`} class="archive-folder-content">
+                      <div class="archive-folder-top">
+                        <Icon name="policy" size={24} class="archive-card-icon" />
+                        <span class:list={["status-pill", actor.data.status]}>{actor.data.status}</span>
+                      </div>
 
-                  <div class="archive-tag-cloud" style="margin-top: auto; padding-top: 0.5rem;">
-                    {actor.data.tags.slice(0, 3).map((tag) => (
-                      <span class="archive-tag-chip">#{tag}</span>
-                    ))}
-                  </div>
-                </a>
+                      <h3 class="archive-folder-title">{actor.data.name}</h3>
+                      <p class="archive-folder-excerpt">{actor.data.motivation}</p>
 
-                <div class="archive-folder-footer">
-                  <span class="archive-read-time">{actor.data.origin || "Global"}</span>
-                  <a href={`/threat-intelligence/${actor.slug}/`} class="archive-folder-arrow" aria-label={`View ${actor.data.name}`}>
-                    <span>VIEW DOSSIER</span>
-                    <Icon name="east" size={16} />
-                  </a>
-                </div>
-              </article>
-            ))
-          }
-        </div>
+                      <div class="archive-tag-cloud" style="margin-top: auto; padding-top: 0.5rem;">
+                        {actor.data.tags.slice(0, 3).map((tag) => (
+                          <span class="archive-tag-chip">#{tag}</span>
+                        ))}
+                      </div>
+                    </a>
+
+                    <div class="archive-folder-footer">
+                      <span class="archive-read-time">{actor.data.origin || "Global"}</span>
+                      <a href={`/threat-intelligence/${actor.slug}/`} class="archive-folder-arrow" aria-label={`View ${actor.data.name}`}>
+                        <span>VIEW DOSSIER</span>
+                        <Icon name="east" size={16} />
+                      </a>
+                    </div>
+                  </article>
+                );
+              })
+            }
+          </div>
+
+          <!-- Empty State when search returns 0 matches -->
+          <div class="archive-empty-state" id="dossier-empty-state" hidden style="margin-top: 2rem; padding: 3rem 2rem; text-align: center; border: 2px dashed var(--line); border-radius: 8px; background: var(--surface-low);">
+            <div style="margin-inline: auto; color: var(--secondary); margin-bottom: 0.75rem; display: flex; justify-content: center;">
+              <Icon name="search_off" size={40} />
+            </div>
+            <h2 style="font-size: 1.3rem; margin-bottom: 0.5rem;">No Matching Adversary Dossiers</h2>
+            <p style="color: var(--text-muted); max-width: 50ch; margin: 0 auto 1.5rem; font-size: 0.92rem;">
+              No threat actor profiles match your query. Try searching by cluster IP, actor name, tag, or TTP keyword.
+            </p>
+            <button type="button" class="button button-primary" id="dossier-reset-btn">
+              <span>Clear Filter</span>
+            </button>
+          </div>
+        </>
       ) : (
         <div class="archive-featured-card" style="padding: 2.5rem; background: var(--surface-low);">
           <div class="status-stamp" style="margin-bottom: 1rem;">
@@ -113,4 +141,49 @@ const actors = (await getCollection("actors")).sort((a, b) => {
       )
     }
   </div>
+
+  <script>
+    const searchInput = document.getElementById("dossier-search") as HTMLInputElement | null;
+    const cards = document.querySelectorAll("[data-dossier-card]");
+    const emptyState = document.getElementById("dossier-empty-state");
+    const resetBtn = document.getElementById("dossier-reset-btn");
+
+    function filterDossiers() {
+      const query = (searchInput?.value || "").trim().toLowerCase();
+      let visibleCount = 0;
+
+      cards.forEach((card) => {
+        const item = card as HTMLElement;
+        const searchContent = item.dataset.search || "";
+        const isMatch = !query || searchContent.includes(query);
+
+        if (isMatch) {
+          item.style.display = "flex";
+          visibleCount++;
+        } else {
+          item.style.display = "none";
+        }
+      });
+
+      if (emptyState) {
+        emptyState.hidden = visibleCount > 0;
+      }
+    }
+
+    searchInput?.addEventListener("input", filterDossiers);
+    searchInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        if (searchInput) searchInput.value = "";
+        filterDossiers();
+      }
+    });
+
+    resetBtn?.addEventListener("click", () => {
+      if (searchInput) {
+        searchInput.value = "";
+        searchInput.focus();
+      }
+      filterDossiers();
+    });
+  </script>
 </BaseLayout>
