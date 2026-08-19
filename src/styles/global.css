@@ -1711,15 +1711,23 @@ p {
   color: var(--text);
   font-size: 1.05rem;
   line-height: 1.75;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .prose h1, .prose h2, .prose h3, .prose h4 {
   margin: 2rem 0 1rem;
   line-height: 1.25;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.prose h1 {
+  font-size: clamp(1.8rem, 3.5vw, 2.2rem);
 }
 
 .prose h2 {
-  font-size: 1.85rem;
+  font-size: clamp(1.4rem, 2.8vw, 1.85rem);
   border-bottom: 2px solid var(--primary);
   padding-bottom: 0.4rem;
 }
@@ -1730,6 +1738,8 @@ p {
 
 .prose p {
   margin-bottom: 1.4rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .prose blockquote {
@@ -1806,28 +1816,47 @@ p {
   text-underline-offset: 3px;
 }
 
+.prose .table-responsive-wrap {
+  width: 100%;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 2px solid var(--primary);
+  border-radius: 6px;
+  background: var(--surface-low);
+  box-shadow: 2px 2px 0 var(--primary);
+}
+
 .prose table {
   width: 100%;
+  min-width: 100%;
   margin: 1.5rem 0;
   border-collapse: collapse;
   border: 2px solid var(--primary);
-  display: block;
-  overflow-x: auto;
+  display: table;
   font-size: 0.88rem;
   background: var(--surface-low);
   border-radius: 6px;
+  box-shadow: 2px 2px 0 var(--primary);
+}
+
+.prose .table-responsive-wrap table {
+  margin: 0;
+  border: none;
+  box-shadow: none;
 }
 
 .prose th, .prose td {
   padding: 0.75rem 1rem;
   border: 1px solid var(--line-soft);
   text-align: left;
+  vertical-align: middle;
 }
 
 .prose th {
   background: var(--surface-panel);
   font-family: "Bricolage Grotesque", sans-serif;
   font-weight: 700;
+  color: var(--text);
 }
 
 .prose code {

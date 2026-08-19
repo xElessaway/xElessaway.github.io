@@ -690,6 +690,8 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     margin: 1.75rem 0 0.75rem;
     font-family: "Bricolage Grotesque", sans-serif;
     font-weight: 800;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .dossier-prose-card p,
@@ -699,6 +701,8 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     margin-bottom: 1.25rem;
     line-height: 1.7;
     font-size: 0.95rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .dossier-prose-card li {
@@ -715,8 +719,7 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     background: var(--surface-low);
     border: 2px solid var(--primary);
     border-radius: 6px;
-    overflow-x: auto;
-    display: block;
+    display: table;
     box-shadow: 2px 2px 0 var(--primary);
   }
 
