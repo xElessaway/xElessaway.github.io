@@ -26,7 +26,7 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
   section="Threat Intelligence"
   tags={entry.data.tags}
 >
-  <div class="article-dossier-container">
+  <div class="article-dossier-container dossier-wide-container">
     <!-- Top Back Navigation Bar -->
     <nav class="article-breadcrumb-bar">
       <a href="/threat-intelligence/" class="article-back-link">
@@ -156,6 +156,17 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
 </BaseLayout>
 
 <style>
+  .dossier-wide-container {
+    max-width: 1140px;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  /* Prevent duplicate title when markdown includes a top-level H1 */
+  .article-prose > :global(h1:first-child) {
+    display: none;
+  }
+
   .article-status-pill.tracking {
     background: #f59e0b1a;
     border-color: #f59e0b;
