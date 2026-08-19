@@ -20,7 +20,9 @@ const preservedEntries = new Set([
   "public",
   "scripts",
   "src",
-  "tsconfig.json"
+  "tsconfig.json",
+  "Full_Agent",
+  "threat_intel_acquisitions"
 ]);
 
 async function sync() {

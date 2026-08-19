@@ -708,15 +708,16 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
 
   .dossier-prose-card table {
     width: 100%;
+    min-width: 100%;
     border-collapse: collapse;
     margin: 1.5rem 0;
     font-size: 0.88rem;
     background: var(--surface-low);
     border: 2px solid var(--primary);
     border-radius: 6px;
-    overflow: hidden;
-    display: block;
     overflow-x: auto;
+    display: block;
+    box-shadow: 2px 2px 0 var(--primary);
   }
 
   .dossier-prose-card th,
@@ -726,6 +727,7 @@ const relatedPosts = allPosts.filter((post) => entry.data.relatedPosts?.includes
     border-bottom: 1px solid var(--line-soft);
     border-right: 1px solid var(--line-soft);
     color: var(--text);
+    vertical-align: middle;
   }
 
   .dossier-prose-card th {
