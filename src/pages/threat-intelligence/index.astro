@@ -1,14 +1,16 @@
 ---
 import { getCollection } from "astro:content";
-import { readdir } from "node:fs/promises";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Icon from "../../components/Icon.astro";
 
-const actors = (await getCollection("actors")).sort((a, b) => a.data.name.localeCompare(b.data.name));
-const allTags = [...new Set(actors.flatMap((entry) => entry.data.tags))].sort((a, b) => a.localeCompare(b));
-const statuses = ["all", "active", "tracking", "disrupted", "historic"];
-const activeActors = actors.filter((entry) => entry.data.status === "active").length;
-const trackingActors = actors.filter((entry) => entry.data.status === "tracking").length;
+const actors = (await getCollection("actors")).sort((a, b) => {
+  const dateA = new Date(a.data.lastSeen || a.data.firstSeen || 0).getTime();
+  const dateB = new Date(b.data.lastSeen || b.data.firstSeen || 0).getTime();
+  if (dateB !== dateA) {
+    return dateB - dateA;
+  }
+  return b.slug.localeCompare(a.slug);
+});
 ---
 
 <BaseLayout
