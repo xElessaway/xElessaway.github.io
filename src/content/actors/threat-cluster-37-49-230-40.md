@@ -1,10 +1,10 @@
 ---
 name: "Threat Cluster 37[.]49[.]230[.]40"
 aliases: []
-status: "active"
+status: ""
 origin: "Unknown / observed staging infrastructure"
-motivation: "Targeted reconnaissance, credential harvesting, and staging infrastructure."
-targets: ["Enterprise Networks & Staging Targets"]
+motivation: ""
+targets: []
 firstSeen: "2026-08-19"
 lastSeen: "2026-08-19"
 tools: []
@@ -21,7 +21,7 @@ featured: true
 ### Evidence Coverage
 
 | Metric | Value |
-|---|---:|
+|---|---|
 | Acquired artifacts | 11 |
 | Text artifacts | 7 |
 | Binary/container artifacts | 4 |
