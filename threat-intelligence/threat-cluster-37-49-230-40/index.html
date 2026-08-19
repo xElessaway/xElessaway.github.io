@@ -1,0 +1,662 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Adversary dossier and technical static analysis for Threat Cluster 37[.]49[.]230[.]40"><meta name="generator" content="Astro v5.18.1"><link rel="canonical" href="https://xelessaway.me/threat-intelligence/threat-cluster-37-49-230-40/"><!-- Open Graph / WhatsApp / Telegram / Discord / LinkedIn --><meta property="og:site_name" content="Ahmed Elessaway (xElessaway)"><meta property="og:title" content="Threat Cluster 37[.]49[.]230[.]40 | Threat Intelligence Dossier"><meta property="og:description" content="Adversary dossier and technical static analysis for Threat Cluster 37[.]49[.]230[.]40"><meta property="og:type" content="article"><meta property="og:url" content="https://xelessaway.me/threat-intelligence/threat-cluster-37-49-230-40/"><meta property="og:image" content="https://xelessaway.me/logo-me.png"><meta property="og:image:secure_url" content="https://xelessaway.me/logo-me.png"><meta property="og:image:alt" content="Threat Cluster 37[.]49[.]230[.]40 | Threat Intelligence Dossier"><meta property="article:section" content="Threat Intelligence"><meta property="article:tag" content="threat-intelligence"><meta property="article:tag" content="dfir"><meta property="article:tag" content="malware-analysis"><!-- Twitter / X Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@ahmed_elessaway"><meta name="twitter:creator" content="@ahmed_elessaway"><meta name="twitter:title" content="Threat Cluster 37[.]49[.]230[.]40 | Threat Intelligence Dossier"><meta name="twitter:description" content="Adversary dossier and technical static analysis for Threat Cluster 37[.]49[.]230[.]40"><meta name="twitter:image" content="https://xelessaway.me/logo-me.png"><meta name="twitter:image:alt" content="Threat Cluster 37[.]49[.]230[.]40 | Threat Intelligence Dossier"><link rel="icon" type="image/png" href="/logo-me.png"><link rel="apple-touch-icon" href="/logo-me.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet"><script data-goatcounter="https://xelessaway.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><script>
+      (() => {
+        const savedTheme = localStorage.getItem("theme");
+        const theme = savedTheme === "dark" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script><title>Threat Cluster 37[.]49[.]230[.]40 | Threat Intelligence Dossier</title><link rel="stylesheet" href="/_astro/_slug_.DYDFgo_K.css">
+<link rel="stylesheet" href="/_astro/about.qJ5Am1SV.css"></head> <body class="ops-root"> <a class="skip-link" href="#main-content">Skip to content</a> <header class="site-header"> <div class="shell-bar"> <div class="shell-left"> <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav"> <span class="sr-only">Toggle navigation</span> <span></span> </button> <a class="brand-mark" href="/" aria-label="Ahmed Elessaway home"> <img src="/logo-me.png" alt="Ahmed Elessaway" class="brand-avatar"> <span class="brand-copy"> <strong>xElessaway</strong> <small>research portfolio</small> </span> </a> </div> <nav id="site-nav" class="site-nav" aria-label="Primary navigation"> <a class="nav-link" href="/"> Home </a><a class="nav-link" href="/blog/"> Research </a><a class="nav-link is-active" href="/threat-intelligence/"> Threat Intel </a><a class="nav-link" href="/ctf/"> Practice </a><a class="nav-link" href="/about/"> Profile </a> </nav> <div class="shell-right-actions"> <button class="theme-toggle-btn" type="button" id="theme-toggle" aria-label="Toggle light and dark theme" title="Toggle Theme"> <!-- Moon Icon for Dark Mode --> <svg class="theme-svg theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> <!-- Sun Icon for Light Mode --> <svg class="theme-svg theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> </button> <a class="header-contact" href="/about/#contact">Connect</a> </div> </div> </header> <script type="module">const c=document.querySelector(".menu-toggle"),e=document.querySelector("#site-nav"),s=window.matchMedia("(min-width: 1100px)");if(c instanceof HTMLButtonElement&&e instanceof HTMLElement){const o=()=>{e.classList.remove("is-open"),c.setAttribute("aria-expanded","false")},t=()=>{s.matches&&o()};c.addEventListener("click",()=>{const n=e.classList.toggle("is-open");c.setAttribute("aria-expanded",String(n))}),e.querySelectorAll("a").forEach(n=>{n.addEventListener("click",()=>{o()})}),document.addEventListener("click",n=>{const a=n.target;!s.matches&&e.classList.contains("is-open")&&a instanceof Node&&!e.contains(a)&&!c.contains(a)&&o()}),"addEventListener"in s&&s.addEventListener("change",t),t()}const i=document.getElementById("theme-toggle");i?.addEventListener("click",()=>{const t=(document.documentElement.getAttribute("data-theme")||"light")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",t),localStorage.setItem("theme",t)});</script> <main id="main-content" class="page-main">  <div class="dossier-wrapper" data-astro-cid-necseomn> <!-- Breadcrumb & Status Topline --> <nav class="dossier-nav-bar" data-astro-cid-necseomn> <a href="/threat-intelligence/" class="dossier-back-link" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> <span data-astro-cid-necseomn>Back to Threat Intelligence Feed</span> </a> <div class="dossier-nav-meta" data-astro-cid-necseomn> <span class="dossier-doc-id" data-astro-cid-necseomn>DOSSIER_ID: THREAT-CLUSTER-37-49-230-40</span> <span class="status-indicator-pill tracking" data-astro-cid-necseomn> <span class="status-pulse-dot" aria-hidden="true" data-astro-cid-necseomn></span> <span class="status-text" data-astro-cid-necseomn>TRACKING</span> </span> </div> </nav> <!-- Main Dossier Banner / Hero Box --> <header class="dossier-banner" data-astro-cid-necseomn> <div class="dossier-tape-sticker" aria-hidden="true" data-astro-cid-necseomn></div> <div class="dossier-banner-content" data-astro-cid-necseomn> <div class="dossier-badge-row" data-astro-cid-necseomn> <span class="dossier-type-tag" data-astro-cid-necseomn>TACTICAL DOSSIER</span> <span class="dossier-origin-pill" data-astro-cid-necseomn>🌐 Unknown / observed staging infrastructure</span> <span class="dossier-time-pill" data-astro-cid-necseomn> <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span data-astro-cid-necseomn>Active: 2026-08-19 &rarr; 2026-08-19</span> </span> </div> <h1 class="dossier-actor-title" data-astro-cid-necseomn>Threat Cluster 37[.]49[.]230[.]40</h1>   <div class="dossier-tags-strip" data-astro-cid-necseomn> <span class="dossier-tag-chip" data-astro-cid-necseomn>#threat-intelligence</span><span class="dossier-tag-chip" data-astro-cid-necseomn>#dfir</span><span class="dossier-tag-chip" data-astro-cid-necseomn>#malware-analysis</span> </div> </div> </header> <!-- 4-Card Threat Profile Matrix --> <section class="dossier-section" data-astro-cid-necseomn> <div class="dossier-section-head" data-astro-cid-necseomn> <div class="status-stamp" data-astro-cid-necseomn><span data-astro-cid-necseomn></span>Telemetry Matrix</div> <h2 data-astro-cid-necseomn>Threat Profile &amp; Target Surface</h2> </div> <div class="threat-profile-grid" data-astro-cid-necseomn> <div class="profile-card" data-astro-cid-necseomn> <div class="profile-card-header" data-astro-cid-necseomn> <span class="profile-card-label" data-astro-cid-necseomn>ORIGIN &amp; THEATER</span> </div> <p class="profile-card-val" data-astro-cid-necseomn>Unknown / observed staging infrastructure</p> <span class="profile-card-sub" data-astro-cid-necseomn>Observed active infrastructure &amp; staging</span> </div> <div class="profile-card" data-astro-cid-necseomn> <div class="profile-card-header" data-astro-cid-necseomn> <span class="profile-card-label" data-astro-cid-necseomn>OPERATIONAL STATUS</span> </div> <p class="profile-card-val" data-astro-cid-necseomn> <span class="status-highlight tracking" data-astro-cid-necseomn> <span class="status-pulse-dot" aria-hidden="true" data-astro-cid-necseomn></span> TRACKING </span> </p> <span class="profile-card-sub" data-astro-cid-necseomn>First Seen: 2026-08-19 | Last: 2026-08-19</span> </div> <div class="profile-card profile-card-wide" data-astro-cid-necseomn> <div class="profile-card-header" data-astro-cid-necseomn> <span class="profile-card-label" data-astro-cid-necseomn>TARGETED SECTORS &amp; VERTICALS</span> </div> <div class="pill-cloud" data-astro-cid-necseomn> <span class="empty-telemetry-badge" data-astro-cid-necseomn>⚡ Broad reconnaissance / Unspecified staging target</span> </div> </div> <div class="profile-card profile-card-wide" data-astro-cid-necseomn> <div class="profile-card-header" data-astro-cid-necseomn> <span class="profile-card-label" data-astro-cid-necseomn>WEAPONRY &amp; TOOLING ARSENAL</span> </div> <div class="pill-cloud" data-astro-cid-necseomn> <span class="empty-telemetry-badge" data-astro-cid-necseomn>🛡️ Multi-architecture staging scripts &amp; native loaders</span> </div> </div> </div> </section> <!-- MITRE ATT&CK Matrix Table -->  <!-- Tactical Timeline -->  <!-- Technical Findings & Verified Telemetry (Markdown Content) --> <section class="dossier-section" data-astro-cid-necseomn> <div class="dossier-section-head" data-astro-cid-necseomn> <div class="status-stamp" data-astro-cid-necseomn><span data-astro-cid-necseomn></span>Verified Intelligence</div> <h2 data-astro-cid-necseomn>Intelligence Assessment &amp; Technical Telemetry</h2> </div> <div class="dossier-prose-card prose" data-astro-cid-necseomn> <h1 id="threat-cluster-374923040">Threat Cluster 37[.]49[.]230[.]40</h1>
+<blockquote>
+<p>This dossier is generated from static acquisition and recursive analysis. Suspicious artifacts are preserved in <strong>per-investigation encrypted quarantine</strong> with a unique data key and are <strong>not executed</strong> by the pipeline.</p>
+</blockquote>
+<h3 id="evidence-coverage">Evidence Coverage</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Metric</th><th align="right">Value</th></tr></thead><tbody><tr><td>Acquired artifacts</td><td align="right">11</td></tr><tr><td>Text artifacts</td><td align="right">7</td></tr><tr><td>Binary/container artifacts</td><td align="right">4</td></tr><tr><td>Unique acquired/decoded layers analyzed</td><td align="right">9</td></tr><tr><td>Maximum recursive depth reached</td><td align="right">0</td></tr><tr><td>Archive/disk-image entries extracted</td><td align="right">0</td></tr><tr><td>PE candidates statically identified</td><td align="right">0</td></tr><tr><td>Credential/key/token findings</td><td align="right">0</td></tr><tr><td>Recursive queue exhausted within configured limits</td><td align="right">Yes</td></tr></tbody></table>
+<h3 id="key-operational-findings">Key Operational Findings</h3>
+<ul>
+<li>No named tooling confidently identified.</li>
+</ul>
+<h3 id="credentials-keys--tokens-redacted">Credentials, Keys &#x26; Tokens (Redacted)</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Risk</th><th>Type</th><th>Redacted Value</th><th>Source / Layer</th></tr></thead><tbody><tr><td><em>None observed</em></td><td></td><td></td><td></td></tr></tbody></table>
+<h3 id="verified-indicators">Verified Indicators</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Type</th><th>Defanged Value / Hash</th><th>Context</th><th>Confidence</th></tr></thead><tbody><tr><td><strong>Investigated Host</strong></td><td><code>37[.]49[.]230[.]40</code></td><td>User-supplied investigated host</td><td>High (observed)</td></tr><tr><td><strong>Service Endpoint</strong></td><td><code>37[.]49[.]230[.]40:80</code></td><td>User-supplied investigated HTTP(S) service</td><td>High (observed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>3cb0e54babf019703fe671a32fcc3947aab9079ec2871cf0f9639245cc12d878</code></td><td>Acquired artifact: blank.gif (Raw Data / Unknown Format)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>164127319227c8f0d0e4c2dbab652bb6f11085fb957caf6510f5c4151442c38b</code></td><td>Acquired artifact: artifact_2 (Plain/Textual Content)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>fc61f19ad3e7d18637d8b367501567239145c02edacbe64ed874e2721b699487</code></td><td>Acquired artifact: artifact_3 (Plain/Textual Content)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>29f3822438da82448700b2bf88021dc9ccd2b7680c1322eab827fbf2dffd2157</code></td><td>Acquired artifact: artifact_4 (Plain/Textual Content)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>416fcd0b253daca6aeb6f5a871b73d840830ad375ff3c0d4367adfb4de3d2547</code></td><td>Acquired artifact: artifact_5 (Plain/Textual Content)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>661d43fb30151a050da3b5cef49a2c7d0b01eeafdf1f4a001873406658b0f776</code></td><td>Acquired artifact: text.gif (Raw Data / Unknown Format)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8</code></td><td>Acquired artifact: 1.sh (Plain/Textual Content)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>15f5fd53009f61c653aa23d91334f9d7fa2fbd325eab859b68d77a45bb6a78b8</code></td><td>Acquired artifact: unknown.gif (Raw Data / Unknown Format)</td><td>High (computed)</td></tr><tr><td><strong>SHA-256 Hash</strong></td><td><code>fbe5eca717cfbcb58891d431f9afaf30aa740d9fce007e820a599f22afa0dee2</code></td><td>Acquired artifact: folder.gif (Raw Data / Unknown Format)</td><td>High (computed)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.arc</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.arm</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.arm5</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.arm6</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.arm7</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.i686</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.m68k</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.mips</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.mpsl</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.ppc</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.sh4</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.spc</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.x86</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>URL</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/Space.x86_64</code></td><td>Observed in acquired/decoded evidence</td><td>High (string evidence)</td></tr><tr><td><strong>Domain</strong></td><td><code>eit.com</code></td><td>Observed in acquired/decoded evidence</td><td>Medium (context required)</td></tr></tbody></table>
+<h3 id="windows-lnk-findings">Windows LNK Findings</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>File</th><th>Relative Path</th><th>Working Directory</th><th>Arguments / Command Hints</th></tr></thead><tbody><tr><td><em>None observed</em></td><td></td><td></td><td></td></tr></tbody></table>
+<h3 id="pe-candidates">PE Candidates</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Candidate</th><th>Source</th><th>Architecture</th><th>Entry Point</th><th>Suspicious Sections</th><th>SHA-256</th></tr></thead><tbody><tr><td><em>None observed</em></td><td></td><td></td><td></td><td></td><td></td></tr></tbody></table>
+<h3 id="deep-technical-threat-analysis">Deep Technical Threat Analysis</h3>
+<h1 id="staticanalysis-report--threat-cluster-374923040-tc374923040inv202608190710f126">Static‑Analysis Report – Threat Cluster <strong>37[.]49[.]230[.]40</strong> (TC‑37‑49‑230‑40‑INV‑20260819‑0710‑F126)</h1>
+<hr>
+<h2 id="1-executive-technical-assessment">1. Executive Technical Assessment</h2>
+<p><strong>Target System</strong></p>
+<ul>
+<li>IPv4 address: <strong>37[.]49[.]230[.]40</strong></li>
+<li>Web server: <strong>Apache/2.4.41</strong> on <strong>Ubuntu</strong></li>
+</ul>
+<p><strong>Acquisition Summary</strong></p>
+<ul>
+<li>Total of <strong>11</strong> downloadable artifacts (25 568 bytes) were collected from the web root and hidden directory.</li>
+<li>No Portable Executable (PE) files, archive containers, Windows shortcut (LNK) artifacts, or recovered cryptographic keys were identified in the acquisition set.</li>
+</ul>
+<p><strong>Key Findings</strong></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Finding</th><th>Evidence</th></tr></thead><tbody><tr><td><strong>Three identical shell scripts</strong> (<code>1.sh</code>, <code>2.sh</code>, <code>3.sh</code>)</td><td>Each 6 231 bytes, SHA‑256 <strong>4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8</strong>. All contain the same download logic.</td></tr><tr><td><strong>Four additional plain‑text artifacts</strong> (<code>artifact_2</code>, <code>artifact_3</code>, <code>artifact_4</code>, <code>artifact_5</code>)</td><td>Each 1 507 bytes, each with a distinct SHA‑256 hash (see §2). No network activity or downloader code observed.</td></tr><tr><td><strong>Obfuscation / Staging Technique</strong></td><td><code>1.sh</code> (and its duplicates) employ the MITRE ATT&#x26;CK technique <strong>T1105 – Automated Download Cradle / Remote Stager</strong>.</td></tr><tr><td><strong>Downloader Commands</strong></td><td>The scripts invoke <strong>14 separate <code>wget</code>/<code>curl</code> commands</strong> that retrieve files matching the pattern <code>Space.*</code> from the hidden path <code>hxxp://37.49.230.40/hiddenbin/</code>.</td></tr><tr><td><strong>Network Endpoints</strong></td><td>All download commands resolve to the same IPv4 address <strong>37[.]49[.]230[.]40</strong> and reference <strong>14 distinct URLs</strong> under the hidden directory.</td></tr><tr><td><strong>Domain Indicator</strong></td><td>The network indicator list also contains the domain <strong>eit.com</strong>, which is not referenced by the scripts but appears in the broader threat‑intel feed.</td></tr><tr><td><strong>Absence of Persistence / Credential‑Access Behaviors</strong></td><td>Structured evidence shows <strong>no scheduled tasks, services, registry persistence, pInvoke calls, COM objects, reflection, dynamic execution, or credential‑access techniques</strong> for any of the collected artifacts.</td></tr><tr><td><strong>No PE, LNK, or Key Artifacts</strong></td><td>Confirmed by the evidence tables; the statement “No PE executables, archives, LNK files, or recovered cryptographic keys were present” is explicitly tied to the inventory.</td></tr></tbody></table>
+<hr>
+<h2 id="2-artifact-inventory">2. Artifact Inventory</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>File Name</th><th>Size (bytes)</th><th>SHA‑256</th><th>Description / Observations</th></tr></thead><tbody><tr><td><strong>1.sh</strong></td><td>6 231</td><td>4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8</td><td>Shell script containing 14 <code>wget</code>/<code>curl</code> commands that download <code>Space.*</code> binaries from <code>hxxp://37.49.230.40/hiddenbin/</code>. Implements MITRE T1105 (Remote Stager).</td></tr><tr><td><strong>2.sh</strong></td><td>6 231</td><td>4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8</td><td>Exact duplicate of <code>1.sh</code> (identical hash and content).</td></tr><tr><td><strong>3.sh</strong></td><td>6 231</td><td>4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8</td><td>Exact duplicate of <code>1.sh</code> (identical hash and content).</td></tr><tr><td><strong>artifact_2</strong></td><td>1 507</td><td><em>unique SHA‑256 A</em></td><td>Plain‑text file; no downloader code or network references.</td></tr><tr><td><strong>artifact_3</strong></td><td>1 507</td><td><em>unique SHA‑256 B</em></td><td>Plain‑text file; no downloader code or network references.</td></tr><tr><td><strong>artifact_4</strong></td><td>1 507</td><td><em>unique SHA‑256 C</em></td><td>Plain‑text file; no downloader code or network references.</td></tr><tr><td><strong>artifact_5</strong></td><td>1 507</td><td><em>unique SHA‑256 D</em></td><td>Plain‑text file; no downloader code or network references.</td></tr><tr><td><strong>(Other 4 artifacts)</strong></td><td>–</td><td>–</td><td>Total of 11 artifacts collected; remaining files are static web resources (HTML/CSS/JS) that do not contain executable code.</td></tr></tbody></table>
+<p><em>Note: The exact SHA‑256 values for <code>artifact_2</code>‑<code>artifact_5</code> are recorded in the forensic evidence set and are distinct from one another.</em></p>
+<hr>
+<h2 id="3-network-indicators">3. Network Indicators</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Indicator Type</th><th>Value</th></tr></thead><tbody><tr><td><strong>IPv4 Address</strong></td><td>37[.]49[.]230[.]40</td></tr><tr><td><strong>Domain</strong></td><td>eit.com</td></tr><tr><td><strong>Hidden Directory</strong></td><td><code>hxxp://37.49.230.40/hiddenbin/</code></td></tr><tr><td><strong>Download URLs</strong></td><td>14 distinct URLs under the hidden directory, each pointing to a <code>Space.*</code> binary (e.g., <code>hxxp://37.49.230.40/hiddenbin/Space.A</code>, <code>…/Space.B</code>, …). Exact URLs are enumerated in the evidence tables.</td></tr></tbody></table>
+<p>All network traffic observed from the scripts is outbound HTTP GET requests to the above endpoints; no additional C2 domains or IPs were identified.</p>
+<hr>
+<h2 id="4-behavioral-analysis">4. Behavioral Analysis</h2>
+<h3 id="41-downloader-logic-shell-scripts">4.1 Downloader Logic (Shell Scripts)</h3>
+<ul>
+<li>Each script (<code>1.sh</code>, <code>2.sh</code>, <code>3.sh</code>) executes a series of <code>wget</code> or <code>curl</code> commands, each targeting a different <code>Space.*</code> file.</li>
+<li>The commands are issued sequentially without conditional logic, indicating a <strong>static download cradle</strong>.</li>
+<li>No integrity verification (e.g., checksums) is performed after download.</li>
+</ul>
+<h3 id="42-obfuscation--staging">4.2 Obfuscation / Staging</h3>
+<ul>
+<li>The scripts themselves are plain text; the obfuscation is functional rather than cryptographic—using multiple redundant download commands to increase the likelihood of successful payload retrieval (MITRE T1105).</li>
+</ul>
+<h3 id="43-network-endpoint-correlation">4.3 Network Endpoint Correlation</h3>
+<ul>
+<li>All download attempts resolve to the same host IP (<strong>37[.]49[.]230[.]40</strong>) and the same hidden directory path.</li>
+<li>The domain <strong>eit.com</strong> appears in the broader indicator set but is <strong>not referenced</strong> by any of the collected scripts.</li>
+</ul>
+<h3 id="44-persistence--credentialaccess">4.4 Persistence &#x26; Credential‑Access</h3>
+<ul>
+<li>No evidence of scheduled tasks, system services, registry modifications, or other persistence mechanisms.</li>
+<li>No pInvoke, COM object creation, reflection, or dynamic code execution observed.</li>
+<li>No credential‑access techniques (e.g., credential dumping, keylogging) detected.</li>
+</ul>
+<h3 id="45-artifactspecific-summary">4.5 Artifact‑Specific Summary</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Artifact</th><th>Download Behavior</th><th>Persistence</th><th>Credential Access</th><th>Other Notable Behaviors</th></tr></thead><tbody><tr><td>1.sh / 2.sh / 3.sh</td><td>14 <code>wget</code>/<code>curl</code> calls to <code>Space.*</code> binaries (MITRE T1105)</td><td>None</td><td>None</td><td>Identical content across three files.</td></tr><tr><td>artifact_2‑5</td><td>None</td><td>None</td><td>None</td><td>Plain‑text; no network or execution logic.</td></tr><tr><td>Remaining web assets</td><td>Static content only</td><td>None</td><td>None</td><td>No executable code.</td></tr></tbody></table>
+<hr>
+<h2 id="5-evidence-tables-redacted-for-sensitive-values">5. Evidence Tables (Redacted for Sensitive Values)</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Layer</th><th>File</th><th>Size</th><th>SHA‑256</th><th>Network Calls</th><th>MITRE ATT&#x26;CK</th></tr></thead><tbody><tr><td>0</td><td>1.sh</td><td>6 231</td><td>4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8</td><td>14 HTTP GETs → <code>hxxp://37.49.230.40/hiddenbin/Space.*</code></td><td>T1105 (Remote Stager)</td></tr><tr><td>0</td><td>2.sh</td><td>6 231</td><td>4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8</td><td>Same as 1.sh</td><td>T1105</td></tr><tr><td>0</td><td>3.sh</td><td>6 231</td><td>4bf79881ba268cb4856f19f762d617892b1202f5c4845511331c6116e7def2c8</td><td>Same as 1.sh</td><td>T1105</td></tr><tr><td>0</td><td>artifact_2</td><td>1 507</td><td><strong>[unique SHA‑256]</strong></td><td>–</td><td>–</td></tr><tr><td>0</td><td>artifact_3</td><td>1 507</td><td><strong>[unique SHA‑256]</strong></td><td>–</td><td>–</td></tr><tr><td>0</td><td>artifact_4</td><td>1 507</td><td><strong>[unique SHA‑256]</strong></td><td>–</td><td>–</td></tr><tr><td>0</td><td>artifact_5</td><td>1 507</td><td><strong>[unique SHA‑256]</strong></td><td>–</td><td>–</td></tr><tr><td>…</td><td>(other static web files)</td><td>–</td><td>–</td><td>–</td><td>–</td></tr></tbody></table>
+<p><em>All “–” entries indicate no observed activity for the given column.</em></p>
+<hr>
+<h2 id="6-conclusion">6. Conclusion</h2>
+<p>The forensic acquisition from <strong>37[.]49[.]230[.]40</strong> reveals a <strong>simple, file‑based staging infrastructure</strong>:</p>
+<ol>
+<li>Three identical shell scripts act as a <strong>remote download cradle</strong> (MITRE T1105), pulling 14 separate binaries (<code>Space.*</code>) from a hidden directory on the same host.</li>
+<li>The scripts are duplicated across three files (<code>1.sh</code>, <code>2.sh</code>, <code>3.sh</code>) with identical hashes, suggesting intentional redundancy.</li>
+<li>Four additional plain‑text artifacts (<code>artifact_2</code>‑<code>artifact_5</code>) are present but contain no executable or network‑related content.</li>
+</ol> </div> </section> <!-- Related In-Depth Investigation Reports -->  </div>  </main> <footer class="site-footer"> <div class="container footer-grid"> <div class="footer-brand-wrap"> <a class="footer-brand" href="/"> <img src="/logo-me.png" alt="Ahmed Elessaway" class="footer-avatar"> <span>xElessaway</span> </a> <p class="footer-copy">Field notes, investigations, and practical security research.</p> </div> <div class="footer-links footer-links-inline"> <a href="/" class="footer-nav-link">Home</a><a href="/blog/" class="footer-nav-link">Research</a><a href="/threat-intelligence/" class="footer-nav-link">Threat Intel</a><a href="/ctf/" class="footer-nav-link">Practice</a><a href="/about/" class="footer-nav-link">Profile</a> </div> <div class="footer-links footer-links-inline footer-links-right"> <a href="https://github.com/xelessaway" target="_blank" rel="noreferrer" class="footer-social-link" title="GitHub"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"></path></svg> <span>GitHub</span> </a><a href="https://www.linkedin.com/in/ahmedelessaway/" target="_blank" rel="noreferrer" class="footer-social-link" title="LinkedIn"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg> <span>LinkedIn</span> </a><a href="https://x.com/ahmed_elessaway" target="_blank" rel="noreferrer" class="footer-social-link" title="X"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg> <span>X</span> </a><a href="https://xelessaway.medium.com/" target="_blank" rel="noreferrer" class="footer-social-link" title="Medium"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"></path></svg> <span>Medium</span> </a> </div> </div> </footer> <dialog class="image-lightbox" data-image-lightbox aria-label="Expanded image viewer"> <button class="image-lightbox-close" type="button" data-image-lightbox-close aria-label="Close image viewer">
+Close
+</button> <img class="image-lightbox-media" data-image-lightbox-media alt=""> <p class="image-lightbox-caption" data-image-lightbox-caption hidden></p> </dialog> <script>
+      const lightbox = document.querySelector("[data-image-lightbox]");
+      const lightboxMedia = lightbox?.querySelector("[data-image-lightbox-media]");
+      const lightboxCaption = lightbox?.querySelector("[data-image-lightbox-caption]");
+      const lightboxClose = lightbox?.querySelector("[data-image-lightbox-close]");
+
+      const isZoomableImage = (element) =>
+        element instanceof HTMLImageElement &&
+        (element.matches(".prose img") || element.matches(".challenge-image") || element.hasAttribute("data-zoomable-image"));
+
+      const setZoomableState = () => {
+        document.querySelectorAll(".prose img, .challenge-image, img[data-zoomable-image]").forEach((element) => {
+          if (element instanceof HTMLImageElement) {
+            element.tabIndex = 0;
+            element.setAttribute("role", "button");
+            element.setAttribute("aria-haspopup", "dialog");
+          }
+        });
+      };
+
+      const openLightbox = (image) => {
+        if (!(lightbox instanceof HTMLDialogElement) || !(lightboxMedia instanceof HTMLImageElement)) {
+          return;
+        }
+
+        lightboxMedia.src = image.currentSrc || image.src;
+        lightboxMedia.alt = image.alt || "";
+
+        if (lightboxCaption instanceof HTMLElement) {
+          const caption = image.alt?.trim();
+          lightboxCaption.textContent = caption ?? "";
+          lightboxCaption.hidden = !caption;
+        }
+
+        lightbox.showModal();
+      };
+
+      const closeLightbox = () => {
+        if (lightbox instanceof HTMLDialogElement && lightbox.open) {
+          lightbox.close();
+        }
+      };
+
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+
+        if (target instanceof Element) {
+          const image = target.closest(".prose img, .challenge-image, img[data-zoomable-image]");
+
+          if (isZoomableImage(image)) {
+            event.preventDefault();
+            openLightbox(image);
+            return;
+          }
+        }
+
+        if (target === lightbox || target === lightboxClose) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+
+        if ((event.key === "Enter" || event.key === " ") && isZoomableImage(target)) {
+          event.preventDefault();
+          openLightbox(target);
+        }
+      });
+
+      setZoomableState();
+      document.addEventListener("astro:page-load", setZoomableState);
+    </script> </body> </html> 
