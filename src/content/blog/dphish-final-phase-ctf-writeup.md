@@ -4,7 +4,7 @@ description: "A practical walkthrough of dPhish Final Phase CTF, tracing a phish
 publishedAt: 2026-09-29
 archiveSection: writeups
 tags: ["CTF","Writeup","dPhish","Phishing","Email Security","Threat Hunting","Incident Response","DFIR","YARA","PowerShell","CyberDefenders","Blue Team"]
-cover: ""
+cover: "/images/uploads/dphish.png"
 featured: true
 draft: false
 sourceUrl: "https://xelessaway.medium.com/dphish-final-phase-ctf-writeup"
