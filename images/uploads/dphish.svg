@@ -34,16 +34,6 @@
     <path d="M0 520C165 510 210 550 280 532C350 515 400 470 494 480C570 488 600 545 684 542C780 539 822 492 900 495C1003 499 1030 555 1120 560C1223 566 1260 513 1344 512C1425 511 1485 550 1600 530"/>
   </g>
 
-  <g fill="#dfeeff" opacity="0.65">
-    <g transform="translate(90 730)">
-      <circle cx="0" cy="0" r="3"/><circle cx="12" cy="0" r="3"/><circle cx="24" cy="0" r="3"/>
-      <circle cx="36" cy="0" r="3"/><circle cx="48" cy="0" r="3"/><circle cx="60" cy="0" r="3"/>
-      <circle cx="72" cy="0" r="3"/><circle cx="84" cy="0" r="3"/>
-      <circle cx="96" cy="0" r="3"/><circle cx="108" cy="0" r="3"/>
-      <circle cx="120" cy="0" r="3"/>... etc
-    </g>
-  </g>
-
   <g transform="translate(820 150)" filter="url(#softGlow)">
     <path d="M80 90C80 52 110 20 147 20C184 20 215 52 215 90L215 128C215 165 184 196 147 196C110 196 80 165 80 128L80 90Z" fill="none" stroke="#36d4ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M110 96L147 132L184 96" fill="none" stroke="#36d4ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -55,7 +45,7 @@
     <path d="M155 232L176 250" fill="none" stroke="#36d4ff" stroke-width="7" stroke-linecap="round"/>
   </g>
 
-  <g transform="translate(0 0)">
+  <g>
     <text x="800" y="455" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="52" font-weight="600" letter-spacing="0.2" fill="#f5fbff">Maximize your return</text>
     <text x="800" y="628" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="28" font-weight="700" fill="#99d8ff">dPhish</text>
     <text x="800" y="675" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="400" fill="#d8e9ff" opacity="0.9">Centralizing all anti-phishing related tasks in one platform.</text>
