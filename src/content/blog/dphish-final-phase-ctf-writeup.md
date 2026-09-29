@@ -1,9 +1,9 @@
 ---
 title: "dPhish Final Phase CTF Writeup"
-description: ""
+description: "A practical walkthrough of dPhish Final Phase CTF, tracing a phishing campaign from a compromised internal mailbox through attacker infrastructure, malicious PowerShell attachment analysis, detection rules, response actions, and final flag recovery."
 publishedAt: 2026-09-29
 archiveSection: writeups
-tags: ["threat-intelligence","dfir"]
+tags: ["CTF","Writeup","dPhish","Phishing","Email Security","Threat Hunting","Incident Response","DFIR","YARA","PowerShell","CyberDefenders","Blue Team"]
 cover: ""
 featured: false
 draft: false
