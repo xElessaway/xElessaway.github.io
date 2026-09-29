@@ -14,6 +14,7 @@ const preservedEntries = new Set([
   "README.md",
   "astro.config.mjs",
   "dist",
+  "images",
   "node_modules",
   "package-lock.json",
   "package.json",
