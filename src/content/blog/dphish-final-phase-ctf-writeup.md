@@ -5,7 +5,7 @@ publishedAt: 2026-09-29
 archiveSection: writeups
 tags: ["CTF","Writeup","dPhish","Phishing","Email Security","Threat Hunting","Incident Response","DFIR","YARA","PowerShell","CyberDefenders","Blue Team"]
 cover: ""
-featured: false
+featured: true
 draft: false
 sourceUrl: ""
 ---
