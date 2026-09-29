@@ -7,7 +7,7 @@ tags: ["CTF","Writeup","dPhish","Phishing","Email Security","Threat Hunting","In
 cover: "/images/uploads/dphish.jpg"
 featured: true
 draft: false
-sourceUrl: "https://xelessaway.medium.com/dphish-final-phase-ctf-writeup"
+sourceUrl: ""
 ---
 
 ## Introduction
