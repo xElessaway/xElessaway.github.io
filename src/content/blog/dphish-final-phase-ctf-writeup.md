@@ -7,7 +7,6 @@ tags: ["CTF","Writeup","dPhish","Phishing","Email Security","Threat Hunting","In
 cover: ""
 featured: true
 draft: false
-sourceUrl: ""
 ---
 
 
