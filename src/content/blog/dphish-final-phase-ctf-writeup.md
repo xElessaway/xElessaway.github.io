@@ -356,31 +356,6 @@ Only one email matched, and the Email Content view showed the flag inside the me
 
 **Answer:** `CTF{v3ct0r_1ns1d3r_pivot_c0mpr0m1s3d_acc0unt}`
 
-## Final Answer Summary
-
-| Q | Answer |
-|---|---|
-| Q1 | `william.smith@vector.com` |
-| Q2 | `William Smith (IT Support)` |
-| Q3 | `PASS` |
-| Q4 | `Tue, 25 Aug 2026 14:12:00 +0000` |
-| Q5 | `201.141.32.87` |
-| Q6 | `Mexico` |
-| Q7 | `george.perez@vector.com` |
-| Q8 | `http://vector-it-support.com/reset?u=a1b2c3d4e5f60718` |
-| Q9 | `vector-it-support.com` |
-| Q10 | `3` |
-| Q11 | `vector-secure-reset.com,vectorhelpdesk-online.com` |
-| Q12 | `credential language detected` |
-| Q13 | `WindowsUpdateAgent.ps1` |
-| Q14 | `45f20fc2336370f8b6a2fc020fa1c843` |
-| Q15 | `d0b8c2761e386f208720e883d744a7fdbb4f1511b4fc6086a2343b6c3fd09d3e` |
-| Q16 | `Sus_CMD_Powershell_Usage` |
-| Q17 | `Attachment matches a yara signature` |
-| Q18 | `97` |
-| Q19 | `5` |
-| Q20 | `CTF{v3ct0r_1ns1d3r_pivot_c0mpr0m1s3d_acc0unt}` |
-
 ## Closing Thoughts
 
 The best part of this CTF was that every answer connected to the next one. The compromised account explained why email authentication passed. The earliest lure revealed the first victim, the attacker IP, and the look-alike domain. The later updater email introduced the PowerShell attachment, which then connected to hashes, YARA detections, detection rules, and response modules.
