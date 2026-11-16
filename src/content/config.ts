@@ -114,7 +114,10 @@ const blog = defineCollection({
     featured: z.boolean().default(false),
     draft: z.boolean().default(false),
     sourceLabel: z.string().optional(),
-    sourceUrl: z.string().url().optional()
+    sourceUrl: z.preprocess(
+      (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+      z.string().url().optional()
+    )
   })
 });
 
@@ -242,4 +245,3 @@ export const collections = {
   intakeTemplates,
   tools
 };
-
