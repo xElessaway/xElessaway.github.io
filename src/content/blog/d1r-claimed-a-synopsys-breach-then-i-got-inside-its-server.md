@@ -5,9 +5,9 @@ publishedAt: 2026-11-16
 archiveSection: reports
 tags: ["threat-intelligence","dfir","d1r","wordpress","phpmyadmin","rce","infrastructure-analysis"]
 cover: ""
-featured: false
-draft: true
-sourceUrl: "www.google.com"
+featured: true
+draft: false
+sourceUrl: ""
 ---
 **An alert about Synopsys brought me to D1R. Following the infrastructure took me from wp-admin to phpMyAdmin, and eventually to a daemon shell.**
 
