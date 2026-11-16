@@ -12,6 +12,8 @@ sourceUrl: ""
 
 **An alert about Synopsys brought me to D1R. Following the infrastructure took me from wp-admin to phpMyAdmin, and eventually to a daemon shell.**
 
+*Investigation by Ahmed Elessaway. [Abdelhameed Ghazy](https://www.linkedin.com/in/abdelhameed-ghazy-1a50b619a/) helped get the full RCE.*
+
 # TL;DR
 
 - The investigation started from an alert claiming D1R had breached Synopsys and shifted to examining D1R's own portal infrastructure rather than the breach claims themselves.
@@ -23,7 +25,7 @@ sourceUrl: ""
 
 The first lead was an alert claiming D1R had breached Synopsys. The more I read, the wider the claims got: a supply-chain angle, leaked ARM Athena DM material, Bosch-related data. I wanted to see how those claims connected, and what the infrastructure publishing them would reveal.
 
-![](media/image1.png)
+![](/images/posts/image1.png)
 
 *The D1R portal displaying Synopsys, Arm and Bosch. This capture comes from the later authenticated review, not the original alert or first visit.*
 
@@ -43,11 +45,11 @@ For the initial-access record, this was the invocation I used. The onion target 
 py wp2shell.py shell "[ONION_URL_REDACTED]" -i --proxy socks5h://127.0.0.1:9150 --timeout 120
 ```
 
-![Recorded wp2shell terminal output with the onion target, webshell endpoint and generated credential redacted](media/wp2shell-execution-redacted.png)
+![Recorded wp2shell terminal output with the onion target, webshell endpoint and generated credential redacted](/images/posts/wp2shell-execution-redacted.png)
 
 *The original terminal capture reports administrator creation and authentication. The onion target, webshell endpoint and generated credential are permanently redacted in this copy. The output also shows failed cleanup and HTTP 404, so this capture alone does not establish a working webshell or identify the underlying vulnerability. The dashboard screenshot below records the resulting wp-admin visibility.*
 
-![](media/image2.png)
+![](/images/posts/image2.png)
 
 *The WordPress Users screen during authenticated review, showing the portal administrator and investigation-related accounts. It confirms dashboard visibility, not a specific exploit root cause.*
 
@@ -65,13 +67,13 @@ Before I followed that database path, the material sitting in the portal was wor
 
 With backend access I could look at the material behind D1R's claims. One artifact caught the Synopsys SolvNetPlus self-registration workflow: a terminal window sat over the browser, showing fetchmail activity, a returned verification-code value, and a site-ID prompt, while the browser showed a selected site entry associated with Sydney.
 
-![](media/image3.png)
+![](/images/posts/image3.png)
 
 *Actor-published material showing SolvNetPlus registration and terminal output. You can see the registration context and the claimed access, but not any successful internal compromise.*
 
 That gave me a concrete workflow to examine: register, verify by email, select a site. What it didn't show was the full authentication process, the privileges of any account that resulted, or access to a protected repository. One screenshot isn't a breach narrative, and I didn't treat it as one.
 
-![](media/image4.png)
+![](/images/posts/image4.png)
 
 *The WordPress media library showing nine items, including old_form, new_form, arm_sites, can, sample and brand images.*
 
@@ -90,7 +92,7 @@ CONVERT(LOAD_FILE('/opt/lampp/etc/httpd.conf') USING utf8mb4),
 ) AS full;
 ```
 
-![](media/image5.png)
+![](/images/posts/image5.png)
 
 *A separate screenshot shows an explicit LOAD_FILE query for /opt/lampp/etc/httpd.conf, with a successful result and returned Apache configuration text.*
 
@@ -104,7 +106,7 @@ Even so, the impact mattered. The SQL session was reaching past tables and into 
 
 The wp-config.php transcript held the database name wordpress, the application username leakadmin001leak, a plaintext database password, and all eight WordPress authentication keys and salts. The host was localhost and the table prefix was wp\_. I'm withholding the secret values.
 
-![](media/image6.png)
+![](/images/posts/image6.png)
 
 *The database account overview showing local root entries with ALL PRIVILEGES and Password: No. On its own, that doesn't establish unauthenticated access from the public internet.*
 
@@ -124,7 +126,7 @@ By now the scope had grown from database contents to files and application secre
 
 I also pulled the system and service observations into a host profile. From a blue-team perspective, that turns scattered SQL results and readable configuration files into something useful for an investigation: a host to identify, services to inventory, paths to preserve, and identities to keep separate.
 
-![](media/host-os-release.png)
+![](/images/posts/host-os-release.png)
 
 *The /etc/os-release result identifies Debian GNU/Linux 12 (Bookworm). This is the original embedded screenshot extracted from exhibit E07 on page 12 of the supplied consolidated assessment; the visible result is truncated.*
 
@@ -145,7 +147,7 @@ I also pulled the system and service observations into a host profile. From a bl
 | Resolver and search suffix | 1.1.1.1; initech.global | DNS configuration evidence. The search suffix does not prove domain ownership or organizational affiliation. |
 | hosts file | 127.0.0.1 mapped to localhost and vpserver01; ::1 mapped to localhost | Local name mappings to retain when interpreting loopback traffic and logs. |
 
-![](media/mariadb-platform-paths.png)
+![](/images/posts/mariadb-platform-paths.png)
 
 *Exhibit E06 on page 11 of the consolidated assessment shows Linux/x86_64 and the /opt/lampp installation, data and plugin paths. These are MariaDB query results; Linux root privileges are not established by them.*
 
@@ -202,11 +204,11 @@ An earlier attempt under /tmp did not execute, while /var/tmp did. The whole cha
 
 Unauthenticated phpMyAdmin → MySQL FILE privilege (SELECT ... INTO OUTFILE to write, LOAD_FILE to read) → PHP-bearing file written to disk → wp_options theme-path redirection (template / stylesheet) → WordPress theme include → execution as daemon
 
-![](media/image7.png)
+![](/images/posts/image7.png)
 
 *The listener screenshot shows a shell returning daemon. The displayed peer is loopback, so that field doesn't identify any remote public origin.*
 
-![](media/image11.png)
+![](/images/posts/image11.png)
 
 *The eval shell reached through the browser. It returns int(1), the shell's own marker, followed by uid=1(daemon) gid=1(daemon) groups=1(daemon),1000(user) from id. The command was passed base64-encoded (aWQ=) to clear WordPress input filtering.*
 
@@ -222,7 +224,7 @@ Even without reaching for an unproven root-compromise claim, the consequence was
 
 Inside /home/user/new-theme/.git, a remote named production pointed to root@205.196.83.133:/opt/deploy/new-theme/repo.git. A small config file, but with a useful infrastructure relationship baked into it.
 
-![](media/image8.png)
+![](/images/posts/image8.png)
 
 *The production remote in the local Git configuration. The root username is config text, not proof of credentials, authentication, or access to that host.*
 
@@ -232,7 +234,7 @@ The generic identity root \<root@debian.debian\> ran through the whole history. 
 
 # Session records supplied a different kind of address
 
-![](media/image9.png)
+![](/images/posts/image9.png)
 
 *Two user terminal entries showing source address 5.228.116.200 and sudo -i. Existing admin sessions aren't proof that the investigator's daemon session escalated.*
 
@@ -244,13 +246,13 @@ Three address roles had to stay separate: a configured Git deployment destinatio
 
 The login-source addresses were useful pivots for context, so I kept the VirusTotal captures alongside the session evidence. They describe what the service displayed when captured; I did not turn their detection counters or provider labels into a verdict about the person behind a session.
 
-![](media/virustotal-5.228.116.200.png)
+![](/images/posts/virustotal-5.228.116.200.png)
 
 *VirusTotal capture for 5.228.116.200: 0/92 detections, AS42610 / Rostelecom, and an RU label. The Historical Whois panel displays RT.RU domain information last updated in 2021; it is not a subscriber record for the observed SSH source.*
 
 For 5.228.116.200, the stronger connection to this investigation came from the recorded user sessions and the displayed SSH peer. VirusTotal supplied provider and reputation context around that observation. The historical domain record did not identify the account's human owner, and the country label did not establish where the operator was physically sitting.
 
-![](media/virustotal-5.228.117.126.png)
+![](/images/posts/virustotal-5.228.117.126.png)
 
 *VirusTotal capture for the historical login source 5.228.117.126: 0/92 detections, AS42610 / Rostelecom and network/registration details. A separate banner reports two detected files communicating with the IP; their hashes, connection times and relevance to D1R are not shown.*
 
@@ -264,7 +266,7 @@ For a blue team, the next useful correlation would be the source address plus th
 
 Once code was running as daemon, privilege escalation was the obvious next question. The reported CopyFail attempt didn't succeed. LinPEAS then printed candidate findings, among them Dirty Frag checks and an Open vSwitch-related check, flagged with labels like LIKELY VULNERABLE and POTENTIAL ROOT LPE.
 
-![](media/image10.png)
+![](/images/posts/image10.png)
 
 *The scanner screenshot and its candidate labels. Those labels are triage output, not a record of successful exploitation.*
 
