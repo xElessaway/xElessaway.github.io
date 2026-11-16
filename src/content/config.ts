@@ -115,7 +115,11 @@ const blog = defineCollection({
     draft: z.boolean().default(false),
     sourceLabel: z.string().optional(),
     sourceUrl: z.preprocess(
-      (value) => (typeof value === "string" && value.trim() === "" ? undefined : value),
+      (value) => {
+        if (typeof value !== "string" || value.trim() === "") return undefined;
+        const trimmed = value.trim();
+        return /^[a-z][a-z\d+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+      },
       z.string().url().optional()
     )
   })
