@@ -4,10 +4,11 @@ description: "A Synopsys breach alert led me to D1R’s own infrastructure, and 
 publishedAt: 2026-11-16
 archiveSection: reports
 tags: ["threat-intelligence","dfir","d1r","wordpress","phpmyadmin","rce","infrastructure-analysis"]
+cover: ""
 featured: false
 draft: true
+sourceUrl: "www.google.com"
 ---
-
 **An alert about Synopsys brought me to D1R. Following the infrastructure took me from wp-admin to phpMyAdmin, and eventually to a daemon shell.**
 
 *Investigation by Ahmed Elessaway. [Abdelhameed Ghazy](https://www.linkedin.com/in/abdelhameed-ghazy-1a50b619a/) helped get the full RCE.*
