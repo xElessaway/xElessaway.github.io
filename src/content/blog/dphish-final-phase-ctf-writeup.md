@@ -5,7 +5,7 @@ publishedAt: 2026-09-29
 archiveSection: writeups
 tags: ["CTF","Writeup","dPhish","Phishing","Email Security","Threat Hunting","Incident Response","DFIR","YARA","PowerShell","Blue Team"]
 cover: "/images/uploads/dphish.jpg"
-featured: true
+featured: false
 draft: false
 sourceUrl: ""
 ---
