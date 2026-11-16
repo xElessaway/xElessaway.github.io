@@ -12,8 +12,6 @@ sourceUrl: ""
 
 **An alert about Synopsys brought me to D1R. Following the infrastructure took me from wp-admin to phpMyAdmin, and eventually to a daemon shell.**
 
-*Investigation by Ahmed Elessaway. [Abdelhameed Ghazy](https://www.linkedin.com/in/abdelhameed-ghazy-1a50b619a/) helped get the full RCE.*
-
 # TL;DR
 
 - The investigation started from an alert claiming D1R had breached Synopsys and shifted to examining D1R's own portal infrastructure rather than the breach claims themselves.
@@ -295,4 +293,4 @@ For defenders, the work sits at those boundaries: lock down database administrat
 
 D1R's Synopsys claim is what brought me to the portal. The evidence behind the portal turned out to be the more substantial technical story. The complete D1R CTI Report v8 keeps the source hashes, original exhibits, Git chronology, and finding-by-finding confirmation limits for anyone who wants to follow every link.
 
-Investigation and analysis by Ahmed Elessaway and Abdelhameed Ghazy. The opening alert and access sequence follow our own account of the work. The victim-breach, supply-chain, and ARM Athena DM leak claims are not independently authenticated here. Evidence reviewed November 15-16, 2026. Personal attribution and a successful local privilege escalation both remain unconfirmed. Live credentials and WordPress secret values are withheld.
+Investigation and analysis by Ahmed Elessaway and [Abdelhameed Ghazy](https://www.linkedin.com/in/abdelhameed-ghazy-1a50b619a/). The opening alert and access sequence follow our own account of the work. The victim-breach, supply-chain, and ARM Athena DM leak claims are not independently authenticated here. Evidence reviewed November 15-16, 2026. Personal attribution and a successful local privilege escalation both remain unconfirmed. Live credentials and WordPress secret values are withheld.
